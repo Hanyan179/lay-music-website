@@ -6,19 +6,13 @@ export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src/main/resources/static')
+      '@': path.resolve(__dirname, 'src')
     }
   },
-  server: {
-    proxy: {
-      '^/fate-echoes/api': {
-        target: 'http://localhost:8080',
-        changeOrigin: true,
-        secure: false,
-        ws: true
-      }
-    }
+  css: {
+    postcss: './postcss.config.js'
   },
   root: './',
-  base: '/'
+  base: '/',
+  assetsInclude: ['**/*.mp4', '**/*.MP4', '**/*.webm', '**/*.ogg']
 }) 

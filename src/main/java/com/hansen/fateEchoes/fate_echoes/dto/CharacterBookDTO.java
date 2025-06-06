@@ -18,7 +18,7 @@ public class CharacterBookDTO {
      * 书籍唯一标识符
      */
     @JsonProperty("book_code")
-    private String bookCode;
+    private Long bookCode;
 
     /**
      * 书籍标题
@@ -100,33 +100,15 @@ public class CharacterBookDTO {
     @JsonProperty("personal_events_config")
     private String personalEventsConfig;
 
-    /**
-     * 当前事件ID
-     */
-    @JsonProperty("current_event_id")
-    private String currentEventId;
+//    /**
+//     * 当前事件ID
+//     */
+//    @JsonProperty("current_event_id")
+//    private String currentEventId;
 
-    /**
-     * 事件历史记录JSON数据
-     */
-    @JsonProperty("event_history")
-    private String eventHistory;
-
-    /**
-     * 是否已上传（发布）：0-未上传，1-已上传
-     */
-    @JsonProperty("is_uploaded")
-    private Integer isUploaded;
-
-    /**
-     * 是否已完成著作：0-未完成，1-已完成
-     */
-    @JsonProperty("is_completed")
-    private Integer isCompleted;
-
-    /**
-     * 用户token（浏览器生成的唯一标识）
-     */
-    @JsonProperty("user_token")
-    private String userToken;
+//    /**
+//     * 事件历史记录JSON数据
+//     */
+//    @JsonProperty("event_history")
+//    private String eventHistory;
 }

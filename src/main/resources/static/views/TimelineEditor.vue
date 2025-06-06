@@ -57,7 +57,7 @@
             </button>
             
             <button @click="saveCurrentYear" class="save-btn" :disabled="isSaving">
-              <span v-if="isSaving" class="loading-spinner"></span>
+              <span v-if="isSaving" class="loading-spinner-small"></span>
               {{ isSaving ? '保存中...' : '保存当前年' }}
             </button>
           </div>
@@ -66,7 +66,7 @@
 
       <!-- 主要内容区域 -->
       <div class="editor-main">
-        <!-- 左侧边栏 - 基本信息和年份列表 -->
+        <!-- 左侧边栏 -->
         <aside class="editor-sidebar">
           <div class="sidebar-section">
             <h3>基本信息</h3>
@@ -77,7 +77,7 @@
                 v-model="bookData.subtitle" 
                 type="text" 
                 class="form-input"
-                :placeholder="`见证${bookData?.theme?.startYear || 1995}-${bookData?.theme?.endYear || 2025}年的人生历程`"
+                placeholder="见证人生历程"
               />
             </div>
             
@@ -141,13 +141,6 @@
             >
               <div class="choice-header">
                 <input 
-                  v-model="choice.eventCode" 
-                  type="text" 
-                  class="choice-code-input"
-                  placeholder="事件代码(如A,B,C)"
-                  maxlength="5"
-                />
-                <input 
                   v-model="choice.question" 
                   type="text" 
                   class="choice-question-input"
@@ -168,6 +161,16 @@
                     rows="2"
                   ></textarea>
                 </div>
+                
+                <div class="form-group">
+                  <label>事后描述</label>
+                  <textarea 
+                    v-model="choice.afterDescription" 
+                    class="form-textarea"
+                    placeholder="自定义选择后的提示文案"
+                    rows="3"
+                  ></textarea>
+                </div>
 
                 <div class="form-group">
                   <label>媒体文件</label>
@@ -183,12 +186,12 @@
                       {{ choice.uploading ? '上传中...' : '上传图片/视频' }}
                     </button>
                     <div v-if="choice.mediaUrl" class="media-preview">
-                      <img v-if="choice.mediaType === 'image'" :src="'http://localhost:8080' + choice.mediaUrl" alt="预览" class="media-preview-img" />
-                      <video v-else-if="choice.mediaType === 'video'" :src="'http://localhost:8080' + choice.mediaUrl" controls class="media-preview-video"></video>
+                      <img v-if="choice.mediaType === 'image'" :src="'http://localhost:8080/fate-echoes' + choice.mediaUrl" alt="预览" class="media-preview-img" />
+                      <video v-else-if="choice.mediaType === 'video'" :src="'http://localhost:8080/fate-echoes' + choice.mediaUrl" controls class="media-preview-video"></video>
                     </div>
                   </div>
                 </div>
-                
+
                 <div class="form-group">
                   <label>选项列表</label>
                   <div class="options-list">
@@ -197,33 +200,71 @@
                       :key="optionIndex"
                       class="option-item"
                     >
-                      <input 
-                        v-model="option.optionText" 
-                        type="text" 
-                        class="option-text-input"
-                        placeholder="选项内容"
-                      />
+                      <div class="option-row">
+                        <input 
+                          v-model="option.optionText" 
+                          type="text" 
+                          class="option-text-input"
+                          placeholder="选项内容"
+                        />
+                      </div>
                       <textarea 
                         v-model="option.effect" 
                         class="option-effect-textarea"
-                        placeholder="影响描述（详细描述选择这个选项后会发生什么...）"
-                        rows="2"
+                        placeholder="影响描述"
+                        rows="3"
                       ></textarea>
-                      <select v-model="option.actionType" class="option-action-select">
-                        <option value="SHOW_EFFECT">显示影响</option>
-                        <option value="JUMP_TO_NEXT">跳转下一个</option>
-                      </select>
-                      <input 
-                        v-if="option.actionType === 'JUMP_TO_NEXT'"
-                        v-model="option.nextEventCode" 
-                        type="text" 
-                        class="option-next-input"
-                        placeholder="下一事件代码"
-                      />
-                      <label class="option-checkbox">
-                        <input type="checkbox" v-model="option.isNextYear" />
-                        下一年
-                      </label>
+                      
+                      <!-- 标签提示字段 -->
+                      <div class="option-tags-section">
+                        <label class="option-tags-label">标签提示：</label>
+                        <div class="option-tags-input">
+                          <div class="option-tags-list">
+                            <span 
+                              v-for="(tag, tagIndex) in option.tags || []" 
+                              :key="tagIndex"
+                              class="option-tag-item"
+                            >
+                              {{ tag }}
+                              <button @click="removeOptionTag(option, tagIndex)" class="option-tag-remove">×</button>
+                            </span>
+                          </div>
+                          <input 
+                            v-model="option.newTag"
+                            @keyup.enter="addOptionTag(option)"
+                            type="text" 
+                            class="option-tag-input"
+                            placeholder="输入标签并按回车"
+                          />
+                        </div>
+                      </div>
+                      
+                      <!-- 选项图片上传 -->
+                      <div class="option-media-section">
+                        <label class="option-media-label">选项图片：</label>
+                        <div class="option-media-upload">
+                          <button @click="uploadOptionMedia(option)" class="option-media-btn" :disabled="option.uploading">
+                            <span v-if="option.uploading" class="loading-spinner-small"></span>
+                            <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                              <polyline points="14,2 14,8 20,8"/>
+                              <circle cx="10" cy="13" r="2"/>
+                              <path d="m20 17-1.09-1.09a2 2 0 0 0-2.82 0L10 22"/>
+                            </svg>
+                            {{ option.uploading ? '上传中...' : '上传图片' }}
+                          </button>
+                          <div v-if="option.mediaUrl" class="option-media-preview">
+                            <img :src="'http://localhost:8080/fate-echoes' + option.mediaUrl" alt="选项图片" class="option-media-img" />
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="option-controls">
+                        <label class="option-checkbox">
+                          <input type="checkbox" v-model="option.isNextYear" />
+                          是否通过
+                        </label>
+                      </div>
                       <button @click="removeOption(choice, optionIndex)" class="remove-option-btn">×</button>
                     </div>
                     <button @click="addOption(choice)" class="add-option-btn">
@@ -300,8 +341,8 @@
                       {{ event.uploading ? '上传中...' : '上传图片/视频' }}
                     </button>
                     <div v-if="event.mediaUrl" class="media-preview">
-                      <img v-if="event.mediaType === 'image'" :src="'http://localhost:8080' + event.mediaUrl" alt="预览" class="media-preview-img" />
-                      <video v-else-if="event.mediaType === 'video'" :src="'http://localhost:8080' + event.mediaUrl" controls class="media-preview-video"></video>
+                      <img v-if="event.mediaType === 'image'" :src="'http://localhost:8080/fate-echoes' + event.mediaUrl" alt="预览" class="media-preview-img" />
+                      <video v-else-if="event.mediaType === 'video'" :src="'http://localhost:8080/fate-echoes' + event.mediaUrl" controls class="media-preview-video"></video>
                     </div>
                   </div>
                 </div>
@@ -401,7 +442,7 @@ const loadError = ref(null)
 
 // 页面背景相关数据
 const pageBackgroundImage = ref(null)
-const pageBackgroundType = ref('default') // 'default', 'image', 'video'
+const pageBackgroundType = ref('default')
 const backgroundInput = ref(null)
 const mediaInput = ref(null)
 
@@ -409,10 +450,10 @@ const mediaInput = ref(null)
 const showYearSavePrompt = ref(false)
 const pendingYear = ref(null)
 
-// 当前操作的媒体目标（用于媒体上传）
+// 当前操作的媒体目标
 const currentMediaTarget = ref(null)
 
-// 模拟的年度事件和人生抉择数据
+// 年度事件和人生抉择数据
 const yearEvents = reactive({})
 const choiceEvents = reactive({})
 
@@ -436,10 +477,9 @@ const containerStyle = computed(() => {
   const style = {}
   if (pageBackgroundImage.value) {
     if (pageBackgroundType.value === 'image') {
-      // 如果背景图片路径不是完整URL，则加上服务器地址前缀
       const imageUrl = pageBackgroundImage.value.startsWith('http') 
         ? pageBackgroundImage.value 
-        : 'http://localhost:8080' + pageBackgroundImage.value
+        : 'http://localhost:8080/fate-echoes' + pageBackgroundImage.value
       style.backgroundImage = `url(${imageUrl})`
       style.backgroundSize = 'cover'
       style.backgroundPosition = 'center'
@@ -465,7 +505,6 @@ const loadBookData = async () => {
     return
   }
 
-  // 不要去掉下划线前缀，直接传递完整参数给后端
   console.log('传递给后端的书籍ID:', bookId)
 
   try {
@@ -499,12 +538,10 @@ const initializeYearData = async () => {
     }
   })
   
-  // 加载当前年份的数据
   if (selectedYear.value) {
     await loadYearData(selectedYear.value)
   }
   
-  // 加载年份概览
   await loadYearSummary()
 }
 
@@ -515,7 +552,6 @@ const selectYear = async (year) => {
     pendingYear.value = year
   } else {
     selectedYear.value = year
-    // 加载该年份的数据
     await loadYearData(year)
   }
 }
@@ -575,11 +611,12 @@ const addChoiceEvent = () => {
     eventCode: '',
     question: '',
     description: '',
+    afterDescription: '',
     mediaType: null,
     mediaUrl: null,
     mediaPoster: null,
     isStartingEvent: false,
-    displayOrder: 0,
+    displayOrder: choiceEvents[selectedYear.value].length,
     options: []
   })
 }
@@ -598,18 +635,40 @@ const addOption = (choice) => {
     effect: '',
     nextEventCode: '',
     isNextYear: false,
-    actionType: 'SHOW_EFFECT', // 默认显示影响
-    sortOrder: choice.options.length
+    actionType: 'SHOW_EFFECT',
+    tags: [],
+    newTag: '',
+    sortOrder: choice.options.length,
+    mediaUrl: null,
+    mediaType: null,
+    uploading: false
   })
 }
 
 // 删除选项
 const removeOption = (choice, index) => {
   choice.options.splice(index, 1)
-  // 重新排序
   choice.options.forEach((option, idx) => {
     option.sortOrder = idx
   })
+}
+
+// 添加选项标签
+const addOptionTag = (option) => {
+  if (!option.tags) {
+    option.tags = []
+  }
+  if (option.newTag && option.newTag.trim() && !option.tags.includes(option.newTag.trim())) {
+    option.tags.push(option.newTag.trim())
+    option.newTag = ''
+  }
+}
+
+// 删除选项标签
+const removeOptionTag = (option, index) => {
+  if (option.tags) {
+    option.tags.splice(index, 1)
+  }
 }
 
 // 添加标签
@@ -645,16 +704,13 @@ const handleBackgroundUpload = async (e) => {
   }
 
   try {
-    // 确定文件类型
     const fileType = file.type.startsWith('image/') ? 'image' : 'video'
     
-    // 创建FormData
     const formData = new FormData()
     formData.append('file', file)
     formData.append('type', fileType)
     formData.append('bookId', bookData.value.id.toString())
     
-    // 调用后端API上传文件
     const response = await fetch('http://localhost:8080/fate-echoes/api/v1/media/upload', {
       method: 'POST',
       body: formData
@@ -663,7 +719,6 @@ const handleBackgroundUpload = async (e) => {
     if (response.ok) {
       const result = await response.json()
       if (result.success) {
-        // 设置背景文件URL和类型
         pageBackgroundImage.value = result.fileUrl
         pageBackgroundType.value = result.fileType
         
@@ -696,38 +751,38 @@ const uploadEventMedia = (event) => {
   mediaInput.value.click()
 }
 
+// 选项媒体上传
+const uploadOptionMedia = (option) => {
+  currentMediaTarget.value = { type: 'option', target: option }
+  mediaInput.value.click()
+}
+
 // 处理媒体上传
 const handleMediaUpload = async (e) => {
   const file = e.target.files[0]
   if (!file || !currentMediaTarget.value) return
 
-  // 验证文件类型
   if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
     alert('请选择图片或视频文件')
     return
   }
 
-  // 验证文件大小（限制10MB）
   if (file.size > 10 * 1024 * 1024) {
     alert('文件大小不能超过 10MB')
     return
   }
 
   try {
-    // 确定文件类型
     const fileType = file.type.startsWith('image/') ? 'image' : 'video'
     
-    // 创建FormData
     const formData = new FormData()
     formData.append('file', file)
     formData.append('type', fileType)
     formData.append('bookId', bookData.value.id.toString())
     
-    // 显示上传进度
     const target = currentMediaTarget.value.target
     target.uploading = true
     
-    // 调用后端API上传文件
     const response = await fetch('http://localhost:8080/fate-echoes/api/v1/media/upload', {
       method: 'POST',
       body: formData
@@ -736,11 +791,9 @@ const handleMediaUpload = async (e) => {
     if (response.ok) {
       const result = await response.json()
       if (result.success) {
-        // 设置文件URL和类型
         target.mediaUrl = result.fileUrl
         target.mediaType = result.fileType
         
-        // 如果是视频，可以设置poster（这里暂时使用默认值）
         if (target.mediaType === 'video') {
           target.mediaPoster = null
         }
@@ -760,7 +813,6 @@ const handleMediaUpload = async (e) => {
     console.error('上传失败:', error)
     alert('上传失败：网络错误，请检查连接后重试')
   } finally {
-    // 清除上传状态
     if (currentMediaTarget.value?.target) {
       currentMediaTarget.value.target.uploading = false
     }
@@ -775,7 +827,6 @@ const saveCurrentYear = async () => {
   isSaving.value = true
   
   try {
-    // 准备保存数据
     const saveData = {
       bookId: bookData.value.id,
       year: selectedYear.value,
@@ -798,6 +849,7 @@ const saveCurrentYear = async () => {
         eventCode: choice.eventCode || '',
         question: choice.question || '',
         description: choice.description || '',
+        afterDescription: choice.afterDescription || '',
         mediaType: choice.mediaType,
         mediaUrl: choice.mediaUrl,
         mediaPoster: choice.mediaPoster,
@@ -809,14 +861,18 @@ const saveCurrentYear = async () => {
           nextEventCode: option.nextEventCode || '',
           isNextYear: option.isNextYear || false,
           actionType: option.actionType || 'SHOW_EFFECT',
-          sortOrder: option.sortOrder || 0
+          tags: option.tags || [],
+          newTag: '',
+          sortOrder: option.sortOrder || 0,
+          mediaUrl: option.mediaUrl || null,
+          mediaType: option.mediaType || null,
+          uploading: false
         }))
       }))
     }
     
     console.log('保存数据:', saveData)
     
-    // 调用后端API保存数据
     const response = await fetch('http://localhost:8080/fate-echoes/api/v1/timeline-editor/save-year', {
       method: 'POST',
       headers: {
@@ -829,7 +885,6 @@ const saveCurrentYear = async () => {
       const result = await response.json()
       if (result.success) {
         alert(`${selectedYear.value}年的数据保存成功！保存了 ${result.eventCount} 个年度事件和 ${result.choiceCount} 个人生抉择事件。`)
-        // 刷新年份概览
         await loadYearSummary()
       } else {
         alert('保存失败：' + result.message)
@@ -857,7 +912,6 @@ const loadYearData = async (year) => {
     if (response.ok) {
       const result = await response.json()
       if (result.success) {
-        // 加载年度事件
         yearEvents[year] = (result.events || []).map(event => ({
           id: event.id,
           title: event.title || '',
@@ -871,12 +925,12 @@ const loadYearData = async (year) => {
           displayOrder: event.displayOrder || 0
         }))
         
-        // 加载人生抉择事件
         choiceEvents[year] = (result.choiceEvents || []).map(choice => ({
           id: choice.id,
           eventCode: choice.eventCode || '',
           question: choice.question || '',
           description: choice.description || '',
+          afterDescription: choice.afterDescription || '',
           mediaType: choice.mediaType,
           mediaUrl: choice.mediaUrl,
           mediaPoster: choice.mediaPoster,
@@ -888,7 +942,12 @@ const loadYearData = async (year) => {
             nextEventCode: option.nextEventCode || '',
             isNextYear: option.isNextYear || false,
             actionType: option.actionType || 'SHOW_EFFECT',
-            sortOrder: option.sortOrder || 0
+            tags: option.tags || [],
+            newTag: '',
+            sortOrder: option.sortOrder || 0,
+            mediaUrl: option.mediaUrl || null,
+            mediaType: option.mediaType || null,
+            uploading: false
           }))
         }))
         
@@ -913,7 +972,6 @@ const loadYearSummary = async () => {
     if (response.ok) {
       const result = await response.json()
       if (result.success) {
-        // 这里可以根据概览数据更新UI显示
         console.log('年份概览:', result)
       }
     }
@@ -941,7 +999,6 @@ const cancelYearChange = () => {
 
 const discardAndSwitch = async () => {
   selectedYear.value = pendingYear.value
-  // 加载新年份的数据
   await loadYearData(pendingYear.value)
   showYearSavePrompt.value = false
   pendingYear.value = null
@@ -950,7 +1007,6 @@ const discardAndSwitch = async () => {
 const saveAndSwitch = async () => {
   await saveCurrentYear()
   selectedYear.value = pendingYear.value
-  // 加载新年份的数据
   await loadYearData(pendingYear.value)
   showYearSavePrompt.value = false
   pendingYear.value = null
@@ -960,7 +1016,7 @@ const saveAndSwitch = async () => {
 const previewTimeline = () => {
   const bookId = bookData.value?.id
   if (bookId) {
-    window.open(`/timeline/${bookId}`, '_blank')
+    window.open(`/timeline/${bookId}?year=${selectedYear.value}`, '_blank')
   }
 }
 
@@ -1367,16 +1423,6 @@ const goBack = () => {
   margin-bottom: 1rem;
 }
 
-.choice-code-input {
-  width: 80px;
-  padding: 0.5rem;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  text-align: center;
-}
-
 .choice-question-input {
   flex: 1;
   padding: 0.5rem;
@@ -1403,79 +1449,241 @@ const goBack = () => {
 .options-list {
   border: 1px solid #dee2e6;
   border-radius: 6px;
-  padding: 0.5rem;
+  padding: 1rem;
   background: white;
 }
 
 .option-item {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  padding: 0.5rem;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
   border: 1px solid #e9ecef;
-  border-radius: 4px;
+  border-radius: 8px;
   background: #fafafa;
+  position: relative;
+}
+
+.option-item:last-child {
+  margin-bottom: 0;
+}
+
+.option-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
   flex-wrap: wrap;
 }
 
-.option-text-input, .option-effect-textarea {
+.option-text-input {
   flex: 1;
-  min-width: 120px;
-  padding: 0.25rem 0.5rem;
+  min-width: 200px;
+  padding: 0.5rem 0.75rem;
   border: 1px solid #dee2e6;
-  border-radius: 3px;
-  font-size: 0.8rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  line-height: 1.4;
 }
 
-.option-action-select {
-  padding: 0.25rem 0.5rem;
+.option-effect-textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 0.5rem 0.75rem;
   border: 1px solid #dee2e6;
-  border-radius: 3px;
-  font-size: 0.8rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  resize: vertical;
+  font-family: inherit;
 }
 
-.option-next-input {
-  flex: 1;
-  min-width: 80px;
-  padding: 0.25rem 0.5rem;
-  border: 1px solid #dee2e6;
-  border-radius: 3px;
-  font-size: 0.8rem;
+.option-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.5rem;
 }
 
 .option-checkbox {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  font-size: 0.8rem;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #495057;
   white-space: nowrap;
 }
 
+.option-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
+
 .remove-option-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
   background: #dc3545;
   color: white;
   border: none;
-  border-radius: 3px;
-  width: 24px;
-  height: 24px;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.remove-option-btn:hover {
+  background: #c82333;
+  transform: scale(1.1);
 }
 
 .add-option-btn {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.75rem;
   background: #6c757d;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
 }
 
 .add-option-btn:hover {
   background: #495057;
+  transform: translateY(-1px);
+}
+
+/* 选项标签样式 */
+.option-tags-section {
+  margin-top: 0.5rem;
+}
+
+.option-tags-label {
+  display: block;
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.option-tags-input {
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 0.5rem;
+  background: white;
+  min-height: 40px;
+}
+
+.option-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.option-tag-item {
+  background: #007bff;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+
+.option-tag-remove {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0;
+  margin-left: 0.25rem;
+}
+
+.option-tag-remove:hover {
+  opacity: 0.8;
+}
+
+.option-tag-input {
+  border: none;
+  outline: none;
+  font-size: 0.8rem;
+  width: 100%;
+  background: transparent;
+}
+
+.option-tag-input::placeholder {
+  color: #adb5bd;
+}
+
+/* 选项媒体上传样式 */
+.option-media-section {
+  margin-top: 0.5rem;
+}
+
+.option-media-label {
+  display: block;
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.option-media-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.option-media-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  background: #17a2b8;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  align-self: flex-start;
+  transition: all 0.3s ease;
+}
+
+.option-media-btn:hover {
+  background: #138496;
+}
+
+.option-media-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.option-media-preview {
+  width: 100px;
+  height: 60px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #dee2e6;
+}
+
+.option-media-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 /* 右侧区域 - 年度事件 */
@@ -1721,7 +1929,7 @@ const goBack = () => {
   justify-content: flex-end;
 }
 
-.cancel-btn, .discard-btn, .save-btn {
+.cancel-btn, .discard-btn {
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 6px;
@@ -1742,6 +1950,11 @@ const goBack = () => {
 .prompt-actions .save-btn {
   background: #28a745;
   color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
 }
 
 /* 响应式设计 */
@@ -1765,7 +1978,7 @@ const goBack = () => {
     gap: 0.25rem;
   }
   
-  .option-text-input, .option-effect-textarea, .option-next-input {
+  .option-text-input, .option-effect-textarea {
     width: 100%;
     min-width: auto;
   }

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Timeline Editor API 测试</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .test-section { background: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 8px; }
+        .result { background: #fff; padding: 15px; border-radius: 4px; margin-top: 10px; border: 1px solid #ddd; }
+        .success { border-color: #4CAF50; background: #f1f8e9; }
+        .error { border-color: #f44336; background: #fce4ec; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .code { font-family: monospace; background: #f8f9fa; padding: 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Timeline Editor API 测试</h1>
+        
+        <div class="test-section">
+            <h2>测试1: 通过数据库主键ID查询书籍</h2>
+            <p>测试URL: <span class="code">GET /api/v1/books/106744</span></p>
+            <button onclick="testBookById()">测试通过ID查询</button>
+            <div id="result1" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>测试2: 通过book_code查询书籍</h2>
+            <p>测试URL: <span class="code">GET /api/v1/books/ordinary_life</span></p>
+            <button onclick="testBookByCode()">测试通过Code查询</button>
+            <div id="result2" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>测试3: 获取所有书籍列表</h2>
+            <p>测试URL: <span class="code">GET /api/v1/books</span></p>
+            <button onclick="testAllBooks()">获取书籍列表</button>
+            <div id="result3" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        const baseUrl = 'http://localhost:8080/fate-echoes/api/v1/books';
+        
+        async function testBookById() {
+            const resultDiv = document.getElementById('result1');
+            resultDiv.innerHTML = '请求中...';
+            
+            try {
+                const response = await fetch(`${baseUrl}/106744`);
+                console.log('Response status:', response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <h4>✅ 成功！</h4>
+                        <p><strong>书籍标题:</strong> ${data.title}</p>
+                        <p><strong>书籍ID:</strong> ${data.id}</p>
+                        <p><strong>作者:</strong> ${data.author}</p>
+                        <p><strong>描述:</strong> ${data.description}</p>
+                        <details>
+                            <summary>完整响应数据</summary>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </details>
+                    `;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `
+                        <h4>❌ 失败！</h4>
+                        <p>HTTP状态码: ${response.status}</p>
+                        <p>错误信息: ${await response.text()}</p>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <h4>❌ 网络错误！</h4>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+        
+        async function testBookByCode() {
+            const resultDiv = document.getElementById('result2');
+            resultDiv.innerHTML = '请求中...';
+            
+            try {
+                const response = await fetch(`${baseUrl}/ordinary_life`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <h4>✅ 成功！</h4>
+                        <p><strong>书籍标题:</strong> ${data.title}</p>
+                        <p><strong>书籍ID:</strong> ${data.id}</p>
+                        <p><strong>作者:</strong> ${data.author}</p>
+                        <details>
+                            <summary>完整响应数据</summary>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </details>
+                    `;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `
+                        <h4>❌ 失败！</h4>
+                        <p>HTTP状态码: ${response.status}</p>
+                        <p>错误信息: ${await response.text()}</p>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <h4>❌ 网络错误！</h4>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+        
+        async function testAllBooks() {
+            const resultDiv = document.getElementById('result3');
+            resultDiv.innerHTML = '请求中...';
+            
+            try {
+                const response = await fetch(`${baseUrl}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <h4>✅ 成功！</h4>
+                        <p><strong>书籍数量:</strong> ${data.length}</p>
+                        <p><strong>书籍列表:</strong></p>
+                        <ul>
+                            ${data.map(book => `<li>${book.title} (ID: ${book.id})</li>`).join('')}
+                        </ul>
+                        <details>
+                            <summary>完整响应数据</summary>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </details>
+                    `;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `
+                        <h4>❌ 失败！</h4>
+                        <p>HTTP状态码: ${response.status}</p>
+                        <p>错误信息: ${await response.text()}</p>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <h4>❌ 网络错误！</h4>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html> 

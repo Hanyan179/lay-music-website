@@ -1,0 +1,433 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* 苹果风格全局样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+  background: #f5f5f7;
+  line-height: 1.6;
+}
+
+#app {
+  height: 100%;
+}
+
+/* 苹果风格背景 */
+.apple-bg-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.apple-bg-secondary {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.apple-bg-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+}
+
+.apple-glass {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.apple-glass-dark {
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 苹果风格按钮 */
+.apple-btn {
+  @apply inline-flex items-center justify-center px-6 py-3 text-base font-medium rounded-full;
+  @apply transition-all duration-200 ease-in-out;
+  @apply focus:outline-none focus:ring-4 focus:ring-opacity-50;
+  @apply transform hover:scale-105 active:scale-95;
+}
+
+.apple-btn-primary {
+  @apply apple-btn bg-blue-600 text-white;
+  @apply hover:bg-blue-700 focus:ring-blue-500;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+.apple-btn-secondary {
+  @apply apple-btn bg-gray-100 text-gray-800;
+  @apply hover:bg-gray-200 focus:ring-gray-500;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* 苹果风格卡片 */
+.apple-card {
+  @apply bg-white rounded-3xl shadow-lg;
+  @apply border border-gray-100;
+  @apply transition-all duration-300 ease-in-out;
+  @apply hover:shadow-2xl hover:-translate-y-2;
+}
+
+.apple-card-image {
+  @apply w-full h-48 object-cover rounded-t-3xl;
+}
+
+/* 背景图片样式 */
+.bg-books-pattern {
+  background-image: url('/images/backgrounds/books-pattern.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.bg-game-pattern {
+  background-image: url('/images/backgrounds/game-pattern.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+.bg-choice-pattern {
+  background-image: url('/images/backgrounds/choice-pattern.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+/* 游戏相关样式 */
+.choice-card {
+  @apply apple-card p-6 cursor-pointer;
+  @apply transform transition-all duration-300;
+  @apply hover:scale-105 hover:shadow-xl;
+  min-height: 120px;
+}
+
+.choice-card.selected {
+  @apply ring-4 ring-blue-500 ring-opacity-50;
+  @apply bg-blue-50;
+}
+
+.choice-card.correct {
+  @apply ring-4 ring-green-500 ring-opacity-50;
+  @apply bg-green-50;
+}
+
+.choice-card.incorrect {
+  @apply ring-4 ring-red-500 ring-opacity-50;
+  @apply bg-red-50;
+  @apply pointer-events-none opacity-50;
+}
+
+.effect-card {
+  @apply apple-card p-8 text-center;
+  @apply bg-gradient-to-br from-green-50 to-blue-50;
+}
+
+.effect-image {
+  @apply w-full h-64 object-cover rounded-2xl mb-6;
+}
+
+/* 轮播图样式 */
+.timeline-carousel {
+  @apply relative overflow-hidden rounded-3xl;
+}
+
+.timeline-slide {
+  @apply absolute inset-0 opacity-0 transition-opacity duration-500;
+}
+
+.timeline-slide.active {
+  @apply opacity-100;
+}
+
+.timeline-event-card {
+  @apply apple-card p-6 mx-4;
+  @apply bg-gradient-to-br from-white to-gray-50;
+}
+
+.timeline-event-image {
+  @apply w-full h-40 object-cover rounded-2xl mb-4;
+}
+
+/* 年份指示器 */
+.year-indicator {
+  @apply fixed top-20 right-8 z-50;
+  @apply apple-glass rounded-full px-6 py-3;
+  @apply text-2xl font-bold text-gray-800;
+}
+
+/* 自定义动画 */
+.fade-enter-active, .fade-leave-active {
+  transition: all 0.5s ease;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.slide-enter-active, .slide-leave-active {
+  transition: transform 0.4s ease;
+}
+
+.slide-enter-from {
+  transform: translateX(100%);
+}
+
+.slide-leave-to {
+  transform: translateX(-100%);
+}
+
+.bounce-enter-active {
+  animation: bounce-in 0.6s ease;
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 滚动条苹果风格 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* 响应式字体大小 */
+@media (max-width: 640px) {
+  html {
+    font-size: 14px;
+  }
+  
+  .apple-card {
+    @apply rounded-2xl;
+  }
+  
+  .apple-card-image {
+    @apply rounded-t-2xl;
+  }
+}
+
+/* 禁用选择的样式 */
+.select-none {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* 苹果风格加载动画 */
+.apple-loading {
+  @apply inline-block w-6 h-6 border-2 border-gray-300 border-t-blue-600 rounded-full;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 苹果风格模态框 */
+.apple-modal {
+  @apply fixed inset-0 z-50 flex items-center justify-center;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.apple-modal-content {
+  @apply apple-card max-w-lg w-full mx-4 p-8;
+  @apply transform transition-all duration-300;
+}
+
+/* 游戏进度条 */
+.progress-bar {
+  @apply w-full h-2 bg-gray-200 rounded-full overflow-hidden;
+}
+
+.progress-fill {
+  @apply h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-full;
+  @apply transition-all duration-500 ease-out;
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  .choice-card {
+    @apply p-4 hover:scale-105;
+    min-height: 100px;
+  }
+  
+  .year-indicator {
+    @apply top-16 right-4 px-4 py-2 text-lg;
+  }
+  
+  .timeline-event-card {
+    @apply p-4 mx-2;
+  }
+  
+  .timeline-event-image {
+    @apply h-32;
+  }
+  
+  .effect-image {
+    @apply h-48;
+  }
+  
+  .apple-modal-content {
+    @apply mx-2 p-6;
+  }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+  .choice-card:hover {
+    transform: none;
+  }
+  
+  .choice-card:active {
+    @apply scale-95 bg-gray-50;
+  }
+  
+  .apple-btn:hover {
+    transform: none;
+  }
+  
+  .apple-btn:active {
+    @apply scale-95;
+  }
+}
+
+/* 高级动画效果 */
+.pulse-animation {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.shake-animation {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.glow-animation {
+  animation: glow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 5px rgba(59, 130, 246, 0.5);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.8);
+  }
+}
+
+/* 选择成功动画 */
+.success-animation {
+  animation: successPulse 0.6s ease-out;
+}
+
+@keyframes successPulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+/* 选择错误动画 */
+.error-animation {
+  animation: errorShake 0.6s ease-out;
+}
+
+@keyframes errorShake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+  20%, 40%, 60%, 80% { transform: translateX(8px); }
+}
+
+/* 卡片进入动画 */
+.card-enter {
+  animation: cardSlideIn 0.5s ease-out;
+}
+
+@keyframes cardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 按钮点击反馈 */
+.button-feedback {
+  position: relative;
+  overflow: hidden;
+}
+
+.button-feedback::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.button-feedback:active::after {
+  width: 300px;
+  height: 300px;
+} 

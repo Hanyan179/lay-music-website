@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>事件流程编辑器 - 命运回响</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <!-- 使用字节跳动静态资源库 -->
+    <link href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/normalize/8.0.1/normalize.min.css" rel="stylesheet">
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/main.css">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+    <div id="event-editor-app"></div>
+    
+    <script type="module">
+        import EventEditor from './views/EventEditor.vue'
+        
+        const { createApp } = Vue
+        const app = createApp(EventEditor)
+        app.mount('#event-editor-app')
+    </script>
+</body>
+</html> 

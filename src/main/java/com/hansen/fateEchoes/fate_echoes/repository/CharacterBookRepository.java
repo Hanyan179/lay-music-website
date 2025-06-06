@@ -19,7 +19,14 @@ public interface CharacterBookRepository extends JpaRepository<CharacterBook, Lo
      * @param bookCode 书籍代码
      * @return 书籍实体
      */
-    Optional<CharacterBook> findByBookCode(String bookCode);
+    Optional<CharacterBook> findByBookCode(Long bookCode);
+    
+    /**
+     * 根据数据库主键ID查找书籍
+     * @param id 数据库主键ID
+     * @return 书籍实体
+     */
+    Optional<CharacterBook> findById(Long id);
     
     /**
      * 查询所有启用状态的书籍，按点赞量排序
@@ -40,7 +47,7 @@ public interface CharacterBookRepository extends JpaRepository<CharacterBook, Lo
      * @param bookCode 书籍代码
      * @return 是否存在
      */
-    boolean existsByBookCode(String bookCode);
+    boolean existsByBookCode(Long bookCode);
     
     /**
      * 查询最大显示顺序
@@ -50,17 +57,19 @@ public interface CharacterBookRepository extends JpaRepository<CharacterBook, Lo
     Integer findMaxDisplayOrder();
     
     /**
-     * 查询已完成且已上传的书籍（公开书籍），按点赞量排序
+     * 根据状态、是否完成、是否上传查询书籍，按点赞量排序
+     * @param status 状态
+     * @param isCompleted 是否完成
+     * @param isUploaded 是否上传
      * @return 书籍列表
      */
-    @Query("SELECT cb FROM CharacterBook cb WHERE cb.status = 1 AND cb.isCompleted = 1 AND cb.isUploaded = 1 ORDER BY cb.likeCount DESC, cb.displayOrder ASC, cb.createdAt ASC")
-    List<CharacterBook> findPublicBooks();
+    List<CharacterBook> findByStatusAndIsCompletedAndIsUploadedOrderByLikeCountDescDisplayOrderAsc(
+            Integer status, Integer isCompleted, Integer isUploaded);
     
     /**
-     * 根据用户token查询书籍（我的人生）
-     * @param userToken 用户token
+     * 根据用户Token查询书籍，按创建时间倒序
+     * @param userToken 用户Token
      * @return 书籍列表
      */
-    @Query("SELECT cb FROM CharacterBook cb WHERE cb.userToken = :userToken AND cb.status = 1 ORDER BY cb.updatedAt DESC, cb.createdAt DESC")
-    List<CharacterBook> findByUserToken(String userToken);
+    List<CharacterBook> findByUserTokenOrderByCreatedAtDesc(String userToken);
 } 

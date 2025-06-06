@@ -14,7 +14,7 @@ public class CharacterBookVO {
     /**
      * 书籍唯一标识符
      */
-    private String id;
+    private Long id;
 
     /**
      * 书籍标题
@@ -84,19 +84,19 @@ public class CharacterBookVO {
     private List<EventHistoryVO> eventHistory;
 
     /**
-     * 是否已上传（发布）
+     * 是否已上传：0-未上传，1-已上传
      */
     @JsonProperty("isUploaded")
     private Integer isUploaded;
 
     /**
-     * 是否已完成著作
+     * 是否已完成著作：0-未完成，1-已完成
      */
     @JsonProperty("isCompleted")
     private Integer isCompleted;
 
     /**
-     * 用户token
+     * 用户Token（浏览器生成的用户标识）
      */
     @JsonProperty("userToken")
     private String userToken;

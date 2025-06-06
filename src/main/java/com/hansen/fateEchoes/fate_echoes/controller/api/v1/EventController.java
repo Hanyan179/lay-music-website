@@ -36,7 +36,7 @@ public class EventController {
      * @return 事件列表
      */
     @GetMapping("/book/{bookCode}")
-    public ResponseEntity<List<EventDTO>> getEventsByBookCode(@PathVariable String bookCode) {
+    public ResponseEntity<List<EventDTO>> getEventsByBookCode(@PathVariable Long bookCode) {
         try {
             List<EventDTO> events = eventService.getEventsByBookCode(bookCode);
             log.info("成功获取书籍 {} 的 {} 个事件", bookCode, events.size());
@@ -53,7 +53,7 @@ public class EventController {
      * @return PersonalEvents映射
      */
     @GetMapping("/book/{bookCode}/personal-events")
-    public ResponseEntity<Map<String, PersonalEventVO>> getPersonalEventsByBookCode(@PathVariable String bookCode) {
+    public ResponseEntity<Map<String, PersonalEventVO>> getPersonalEventsByBookCode(@PathVariable Long bookCode) {
         try {
             Map<String, PersonalEventVO> personalEvents = eventService.buildPersonalEventsMap(bookCode);
             log.info("成功构建书籍 {} 的 {} 个PersonalEvents", bookCode, personalEvents.size());
