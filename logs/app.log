@@ -1,0 +1,81 @@
+2025-05-28 09:43:20.140 [main] INFO  c.h.f.f.FateEchoesApplication - Starting FateEchoesApplication using Java 22.0.2 with PID 37696 (E:\Fate Echoes\fate-echoes\target\classes started by hanse in E:\Fate Echoes\fate-echoes)
+2025-05-28 09:43:20.143 [main] INFO  c.h.f.f.FateEchoesApplication - No active profile set, falling back to 1 default profile: "default"
+2025-05-28 09:43:21.374 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2025-05-28 09:43:21.375 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-05-28 09:43:21.376 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.16]
+2025-05-28 09:43:21.420 [main] INFO  o.a.c.c.C.[.[.[/fate-echoes] - Initializing Spring embedded WebApplicationContext
+2025-05-28 09:43:21.661 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-05-28 09:43:21.715 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.3.1.Final
+2025-05-28 09:43:21.742 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-05-28 09:43:21.928 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-05-28 09:43:22.035 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@7abcc0da
+2025-05-28 09:43:22.037 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-05-28 09:43:22.593 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-05-28 09:43:22.823 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-05-28 09:43:23.450 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2025-05-28 09:43:23.454 [main] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+2025-05-28 09:43:23.456 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-05-28 09:43:23.463 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-05-28 09:43:23.483 [main] ERROR o.s.b.d.LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8080 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
+
+2025-05-28 09:46:06.553 [main] INFO  c.h.f.f.FateEchoesApplication - Starting FateEchoesApplication using Java 22.0.2 with PID 44964 (E:\Fate Echoes\fate-echoes\target\classes started by hanse in E:\Fate Echoes\fate-echoes)
+2025-05-28 09:46:06.554 [main] INFO  c.h.f.f.FateEchoesApplication - No active profile set, falling back to 1 default profile: "default"
+2025-05-28 09:46:07.578 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2025-05-28 09:46:07.579 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-05-28 09:46:07.579 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.16]
+2025-05-28 09:46:07.617 [main] INFO  o.a.c.c.C.[.[.[/fate-echoes] - Initializing Spring embedded WebApplicationContext
+2025-05-28 09:46:07.820 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-05-28 09:46:07.850 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.3.1.Final
+2025-05-28 09:46:07.871 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-05-28 09:46:08.024 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-05-28 09:46:08.124 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@6821c63c
+2025-05-28 09:46:08.126 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-05-28 09:46:08.654 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-05-28 09:46:08.976 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-05-28 09:46:09.570 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2025-05-28 09:46:09.573 [main] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+2025-05-28 09:46:09.576 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated...
+2025-05-28 09:46:09.581 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed.
+2025-05-28 09:46:09.599 [main] ERROR o.s.b.d.LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8080 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
+
+2025-05-28 09:46:24.000 [main] INFO  c.h.f.f.FateEchoesApplication - Starting FateEchoesApplication using Java 22.0.2 with PID 24660 (E:\Fate Echoes\fate-echoes\target\classes started by hanse in E:\Fate Echoes\fate-echoes)
+2025-05-28 09:46:24.001 [main] INFO  c.h.f.f.FateEchoesApplication - No active profile set, falling back to 1 default profile: "default"
+2025-05-28 09:46:24.942 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2025-05-28 09:46:24.943 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-05-28 09:46:24.943 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.16]
+2025-05-28 09:46:24.980 [main] INFO  o.a.c.c.C.[.[.[/fate-echoes] - Initializing Spring embedded WebApplicationContext
+2025-05-28 09:46:25.182 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-05-28 09:46:25.210 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.3.1.Final
+2025-05-28 09:46:25.230 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-05-28 09:46:25.373 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-05-28 09:46:25.472 [main] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@35d81657
+2025-05-28 09:46:25.473 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2025-05-28 09:46:25.955 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-05-28 09:46:26.165 [main] WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2025-05-28 09:46:26.680 [main] INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2025-05-28 09:46:26.700 [main] INFO  c.h.f.f.FateEchoesApplication - Started FateEchoesApplication in 3.005 seconds (process running for 3.429)
+2025-05-28 09:46:26.974 [RMI TCP Connection(1)-192.168.9.34] INFO  o.a.c.c.C.[.[.[/fate-echoes] - Initializing Spring DispatcherServlet 'dispatcherServlet'
