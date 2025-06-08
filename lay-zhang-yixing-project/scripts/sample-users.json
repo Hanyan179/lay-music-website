@@ -1,0 +1,20 @@
+[
+  {
+    "username": "test1",
+    "password": "123456",
+    "realName": "测试用户1",
+    "email": "test1@laymusic.com",
+    "department": "技术部",
+    "position": "开发工程师",
+    "role": "USER"
+  },
+  {
+    "username": "test2",
+    "password": "123456",
+    "realName": "测试用户2",
+    "email": "test2@laymusic.com",
+    "department": "产品部",
+    "position": "产品经理",
+    "role": "USER"
+  }
+]

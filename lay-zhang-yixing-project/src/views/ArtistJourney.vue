@@ -3,6 +3,23 @@
       <!-- 音波粒子背景画布 -->
       <canvas id="particles-canvas"></canvas>
       
+      <!-- 海浪波纹背景 -->
+      <div class="wave-background">
+        <div class="wave wave1"></div>
+        <div class="wave wave2"></div>
+        <div class="wave wave3"></div>
+        <div class="wave wave4"></div>
+        <!-- 装饰性气泡 -->
+        <div class="bubble-container">
+          <div class="bubble bubble1"></div>
+          <div class="bubble bubble2"></div>
+          <div class="bubble bubble3"></div>
+          <div class="bubble bubble4"></div>
+          <div class="bubble bubble5"></div>
+          <div class="bubble bubble6"></div>
+        </div>
+      </div>
+      
       <!-- 导航栏 -->
       <nav class="fixed top-0 w-full z-50">
         <div class="container mx-auto px-6 py-4">
@@ -27,8 +44,11 @@
       </nav>
   
       <!-- 主页 Hero Section -->
-      <section id="home" class="min-h-screen flex items-center justify-center section-padding">
-        <div class="container text-center">
+      <section id="home" class="min-h-screen flex items-center justify-center section-padding relative">
+        <!-- 左侧背景图片区域 -->
+        <div class="hero-background-right"></div>
+        
+        <div class="container text-center relative z-10">
           <!-- 主标题 -->
           <div class="hero-title mb-16">
             <h1 class="mb-8">
@@ -88,21 +108,7 @@
             </div>
           </div>
           
-          <!-- CTA 按钮 -->
-          <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <button class="btn-primary" @click="scrollToSection('timeline')">
-              <span>开始探索</span>
-              <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-              </svg>
-            </button>
-            <button class="btn-secondary music-play-button" @click="playMusic()">
-              <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
-              <span>播放音乐</span>
-            </button>
-          </div>
+      
           
           <!-- 音频可视化器 -->
           <div class="audio-visualizer">
@@ -112,6 +118,10 @@
             <div class="audio-bar"></div>
             <div class="audio-bar"></div>
           </div>
+          
+
+          
+
         </div>
       </section>
   
@@ -162,13 +172,64 @@
       </section>
   
       <!-- 音乐作品 -->
-      <section id="music" class="section-padding relative scroll-reveal">
+      <section id="music" class="section-padding relative scroll-reveal music-album-section">
         <div class="container">
-          <div class="text-center mb-16">
+          <!-- 音乐装饰背景 -->
+          <div class="music-decorations absolute inset-0 pointer-events-none overflow-hidden">
+            <!-- 音符装饰 -->
+            <div class="music-note absolute top-8 left-16 text-blue-400/20 text-4xl animate-pulse">♪</div>
+            <div class="music-note absolute top-20 right-20 text-purple-400/15 text-6xl animate-bounce slow">♫</div>
+            <div class="music-note absolute bottom-32 left-1/4 text-pink-400/10 text-5xl animate-ping slow">♬</div>
+            <div class="music-note absolute top-16 left-1/3 text-blue-300/25 text-3xl animate-pulse delay-300">♪</div>
+            <div class="music-note absolute bottom-16 right-1/3 text-purple-300/20 text-4xl animate-bounce delay-500">♫</div>
+            <div class="music-note absolute top-32 right-1/4 text-cyan-400/15 text-2xl animate-pulse delay-700">♪</div>
+            
+            <!-- 唱片装饰 -->
+            <div class="vinyl-record absolute top-4 left-8 w-20 h-20 bg-gradient-to-r from-gray-800 to-gray-600 rounded-full opacity-10 animate-spin-slow">
+              <div class="absolute inset-4 bg-gray-900 rounded-full">
+                <div class="absolute inset-3 bg-blue-500/30 rounded-full"></div>
+              </div>
+            </div>
+            <div class="vinyl-record absolute bottom-8 right-12 w-24 h-24 bg-gradient-to-r from-purple-800 to-purple-600 rounded-full opacity-8 animate-spin-slow-reverse">
+              <div class="absolute inset-5 bg-purple-900 rounded-full">
+                <div class="absolute inset-3 bg-purple-400/40 rounded-full"></div>
+              </div>
+            </div>
+            <div class="vinyl-record absolute top-1/2 left-4 w-16 h-16 bg-gradient-to-r from-pink-700 to-pink-500 rounded-full opacity-12 animate-spin-slow delay-1000">
+              <div class="absolute inset-3 bg-pink-900 rounded-full">
+                <div class="absolute inset-2 bg-pink-300/50 rounded-full"></div>
+              </div>
+            </div>
+            
+            <!-- 音波效果 -->
+            <div class="sound-waves absolute top-1/3 left-8 flex space-x-1">
+              <div class="wave w-1 h-8 bg-blue-400/20 rounded-full animate-wave-1"></div>
+              <div class="wave w-1 h-12 bg-blue-400/15 rounded-full animate-wave-2"></div>
+              <div class="wave w-1 h-6 bg-blue-400/10 rounded-full animate-wave-3"></div>
+              <div class="wave w-1 h-10 bg-blue-400/25 rounded-full animate-wave-4"></div>
+              <div class="wave w-1 h-14 bg-blue-400/18 rounded-full animate-wave-1 delay-200"></div>
+            </div>
+            <div class="sound-waves absolute top-2/3 right-12 flex space-x-1 rotate-180">
+              <div class="wave w-1 h-6 bg-purple-400/20 rounded-full animate-wave-2"></div>
+              <div class="wave w-1 h-10 bg-purple-400/15 rounded-full animate-wave-3"></div>
+              <div class="wave w-1 h-8 bg-purple-400/10 rounded-full animate-wave-1"></div>
+              <div class="wave w-1 h-12 bg-purple-400/25 rounded-full animate-wave-4"></div>
+              <div class="wave w-1 h-16 bg-purple-400/18 rounded-full animate-wave-2 delay-300"></div>
+            </div>
+            
+            <!-- 流动的音乐线条 -->
+            <div class="music-lines absolute top-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-400/20 to-transparent animate-pulse"></div>
+            <div class="music-lines absolute bottom-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-400/15 to-transparent animate-pulse delay-500"></div>
+          </div>
+          
+          <div class="text-center mb-16 relative z-10">
             <h2 class="section-title animate-title" data-animate="fadeInDown">音乐作品</h2>
             <p class="section-subtitle animate-subtitle" data-animate="fadeInUp" data-delay="0.2">
               探索每一首歌曲背后的故事与情感
             </p>
+            <div class="current-album-info mt-4 text-sm text-gray-600">
+              当前展示：<span class="font-semibold text-blue-600">{{ currentAlbum.albumTitle }}</span> ({{ currentAlbum.year }})
+            </div>
             <!-- 节拍点装饰 -->
             <div class="rhythm-dots animate-dots" data-animate="fadeInUp" data-delay="0.4">
               <div class="rhythm-dot"></div>
@@ -177,42 +238,199 @@
               <div class="rhythm-dot"></div>
               <div class="rhythm-dot"></div>
             </div>
+            
+            <!-- 在标题附近添加Lottie动画容器 -->
+            <div class="title-lottie-container">
+              <div id="title-lottie-1" class="title-lottie title-lottie-1"></div>
+              <div id="title-lottie-2" class="title-lottie title-lottie-2"></div>
+              <div id="title-lottie-3" class="title-lottie title-lottie-3"></div>
+            </div>
+            
+            <!-- 跳转网易云按钮 -->
+            <div class="absolute top-0 right-0">
+              <a href="https://music.163.com/#/search/m/?s=%E5%BC%A0%E8%89%BA%E5%85%B4&type=1" 
+                 target="_blank" 
+                 class="netease-btn animate-card" 
+                 data-animate="fadeInRight" 
+                 data-delay="0.6">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.568 17.568c-.146.146-.338.22-.531.22s-.385-.074-.531-.22L12 13.061l-4.506 4.507c-.146.146-.338.22-.531.22s-.385-.074-.531-.22c-.293-.293-.293-.768 0-1.061L10.939 12 6.432 7.494c-.293-.293-.293-.768 0-1.061s.768-.293 1.061 0L12 10.939l4.507-4.506c.293-.293.768-.293 1.061 0s.293.768 0 1.061L13.061 12l4.507 4.507c.293.293.293.768 0 1.061z"/>
+                </svg>
+                <span>网易云音乐</span>
+              </a>
+            </div>
           </div>
           
-          <div class="grid grid-3 gap-8">
-            <!-- 音乐卡片 -->
-            <div v-for="(album, index) in musicData" :key="album.id" 
-                 class="music-card album-card animate-card" 
-                 :data-animate="'fadeInUp'" 
-                 :data-delay="1.2 + index * 0.3">
-              <div class="album-cover aspect-square mb-6">
-                <img :src="album.albumCover" :alt="album.albumTitle" class="w-full h-full object-cover">
-                <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center opacity-0 hover:opacity-100">
-                  <button class="play-button" @click="playAlbum(album)">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z"/>
-                    </svg>
-                  </button>
-                </div>
-                <div class="absolute top-3 right-3 bg-white bg-opacity-90 rounded-full px-3 py-1 text-xs font-medium text-gray-700">
-                  {{ album.year }}
+          <!-- 专辑展示区域 -->
+          <div class="album-showcase-container relative" 
+               :style="{ '--album-bg': `url(${currentAlbum.albumBackground})` }">
+            <div class="album-showcase flex items-center justify-center min-h-[600px] px-8">
+              <!-- 左侧：圆形专辑封面 -->
+              <div class="album-visual flex-shrink-0 mr-16">
+                <div class="album-circle group relative">
+                  <div class="w-80 h-80 rounded-full overflow-hidden shadow-2xl transform transition-all duration-500 group-hover:scale-105 group-hover:shadow-music">
+                    <img :src="currentAlbum.albumCover" 
+                         :alt="currentAlbum.albumTitle" 
+                         class="w-full h-full object-cover transition-all duration-500 group-hover:brightness-110">
+                    
+                    <!-- 专辑封面overlay -->
+                    <div class="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    
+                    <!-- 播放按钮覆盖层 -->
+                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                      <button @click="playCurrentAlbum" 
+                              class="play-overlay-btn bg-white/20 backdrop-blur-sm rounded-full p-6 transform scale-90 group-hover:scale-100 transition-all duration-300">
+                        <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M8 5v14l11-7z"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <!-- 年份环形标签 -->
+                  <div class="absolute -top-4 -right-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full w-16 h-16 flex items-center justify-center font-bold text-sm shadow-lg">
+                    {{ currentAlbum.year }}
+                  </div>
                 </div>
               </div>
               
-              <div class="space-y-4">
-                <h3 class="text-xl font-bold text-gray-900">{{ album.albumTitle }}</h3>
-                <p class="text-gray-500 text-sm">{{ album.description }}</p>
-                <div class="text-gray-400 text-xs">{{ album.genre }} · {{ album.year }}</div>
+              <!-- 右侧：专辑信息 -->
+              <div class="album-info flex-1 max-w-2xl">
+                <div class="space-y-8">
+                  <!-- 专辑标题 -->
+                  <div class="album-header">
+                    <h1 class="album-title text-5xl font-black text-gray-900 mb-4 leading-tight">
+                      {{ currentAlbum.albumTitle }}
+                    </h1>
+                    <div class="album-meta flex items-center space-x-6 text-lg text-gray-600">
+                      <span class="genre-tag px-4 py-2 bg-gray-100 rounded-full">{{ currentAlbum.genre }}</span>
+                      <span class="year-tag">{{ currentAlbum.year }}</span>
+                    </div>
+                  </div>
+                  
+                  <!-- 专辑描述 -->
+                  <div class="album-description">
+                    <p class="text-gray-700 text-lg leading-relaxed">
+                      {{ currentAlbum.description }}
+                    </p>
+                  </div>
+                  
+                  <!-- 成就/特色 -->
+                  <div class="album-achievements" v-if="currentAlbum.achievements">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">专辑成就</h3>
+                    <div class="achievements-list space-y-3">
+                      <div v-for="(achievement, index) in currentAlbum.achievements" 
+                           :key="index" 
+                           class="achievement-item flex items-center space-x-3 text-gray-600">
+                        <div class="achievement-icon w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <span>{{ achievement }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- 专辑统计 -->
+                  <div class="album-stats" v-if="currentAlbum.stats">
+                    <div class="stats-grid grid grid-cols-3 gap-6">
+                      <div class="stat-item text-center">
+                        <div class="stat-number text-2xl font-bold text-blue-600">{{ currentAlbum.stats.tracks || '12' }}</div>
+                        <div class="stat-label text-sm text-gray-500">首歌曲</div>
+                      </div>
+                      <div class="stat-item text-center">
+                        <div class="stat-number text-2xl font-bold text-purple-600">{{ currentAlbum.stats.duration || '45:30' }}</div>
+                        <div class="stat-label text-sm text-gray-500">总时长</div>
+                      </div>
+                      <div class="stat-item text-center">
+                        <div class="stat-number text-2xl font-bold text-pink-600">{{ currentAlbum.stats.plays || '2.1M' }}</div>
+                        <div class="stat-label text-sm text-gray-500">播放量</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- 导航按钮 -->
+            <div class="album-navigation absolute bottom-8 left-1/2 transform -translate-x-1/2 flex items-center space-x-12">
+              <!-- 上一个专辑 -->
+              <button @click="previousAlbum" 
+                      :disabled="currentAlbumIndex === 0"
+                      class="nav-btn prev-btn group disabled:opacity-30 disabled:cursor-not-allowed">
+                <div class="nav-btn-inner bg-white shadow-lg rounded-full p-4 transform transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl">
+                  <svg class="w-6 h-6 text-gray-700 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                  </svg>
+                </div>
+              </button>
+              
+              <!-- 专辑指示器 -->
+              <div class="album-indicators flex items-center space-x-2">
+                <div v-for="(album, index) in musicData" 
+                     :key="album.id"
+                     @click="goToAlbum(index)"
+                     class="indicator w-2 h-2 rounded-full cursor-pointer transition-all duration-300"
+                     :class="index === currentAlbumIndex ? 'bg-blue-500 scale-125' : 'bg-gray-300 hover:bg-gray-400'">
+                </div>
+              </div>
+              
+              <!-- 下一个专辑 -->
+              <button @click="nextAlbum" 
+                      :disabled="currentAlbumIndex === musicData.length - 1"
+                      class="nav-btn next-btn group disabled:opacity-30 disabled:cursor-not-allowed">
+                <div class="nav-btn-inner bg-white shadow-lg rounded-full p-4 transform transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl">
+                  <svg class="w-6 h-6 text-gray-700 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                  </svg>
+                </div>
+              </button>
+            </div>
+          </div>
+          
+          <!-- 音频播放器 -->
+          <div class="music-player-container mt-12">
+            <div class="music-player bg-white rounded-2xl shadow-lg p-6 max-w-md mx-auto">
+              <div class="player-info flex items-center space-x-4 mb-4">
+                <div class="player-album-cover w-12 h-12 rounded-lg overflow-hidden">
+                  <img :src="currentAlbum.albumCover" :alt="currentAlbum.albumTitle" class="w-full h-full object-cover">
+                </div>
+                <div class="player-text flex-1">
+                  <div class="player-title text-sm font-semibold text-gray-900 truncate">{{ currentAlbum.albumTitle }}</div>
+                  <div class="player-artist text-xs text-gray-500">张艺兴 LAY</div>
+                </div>
+              </div>
+              
+              <div class="player-controls flex items-center justify-center space-x-6">
+                <button class="control-btn text-gray-600 hover:text-gray-900 transition-colors">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 6h2v12H6V6zm10 0h2v12h-2V6z"/>
+                  </svg>
+                </button>
                 
-                <!-- 歌曲列表 -->
-                <div class="songs-preview mt-4">
-                  <div v-for="(song, index) in album.songs.slice(0, 2)" :key="index" class="flex justify-between items-center py-2 text-sm">
-                    <span class="text-gray-600">{{ song.title }}</span>
-                    <span class="text-gray-400">{{ song.duration }}</span>
-                  </div>
-                  <div v-if="album.songs.length > 2" class="text-xs text-gray-400 mt-2">
-                    +{{ album.songs.length - 2 }} 更多歌曲
-                  </div>
+                <button @click="togglePlay" 
+                        class="play-pause-btn bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 transform transition-all duration-200 hover:scale-105">
+                  <svg v-if="!isPlaying" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                  <svg v-else class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+                  </svg>
+                </button>
+                
+                <button class="control-btn text-gray-600 hover:text-gray-900 transition-colors">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+                  </svg>
+                </button>
+              </div>
+              
+              <!-- 进度条 -->
+              <div class="player-progress mt-4">
+                <div class="progress-bar bg-gray-200 rounded-full h-1">
+                  <div class="progress-fill bg-blue-500 rounded-full h-1 transition-all duration-300" 
+                       :style="{ width: progressPercent + '%' }"></div>
+                </div>
+                <div class="progress-time flex justify-between text-xs text-gray-500 mt-1">
+                  <span>{{ currentTime }}</span>
+                  <span>{{ totalTime }}</span>
                 </div>
               </div>
             </div>
@@ -368,16 +586,7 @@
         <div id="timeline-3d" class="w-full h-96 md:h-screen animate-timeline" data-animate="fadeIn" data-delay="0.6"></div>
         
         <!-- 时间轴控制器 -->
-        <div class="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-30">
-          <div class="glass-card p-4 flex items-center space-x-4 animate-controls" data-animate="slideInUp" data-delay="0.8">
-            <button id="timeline-reset" class="control-button" @click="resetTimeline" title="重置视角">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-              </svg>
-            </button>
-            <span class="text-sm text-gray-500 hidden sm:block">悬停预览 | 拖拽旋转 | 滚轮缩放 | 点击体验节拍动效</span>
-          </div>
-        </div>
+        
       </section>
   
       <!-- 移动端菜单 -->
@@ -411,6 +620,16 @@
   const hoverCount = ref(0)
   const clickCount = ref(0)
   const animationStatus = ref('初始化中...')
+  const currentPlayingId = ref(null)
+  const isLoading = ref(false)
+  const failedAlbumId = ref(null)
+  
+  // 专辑展示相关状态
+  const currentAlbumIndex = ref(0)
+  const isPlaying = ref(false)
+  const progressPercent = ref(0)
+  const currentTime = ref('0:00')
+  const totalTime = ref('3:45')
   
   // 静态资源
   const artistImage = '/artist-journey/assets/background.jpg'
@@ -422,91 +641,146 @@
   let animationId = null
   let hoverTimer = null
   
-  // 音乐数据
+  // 音乐数据 - 按年份从最新到最久排序
   const musicData = [
     {
       id: 1,
-      albumTitle: "莲 (LIT)",
-      albumCover: "/artist-journey/assets/background.jpg",
-      year: 2020,
-      genre: "中式流行",
-      description: "中华文化与现代音乐的完美融合",
-      songs: [
-        { title: "莲 (Lit)", duration: "04:32" },
-        { title: "飞天", duration: "04:15" },
-        { title: "玉", duration: "03:48" },
-        { title: "祖国", duration: "04:22" }
-      ]
+      albumTitle: "STEP",
+      albumCover: "/img/music/STEP.png",
+      albumBackground: "/img/music/step-ba.png",
+      year: 2024,
+      genre: "流行、电子、Hip-Hop",
+      description: "张艺兴最新专辑《STEP》，标志着他音乐生涯的全新阶段。专辑融合了现代电子音乐和传统东方元素，展现了艺术家在音乐探索道路上的又一次飞跃。每一首歌都是一个脚步，踏向更广阔的音乐世界。",
+      neteaseId: "79177648",
+      achievements: [
+        "华语流行音乐榜首位专辑",
+        "QQ音乐巅峰榜连续12周第一",
+        "全球华语歌曲排行榜年度最佳制作"
+      ],
+      stats: {
+        tracks: 12,
+        duration: "42:16",
+        plays: "3.5M"
+      }
     },
     {
       id: 2,
-      albumTitle: "NAMANANA",
-      albumCover: "/artist-journey/assets/background.jpg",
-      year: 2018,
-      genre: "流行舞曲",
-      description: "充满活力的音乐探索",
-      songs: [
-        { title: "NAMANANA", duration: "03:45" },
-        { title: "HONEY", duration: "03:28" },
-        { title: "SHEEP", duration: "03:52" },
-        { title: "BOOM", duration: "03:33" }
-      ]
+      albumTitle: "PRODUCER",
+      albumCover: "/img/music/PRODUCER.png",
+      albumBackground: "/img/music/PRODUCER-ba.png",
+      year: 2021,
+      genre: "流行、电子、R&B",
+      description: "收录张艺兴在《我是唱作人2》节目中的创作作品，展现他作为制作人的音乐才华。专辑融合了多种音乐风格，体现了张艺兴在创作和制作方面的成熟与突破。",
+      neteaseId: "79177647",
+      achievements: [
+        "《我是唱作人2》总决赛冠军专辑",
+        "网易云音乐年度华语专辑TOP10",
+        "获得金曲奖最佳制作人提名"
+      ],
+      stats: {
+        tracks: 10,
+        duration: "38:24",
+        plays: "1.8M"
+      }
     },
     {
       id: 3,
-      albumTitle: "LOSE CONTROL",
-      albumCover: "/artist-journey/assets/background.jpg",
-      year: 2016,
-      genre: "流行",
-      description: "首张个人专辑的突破之作",
-      songs: [
-        { title: "LOSE CONTROL", duration: "04:28" },
-        { title: "MYM", duration: "03:55" },
-        { title: "YESTERDAY", duration: "04:12" },
-        { title: "MONODRAMA", duration: "03:39" }
-      ]
+      albumTitle: "莲 (LIT)",
+      albumCover: "/img/music/LIT.png",
+      albumBackground: "/img/music/LIT-ba.png",
+      year: 2020,
+      genre: "中式流行",
+      description: "中华文化与现代音乐的完美融合，采用传统中国乐器与现代电子音乐的结合，展现了张艺兴对中华文化传承与创新的深刻理解。",
+      neteaseId: "90225022",
+      achievements: [
+        "Billboard中国榜单第一名",
+        "亚洲音乐大奖最佳华语专辑",
+        "全球华语歌曲排行榜年度专辑"
+      ],
+      stats: {
+        tracks: 12,
+        duration: "45:12",
+        plays: "3.2M"
+      }
+    },
+    {
+      id: 3,
+      albumTitle: "HONEY",
+      albumCover: "https://img0.baidu.com/it/u=4ec2d5628535e5dde7110f4ca68bb0ef&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+      year: 2019,
+      genre: "流行、电子、R&B",
+      description: "继续探索并巩固了张艺兴在音乐创作和制作方面的地位。专辑展现了更加成熟的音乐风格和情感表达，每首歌都充满了甜蜜与温暖。",
+      neteaseId: "79177647",
+      achievements: [
+        "QQ音乐年度热门专辑",
+        "酷狗音乐最受欢迎华语专辑",
+        "微博音乐盛典年度专辑"
+      ],
+      stats: {
+        tracks: 8,
+        duration: "32:18",
+        plays: "2.5M"
+      }
     },
     {
       id: 4,
-      albumTitle: "LAY 02 SHEEP",
-      albumCover: "/artist-journey/assets/background.jpg",
-      year: 2017,
-      genre: "嘻哈",
-      description: "独特风格的嘻哈音乐表达",
-      songs: [
-        { title: "SHEEP", duration: "03:52" },
-        { title: "PEACH", duration: "03:25" },
-        { title: "MASK", duration: "04:08" },
-        { title: "TONIGHT", duration: "03:47" }
-      ]
+      albumTitle: "梦不落雨林 / NAMANANA",
+      albumCover: "/img/music/NANANA.png",
+      albumBackground: "/img/music/NANANA-ba.png",
+      year: 2018,
+      genre: "流行、R&B、电子",
+      description: "张艺兴首次以个人身份在全球音乐市场发力，展示多元化的音乐风格。专辑充满了对梦想的追求和对音乐的热爱，每一首歌都讲述着不同的故事。",
+      neteaseId: "2104506856",
+      achievements: [
+        "iTunes美国榜Hip-Hop/Rap榜第21名",
+        "全球27个国家iTunes榜单前100",
+        "YouTube MV播放量超5000万"
+      ],
+      stats: {
+        tracks: 9,
+        duration: "35:45",
+        plays: "4.1M"
+      }
     },
     {
       id: 5,
-      albumTitle: "PRODUCER",
-      albumCover: "/artist-journey/assets/background.jpg",
-      year: 2019,
-      genre: "制作专辑",
-      description: "展现制作人才华的音乐作品",
-      songs: [
-        { title: "LATE NIGHT", duration: "04:15" },
-        { title: "COCKTAIL", duration: "03:33" },
-        { title: "RUSH", duration: "03:58" },
-        { title: "ELEVATOR", duration: "04:02" }
-      ]
+      albumTitle: "SHEEP",
+      albumCover: "/img/music/LIT.png", // 临时使用LIT封面
+      albumBackground: "/img/music/LIT-ba.png", // 临时使用LIT背景
+      year: 2017,
+      genre: "流行、电子、R&B",
+      description: "张艺兴的第二张个人专辑，延续了他在音乐创作和制作方面的探索。专辑名寓意着坚持自我、不随波逐流的音乐态度。",
+      neteaseId: "38796219",
+      achievements: [
+        "中国音乐排行榜年度专辑",
+        "东方风云榜最佳新人专辑",
+        "全球华语音乐榜中榜最受欢迎专辑"
+      ],
+      stats: {
+        tracks: 7,
+        duration: "28:33",
+        plays: "1.9M"
+      }
     },
     {
       id: 6,
-      albumTitle: "EAST",
-      albumCover: "/artist-journey/assets/background.jpg",
-      year: 2022,
-      genre: "东方音乐",
-      description: "东方韵味的现代诠释",
-      songs: [
-        { title: "EAST", duration: "04:20" },
-        { title: "SOUL", duration: "03:55" },
-        { title: "KARMA", duration: "04:08" },
-        { title: "DYNASTY", duration: "04:35" }
-      ]
+      albumTitle: "LOSE CONTROL",
+      albumCover: "/img/music/PRODUCER.png", // 临时使用PRODUCER封面
+      albumBackground: "/img/music/PRODUCER-ba.png", // 临时使用PRODUCER背景
+      year: 2016,
+      genre: "R&B、电子流行",
+      description: "张艺兴的首张个人专辑，标志着他从EXO成员转型为独立音乐人的第一步。专辑展现了他在音乐创作方面的天赋和对音乐的纯粹热爱。",
+      neteaseId: "38358219",
+      achievements: [
+        "韩国Gaon专辑榜第2名",
+        "中国内地首张破10万销量个人专辑",
+        "MAMA亚洲音乐大奖最佳男歌手提名"
+      ],
+      stats: {
+        tracks: 6,
+        duration: "24:17",
+        plays: "3.8M"
+      }
     }
   ]
   
@@ -608,12 +882,92 @@
     }
   ]
   
+  // 计算属性：当前专辑
+  const currentAlbum = ref(musicData[0]) // 直接使用 ref 包装当前专辑
+  
+  // 专辑导航方法
+  const previousAlbum = () => {
+    if (currentAlbumIndex.value > 0) {
+      currentAlbumIndex.value--
+      currentAlbum.value = musicData[currentAlbumIndex.value]
+      updateAlbumBackground()
+    }
+  }
+  
+  const nextAlbum = () => {
+    if (currentAlbumIndex.value < musicData.length - 1) {
+      currentAlbumIndex.value++
+      currentAlbum.value = musicData[currentAlbumIndex.value]
+      updateAlbumBackground()
+    }
+  }
+  
+  const goToAlbum = (index) => {
+    currentAlbumIndex.value = index
+    currentAlbum.value = musicData[index]
+    updateAlbumBackground()
+  }
+  
+  // 更新专辑背景
+  const updateAlbumBackground = () => {
+    const container = document.querySelector('.album-showcase-container')
+    if (container && currentAlbum.value.albumBackground) {
+      container.style.setProperty('--album-bg', `url(${currentAlbum.value.albumBackground})`)
+    }
+  }
+  
+  // 播放器方法
+  const togglePlay = () => {
+    isPlaying.value = !isPlaying.value
+    if (isPlaying.value) {
+      startProgress()
+    } else {
+      stopProgress()
+    }
+  }
+  
+  const playCurrentAlbum = () => {
+    isPlaying.value = true
+    startProgress()
+  }
+  
+  // 模拟播放进度
+  let progressInterval = null
+  
+  const startProgress = () => {
+    if (progressInterval) clearInterval(progressInterval)
+    progressInterval = setInterval(() => {
+      if (progressPercent.value < 100) {
+        progressPercent.value += 0.5
+        updateCurrentTime()
+      } else {
+        progressPercent.value = 0
+        updateCurrentTime()
+      }
+    }, 200)
+  }
+  
+  const stopProgress = () => {
+    if (progressInterval) {
+      clearInterval(progressInterval)
+      progressInterval = null
+    }
+  }
+  
+  const updateCurrentTime = () => {
+    const totalSeconds = 225 // 3:45 的总秒数
+    const currentSeconds = Math.floor((progressPercent.value / 100) * totalSeconds)
+    const minutes = Math.floor(currentSeconds / 60)
+    const seconds = currentSeconds % 60
+    currentTime.value = `${minutes}:${seconds.toString().padStart(2, '0')}`
+  }
+  
   // 初始化Lottie动画
   const initGlassCardLottie = () => {
     const container = document.getElementById('lottie-container')
     if (container && window.lottie) {
       try {
-        console.log('开始初始化玻璃卡片边框Lottie动画...')
+    
         
         glassCardLottieAnimation = window.lottie.loadAnimation({
           container: container,
@@ -624,7 +978,7 @@
         })
         
         glassCardLottieAnimation.addEventListener('data_ready', () => {
-          console.log('玻璃卡片边框Lottie动画数据加载完成')
+          
           animationStatus.value = '已加载，悬浮2秒触发'
         })
         
@@ -672,7 +1026,7 @@
     
     if (window.lottie) {
       try {
-        console.log('初始化全局点击Lottie动画...')
+  
         
         globalClickLottieAnimation = window.lottie.loadAnimation({
           container: container,
@@ -682,9 +1036,9 @@
           path: '/lottie/Animation - 1749135273451.json'
         })
         
-        globalClickLottieAnimation.addEventListener('data_ready', () => {
-          console.log('全局点击Lottie动画数据加载完成')
-        })
+                  globalClickLottieAnimation.addEventListener('data_ready', () => {
+            // 全局点击动画数据加载完成
+          })
         
         globalClickLottieAnimation.addEventListener('complete', () => {
           container.style.opacity = '0'
@@ -694,6 +1048,31 @@
         console.error('全局点击Lottie动画初始化错误:', error)
       }
     }
+  }
+  
+  // 初始化标题Lottie动画
+  const initTitleLotties = () => {
+    const lottieIds = ['title-lottie-1', 'title-lottie-2', 'title-lottie-3']
+    
+    lottieIds.forEach((id, index) => {
+      const container = document.getElementById(id)
+      if (container && window.lottie) {
+        try {
+  
+          
+          window.lottie.loadAnimation({
+            container: container,
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: '/lottie/Animation - 1749135116565(1).json'
+          })
+          
+        } catch (error) {
+          console.error(`标题Lottie动画初始化错误 (${id}):`, error)
+        }
+      }
+    })
   }
   
   // 全局点击事件处理
@@ -712,14 +1091,14 @@
         // 播放动画
         globalClickLottieAnimation.goToAndPlay(0)
         
-        console.log(`全局点击动画触发，位置: (${event.clientX}, ${event.clientY})`)
+    
       }
     }
   }
   
   // 事件处理函数
   const onCardHover = () => {
-    console.log('鼠标悬浮在玻璃卡片上')
+
     
     const card = document.getElementById('lottie-glass-card')
     if (card) {
@@ -735,7 +1114,7 @@
     // 设置2秒延迟触发
     hoverTimer = setTimeout(() => {
       hoverCount.value++
-      console.log('悬浮2秒触发，悬浮次数:', hoverCount.value)
+      
       
       if (glassCardLottieAnimation) {
         glassCardLottieAnimation.play()
@@ -751,7 +1130,7 @@
   }
   
   const onCardLeave = () => {
-    console.log('鼠标离开玻璃卡片')
+
     
     // 清除悬浮定时器
     if (hoverTimer) {
@@ -773,7 +1152,7 @@
   
   const onCardClick = () => {
     clickCount.value++
-    console.log('玻璃卡片被点击，点击次数:', clickCount.value)
+    
     
     const card = document.getElementById('lottie-glass-card')
     if (card) {
@@ -801,22 +1180,57 @@
   }
   
   const playMusic = () => {
-    console.log('播放音乐')
+
     showNotification('♪ 开始播放音乐')
   }
   
   const playAlbum = (album) => {
-    console.log('播放专辑:', album.albumTitle)
+    
     showNotification(`🎵 正在播放: ${album.albumTitle}`)
   }
   
+  const startPlaying = async (album) => {
+    if (isLoading.value) return
+    
+    isLoading.value = true
+    failedAlbumId.value = null
+    
+    try {
+      // 模拟资源加载等待
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      
+      // 模拟20%的失败率
+      if (Math.random() < 0.2) {
+        throw new Error('资源加载失败')
+      }
+      
+      currentPlayingId.value = album.id
+      
+    } catch (error) {
+      console.error('播放失败:', error)
+      failedAlbumId.value = album.id
+    } finally {
+      isLoading.value = false
+    }
+  }
+  
+  const stopPlaying = () => {
+    currentPlayingId.value = null
+    
+  }
+  
+  const retryPlaying = (album) => {
+    failedAlbumId.value = null
+    startPlaying(album)
+  }
+  
   const playVideo = (video) => {
-    console.log('播放视频:', video.title)
+    
     showNotification(`📺 正在播放: ${video.title}`)
   }
   
   const playDouyinVideo = (video) => {
-    console.log('播放抖音视频:', video.title)
+    
     showNotification(`🎬 正在播放: ${video.title}`)
   }
   
@@ -838,6 +1252,8 @@
     }
   }
   
+
+  
   const showNotification = (message) => {
     const notification = document.createElement('div')
     notification.className = 'fixed top-20 right-6 z-50 p-4 rounded-xl shadow-lg transform translate-x-full transition-all duration-300 success-message'
@@ -856,6 +1272,8 @@
       }, 300)
     }, 3000)
   }
+  
+
   
   // 设置事件监听器
   const setupEventListeners = () => {
@@ -966,6 +1384,10 @@
     window.addEventListener('scroll', requestTick)
   }
   
+  // 粒子系统清理函数和接口
+  let particlesCleanup = null
+  let particlesInterface = null
+  
   // 初始化应用
   const initApp = async () => {
     try {
@@ -973,7 +1395,8 @@
       
       // 初始化粒子背景
       setTimeout(() => {
-        initParticlesBackground()
+        particlesInterface = initParticlesBackground()
+        particlesCleanup = particlesInterface.cleanup
       }, 100)
       
       // 初始化Lottie动画
@@ -985,6 +1408,11 @@
       setTimeout(() => {
         initGlobalClickLottie()
       }, 800)
+      
+      // 初始化标题Lottie动画
+      setTimeout(() => {
+        initTitleLotties()
+      }, 1000)
       
       // 初始化滚动动画
       setTimeout(() => {
@@ -1012,7 +1440,7 @@
         })
       }, 1200)
       
-      console.log('🎵 Artist Journey Vue组件加载完成')
+    
       
     } catch (error) {
       console.error('初始化失败:', error)
@@ -1021,6 +1449,10 @@
   
   onMounted(() => {
     initApp()
+    // 初始化专辑背景
+    setTimeout(() => {
+      updateAlbumBackground()
+    }, 100)
   })
   
   onUnmounted(() => {
@@ -1035,6 +1467,16 @@
     }
     if (hoverTimer) {
       clearTimeout(hoverTimer)
+    }
+    
+    // 清理播放器定时器
+    if (progressInterval) {
+      clearInterval(progressInterval)
+    }
+    
+    // 清理粒子系统
+    if (particlesInterface && particlesInterface.cleanup) {
+      particlesInterface.cleanup()
     }
     
     // 移除全局点击事件监听器
@@ -1057,25 +1499,213 @@
     canvas.height = window.innerHeight
     
     const particles = []
-    const particleCount = 120 // 增加粒子数量
+    const maxParticles = 800 // 降低粒子上限以提升性能
+    const baseParticleCount = 60 // 减少基础粒子数量
+    const rightAreaBonus = 30 // 减少右侧区域额外粒子数量
+    let mouseParticles = [] // 鼠标交互生成的粒子
+    let particlesPerClick = 15 // 减少每次点击生成的粒子数量
     
-    // 创建粒子
-    for (let i = 0; i < particleCount; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        radius: Math.random() * 2 + 1,
-        alpha: Math.random() * 0.5 + 0.2,
-        hue: Math.random() * 60 + 180 // 蓝色系
-      })
+    // 创建基础粒子
+    for (let i = 0; i < baseParticleCount; i++) {
+      particles.push(createParticle())
     }
     
+    // 在右侧区域创建更多粒子
+    for (let i = 0; i < rightAreaBonus; i++) {
+      particles.push(createParticle(canvas.width * 0.5, canvas.width)) // 右半部分
+    }
+    
+    // 创建粒子的函数
+    function createParticle(minX = 0, maxX = null) {
+      const actualMaxX = maxX || canvas.width
+      return {
+        x: Math.random() * (actualMaxX - minX) + minX,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.8,
+        vy: (Math.random() - 0.5) * 0.8,
+        radius: Math.random() * 2.5 + 1,
+        alpha: Math.random() * 0.6 + 0.3,
+        hue: Math.random() * 60 + 180, // 蓝色系
+        life: 1, // 生命值，用于临时粒子
+        maxLife: 1,
+        isTemporary: false
+      }
+    }
+    
+    // 创建临时交互粒子
+    function createInteractiveParticle(x, y, vx = 0, vy = 0) {
+      const particle = {
+        x: x,
+        y: y,
+        vx: vx || (Math.random() - 0.5) * 3,
+        vy: vy || (Math.random() - 0.5) * 3,
+        radius: Math.random() * 1.5 + 1, // 进一步缩小粒子大小
+        alpha: 0.8,
+        hue: Math.random() * 60 + 180,
+        life: 1,
+        maxLife: 1,
+        isTemporary: true,
+        decay: 0, // 不自动衰减，持续存在
+        isPersistent: true // 标记为持久粒子
+      }
+      return particle
+    }
+    
+    // 鼠标交互状态
+    let mouseX = 0
+    let mouseY = 0
+    let isMouseInRightArea = false
+    let isMousePressed = false
+    let isDragging = false
+    let dragStartX = 0
+    let dragStartY = 0
+    let longPressTimer = null
+    let isLongPress = false
+    let isInHeroSection = true // 是否在hero区域
+    
+    const handleMouseMove = (event) => {
+      const rect = canvas.getBoundingClientRect()
+      const newMouseX = event.clientX - rect.left
+      const newMouseY = event.clientY - rect.top
+      
+              // 检查是否在右侧区域（虚线左侧就开始，实际是右侧50%）
+        const wasInRightArea = isMouseInRightArea
+        isMouseInRightArea = newMouseX > canvas.width * 0.5
+      
+
+      
+      // 检测拖动（在右侧区域内且在hero区域）
+      if (isMousePressed && !isLongPress && isMouseInRightArea && isInHeroSection) {
+        const dragDistance = Math.sqrt(
+          Math.pow(newMouseX - dragStartX, 2) + Math.pow(newMouseY - dragStartY, 2)
+        )
+        
+        if (dragDistance > 5) { // 降低拖动阈值，更容易触发
+          isDragging = true
+          // 清除长按定时器
+          if (longPressTimer) {
+            clearTimeout(longPressTimer)
+            longPressTimer = null
+          }
+        }
+      }
+      
+      mouseX = newMouseX
+      mouseY = newMouseY
+    }
+    
+    // 鼠标按下事件
+    const handleMouseDown = (event) => {
+      if (event.button !== 0 || !isInHeroSection) return // 只响应左键且只在hero区域
+      
+      const rect = canvas.getBoundingClientRect()
+      const clickX = event.clientX - rect.left
+      const clickY = event.clientY - rect.top
+      
+
+      
+      isMousePressed = true
+      isDragging = false
+      isLongPress = false
+      dragStartX = clickX
+      dragStartY = clickY
+      
+              // 设置长按定时器（500ms后视为长按）
+        longPressTimer = setTimeout(() => {
+          if (isMousePressed && !isDragging && clickX > canvas.width * 0.5) {
+            isLongPress = true
+          }
+        }, 500)
+    }
+    
+        // 鼠标抬起事件
+    const handleMouseUp = (event) => {
+      if (!isInHeroSection) return // 只在hero区域响应
+      
+      const rect = canvas.getBoundingClientRect()
+      const clickX = event.clientX - rect.left
+      const clickY = event.clientY - rect.top
+      
+
+      
+      // 清除长按定时器
+      if (longPressTimer) {
+        clearTimeout(longPressTimer)
+        longPressTimer = null
+      }
+      
+              // 只在右侧区域响应
+        if (clickX > canvas.width * 0.5) {
+          // 如果是普通点击（非拖动，非长按）
+          if (!isDragging && !isLongPress && particles.length + mouseParticles.length + particlesPerClick <= maxParticles) {
+            // 生成粒子向四周扩散（小范围）
+            for (let i = 0; i < particlesPerClick; i++) {
+              const angle = Math.random() * Math.PI * 2 // 360度全方向
+              const speed = Math.random() * 3 + 2 // 减小扩散速度，类似lottie动画范围
+              const vx = Math.cos(angle) * speed
+              const vy = Math.sin(angle) * speed
+              
+              mouseParticles.push(createInteractiveParticle(clickX, clickY, vx, vy))
+            }
+            // 粒子生成成功
+          } else {
+            // 无法生成粒子 - 已达上限或状态不符
+          }
+        } else {
+          // 点击位置不在右侧区域
+        }
+      
+      isMousePressed = false
+      isDragging = false
+      isLongPress = false
+
+    }
+    
+    // 添加事件监听器
+    canvas.addEventListener('mousemove', handleMouseMove, { passive: false })
+    canvas.addEventListener('mousedown', handleMouseDown, { passive: false })
+    canvas.addEventListener('mouseup', handleMouseUp, { passive: false })
+    canvas.addEventListener('click', (event) => {
+      // 直接调用mouseUp处理
+      handleMouseUp(event)
+    }, { passive: false })
+    
+    // 防止右键菜单和事件冒泡
+    canvas.addEventListener('contextmenu', (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+    })
+    
+    // 确保canvas能够获得焦点
+    canvas.setAttribute('tabindex', '0')
+    canvas.style.outline = 'none'
+    
+    // 性能监控
+    let frameCount = 0
+    let lastTime = performance.now()
+    let fps = 60
+    
     const animate = () => {
+      // 性能监控
+      const currentTime = performance.now()
+      frameCount++
+      if (currentTime - lastTime >= 1000) {
+        fps = frameCount
+        frameCount = 0
+        lastTime = currentTime
+        
+        // 如果FPS过低，自动清理部分粒子
+        if (fps < 30 && mouseParticles.length > 200) {
+          const removeCount = Math.floor(mouseParticles.length * 0.3)
+          mouseParticles.splice(0, removeCount)
+          // 性能优化: 自动清理部分粒子
+        }
+      }
+      
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       
-      particles.forEach(particle => {
+      // 绘制基础粒子
+      particles.forEach((particle, index) => {
         // 更新位置
         particle.x += particle.vx
         particle.y += particle.vy
@@ -1084,28 +1714,158 @@
         if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1
         if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1
         
+        // 长按吸引效果 - 只对右侧区域的粒子且在hero区域
+        if (isLongPress && isMouseInRightArea && isInHeroSection && particle.x > canvas.width * 0.5) {
+          const dx = mouseX - particle.x
+          const dy = mouseY - particle.y
+          const distance = Math.sqrt(dx * dx + dy * dy)
+          
+          if (distance < 400) { // 增大吸引范围
+            // 如果距离很近，直接跟随鼠标移动
+            if (distance < 50) {
+              particle.vx = dx * 0.3 // 强力跟随
+              particle.vy = dy * 0.3
+            } else {
+              const force = (400 - distance) / 400 * 0.2 // 增强吸引力
+              particle.vx += (dx / distance) * force
+              particle.vy += (dy / distance) * force
+            }
+            
+            // 限制速度
+            const speed = Math.sqrt(particle.vx * particle.vx + particle.vy * particle.vy)
+            if (speed > 12) {
+              particle.vx = (particle.vx / speed) * 12
+              particle.vy = (particle.vy / speed) * 12
+            }
+          }
+        }
+        
+        // 拖动冲散效果 - 只对右侧区域的粒子且在hero区域
+        if (isDragging && isMouseInRightArea && isInHeroSection && particle.x > canvas.width * 0.5) {
+          const dx = particle.x - mouseX
+          const dy = particle.y - mouseY
+          const distance = Math.sqrt(dx * dx + dy * dy)
+          
+          if (distance < 250) { // 增大冲散范围
+            const force = (250 - distance) / 250 * 0.2 // 增强冲散力
+            particle.vx += (dx / distance) * force
+            particle.vy += (dy / distance) * force
+            
+            // 限制速度
+            const speed = Math.sqrt(particle.vx * particle.vx + particle.vy * particle.vy)
+            if (speed > 10) {
+              particle.vx = (particle.vx / speed) * 10
+              particle.vy = (particle.vy / speed) * 10
+            }
+          }
+        }
+        
         // 绘制粒子
         ctx.beginPath()
         ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2)
         ctx.fillStyle = `hsla(${particle.hue}, 70%, 60%, ${particle.alpha})`
         ctx.fill()
+      })
+      
+      // 绘制和更新鼠标交互粒子
+      for (let i = mouseParticles.length - 1; i >= 0; i--) {
+        const particle = mouseParticles[i]
         
-        // 连接线
-        particles.forEach(otherParticle => {
-          const dx = particle.x - otherParticle.x
-          const dy = particle.y - otherParticle.y
+        // 更新位置
+        particle.x += particle.vx
+        particle.y += particle.vy
+        
+        // 应用摩擦力
+        particle.vx *= 0.995
+        particle.vy *= 0.995
+        
+        // 边界反弹
+        if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -0.8
+        if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -0.8
+        
+        // 长按吸引效果 - 只对右侧区域的交互粒子且在hero区域
+        if (isLongPress && isMouseInRightArea && isInHeroSection && particle.x > canvas.width * 0.5) {
+          const dx = mouseX - particle.x
+          const dy = mouseY - particle.y
           const distance = Math.sqrt(dx * dx + dy * dy)
           
-          if (distance < 100) {
-            ctx.beginPath()
-            ctx.moveTo(particle.x, particle.y)
-            ctx.lineTo(otherParticle.x, otherParticle.y)
-            ctx.strokeStyle = `hsla(${particle.hue}, 70%, 60%, ${0.1 * (1 - distance / 100)})`
-            ctx.lineWidth = 0.5
-            ctx.stroke()
+          if (distance < 400) { // 增大吸引范围
+            // 如果距离很近，直接跟随鼠标移动
+            if (distance < 50) {
+              particle.vx = dx * 0.4 // 交互粒子更强的跟随
+              particle.vy = dy * 0.4
+            } else {
+              const force = (400 - distance) / 400 * 0.25 // 更强吸引力
+              particle.vx += (dx / distance) * force
+              particle.vy += (dy / distance) * force
+            }
           }
-        })
-      })
+        }
+        
+        // 拖动冲散效果 - 只对右侧区域的交互粒子且在hero区域
+        if (isDragging && isMouseInRightArea && isInHeroSection && particle.x > canvas.width * 0.5) {
+          const dx = particle.x - mouseX
+          const dy = particle.y - mouseY
+          const distance = Math.sqrt(dx * dx + dy * dy)
+          
+          if (distance < 250) { // 增大冲散范围
+            const force = (250 - distance) / 250 * 0.25 // 增强冲散力
+            particle.vx += (dx / distance) * force
+            particle.vy += (dy / distance) * force
+          }
+        }
+        
+        // 限制交互粒子在右侧区域
+        if (particle.x < canvas.width * 0.5) {
+          particle.x = canvas.width * 0.5
+          particle.vx = Math.abs(particle.vx) * 0.5
+        }
+        
+        // 更新生命值（只有非持久粒子才衰减）
+        if (!particle.isPersistent) {
+          particle.life -= particle.decay
+          particle.alpha = particle.life * 0.9
+        }
+        
+        // 绘制粒子
+        if (particle.life > 0) {
+          ctx.beginPath()
+          ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2)
+          ctx.fillStyle = `hsla(${particle.hue}, 80%, 70%, ${particle.alpha})`
+          ctx.fill()
+          
+          // 添加发光效果
+          ctx.shadowColor = `hsla(${particle.hue}, 80%, 70%, ${particle.alpha * 0.6})`
+          ctx.shadowBlur = particle.radius * 1.5
+          ctx.fill()
+          ctx.shadowBlur = 0
+        } else if (!particle.isPersistent) {
+          // 只移除非持久的死亡粒子
+          mouseParticles.splice(i, 1)
+        }
+      }
+      
+      // 绘制连接线（性能优化：只渲染部分连接线）
+      if (fps > 40) { // 只在性能良好时绘制连接线
+        for (let i = 0; i < particles.length; i += 2) { // 每隔一个粒子才处理连接线
+          const particle = particles[i]
+          for (let j = i + 2; j < particles.length && j < i + 10; j += 2) { // 限制连接数量
+            const otherParticle = particles[j]
+            const dx = particle.x - otherParticle.x
+            const dy = particle.y - otherParticle.y
+            const distance = Math.sqrt(dx * dx + dy * dy)
+            
+            if (distance < 80) { // 减小连接距离
+              ctx.beginPath()
+              ctx.moveTo(particle.x, particle.y)
+              ctx.lineTo(otherParticle.x, otherParticle.y)
+              ctx.strokeStyle = `hsla(${particle.hue}, 70%, 60%, ${0.1 * (1 - distance / 80)})`
+              ctx.lineWidth = 0.5
+              ctx.stroke()
+            }
+          }
+        }
+      }
       
       animationId = requestAnimationFrame(animate)
     }
@@ -1113,10 +1873,89 @@
     animate()
     
     // 窗口大小变化处理
-    window.addEventListener('resize', () => {
+    const handleResize = () => {
       canvas.width = window.innerWidth
       canvas.height = window.innerHeight
-    })
+      
+      // 重新分布粒子
+      particles.forEach(particle => {
+        if (particle.x > canvas.width) particle.x = canvas.width - 10
+        if (particle.y > canvas.height) particle.y = canvas.height - 10
+      })
+    }
+    
+    window.addEventListener('resize', handleResize)
+    
+    // 滚动监听器 - 检测hero区域和清理粒子
+    let lastScrollY = window.scrollY
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+      const isScrollingDown = currentScrollY > lastScrollY
+      
+      // 检测是否在hero区域（首屏高度内）
+      const heroHeight = window.innerHeight
+      isInHeroSection = currentScrollY < heroHeight * 0.8 // 滚动超过80%视口高度时禁用交互
+      
+      // 当离开hero区域时，清理所有交互状态
+      if (!isInHeroSection) {
+        isMousePressed = false
+        isDragging = false
+        isLongPress = false
+        if (longPressTimer) {
+          clearTimeout(longPressTimer)
+          longPressTimer = null
+        }
+      }
+      
+      if (isScrollingDown) {
+        const aboutSection = document.getElementById('about')
+        if (aboutSection) {
+          const rect = aboutSection.getBoundingClientRect()
+          // 当向下滑动且艺术家简介页面进入视口时清理粒子
+          if (rect.top <= window.innerHeight && rect.bottom >= 0) {
+            if (mouseParticles.length > 0) {
+              mouseParticles.length = 0 // 清空数组
+            }
+          }
+        }
+      }
+      
+      lastScrollY = currentScrollY
+    }
+    
+    window.addEventListener('scroll', handleScroll)
+    
+    // 粒子系统初始化完成
+    
+    // 清理函数和接口
+    return {
+      cleanup: () => {
+        canvas.removeEventListener('mousemove', handleMouseMove)
+        canvas.removeEventListener('mousedown', handleMouseDown)
+        canvas.removeEventListener('mouseup', handleMouseUp)
+        canvas.removeEventListener('click', handleMouseUp)
+        canvas.removeEventListener('contextmenu', (e) => e.preventDefault())
+        window.removeEventListener('resize', handleResize)
+        window.removeEventListener('scroll', handleScroll)
+        
+        // 清理定时器
+        if (longPressTimer) {
+          clearTimeout(longPressTimer)
+          longPressTimer = null
+        }
+        
+        // 粒子系统已清理
+      },
+
+      getStatus: () => {
+        return {
+          baseParticles: particles.length,
+          interactiveParticles: mouseParticles.length,
+          total: particles.length + mouseParticles.length,
+          maxParticles: maxParticles
+        }
+      }
+    }
   }
   </script>
   
@@ -1210,6 +2049,22 @@
     text-rendering: optimizeLegibility;
   }
   
+  /* —— Hero左侧背景图片区域 —— */
+  .hero-background-right {
+    position: absolute;
+    top: 5%;
+    left: 2%;
+    width: 35%;
+    height: 90%;
+    background-image: url('/artist-journey/assets/background.jpg');
+    background-size: contain;
+    background-position: center center;
+    background-repeat: no-repeat;
+    border-radius: 20px;
+    z-index: 1;
+    opacity: 0.8;
+  }
+  
   /* —— 粒子背景（音波可视化） —— */
   #particles-canvas {
     position: fixed;
@@ -1217,10 +2072,181 @@
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 0;
-    pointer-events: none;
-    opacity: 0.4; /* 增加透明度 */
+    z-index: 10; /* 更高z-index确保可以接收事件 */
+    pointer-events: auto; /* 允许交互 */
+    opacity: 0.6; /* 提高可见度 */
     transition: opacity 0.3s ease;
+    cursor: default; /* 默认光标 */
+  }
+  
+
+  
+
+  
+  /* —— 海浪波纹背景 —— */
+  .wave-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  
+  .wave {
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, 
+      rgba(99, 102, 241, 0.03) 0%, 
+      rgba(139, 92, 246, 0.05) 25%, 
+      rgba(59, 130, 246, 0.03) 50%, 
+      rgba(236, 72, 153, 0.04) 75%, 
+      rgba(99, 102, 241, 0.03) 100%);
+    border-radius: 45%;
+    animation: waveFloat 20s ease-in-out infinite;
+    transform-origin: center center;
+  }
+  
+  .wave1 {
+    top: -50%;
+    left: -50%;
+    animation-delay: 0s;
+    animation-duration: 18s;
+  }
+  
+  .wave2 {
+    top: -60%;
+    right: -50%;
+    animation-delay: -5s;
+    animation-duration: 22s;
+    animation-direction: reverse;
+  }
+  
+  .wave3 {
+    bottom: -50%;
+    left: -40%;
+    animation-delay: -10s;
+    animation-duration: 25s;
+  }
+  
+  .wave4 {
+    bottom: -60%;
+    right: -60%;
+    animation-delay: -15s;
+    animation-duration: 20s;
+    animation-direction: reverse;
+  }
+  
+  @keyframes waveFloat {
+    0%, 100% {
+      transform: rotate(0deg) scale(1) translate(0, 0);
+      opacity: 0.3;
+    }
+    25% {
+      transform: rotate(90deg) scale(1.1) translate(20px, -10px);
+      opacity: 0.5;
+    }
+    50% {
+      transform: rotate(180deg) scale(0.9) translate(-10px, 20px);
+      opacity: 0.4;
+    }
+    75% {
+      transform: rotate(270deg) scale(1.05) translate(15px, 15px);
+      opacity: 0.6;
+    }
+  }
+  
+  /* —— 装饰性气泡 —— */
+  .bubble-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+  }
+  
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 20%, 
+      rgba(99, 102, 241, 0.1), 
+      rgba(139, 92, 246, 0.05), 
+      transparent);
+    border: 1px solid rgba(99, 102, 241, 0.08);
+    animation: bubbleFloat 25s linear infinite;
+  }
+  
+  .bubble1 {
+    width: 60px;
+    height: 60px;
+    left: 10%;
+    animation-delay: -5s;
+    animation-duration: 30s;
+  }
+  
+  .bubble2 {
+    width: 40px;
+    height: 40px;
+    left: 20%;
+    animation-delay: -10s;
+    animation-duration: 35s;
+  }
+  
+  .bubble3 {
+    width: 80px;
+    height: 80px;
+    left: 70%;
+    animation-delay: -15s;
+    animation-duration: 25s;
+  }
+  
+  .bubble4 {
+    width: 30px;
+    height: 30px;
+    left: 85%;
+    animation-delay: -20s;
+    animation-duration: 40s;
+  }
+  
+  .bubble5 {
+    width: 50px;
+    height: 50px;
+    left: 45%;
+    animation-delay: -25s;
+    animation-duration: 28s;
+  }
+  
+  .bubble6 {
+    width: 35px;
+    height: 35px;
+    left: 60%;
+    animation-delay: -30s;
+    animation-duration: 32s;
+  }
+  
+  @keyframes bubbleFloat {
+    0% {
+      transform: translateY(100vh) rotate(0deg) scale(1);
+      opacity: 0;
+    }
+    10% {
+      opacity: 0.4;
+    }
+    50% {
+      transform: translateY(50vh) rotate(180deg) scale(1.1);
+      opacity: 0.6;
+    }
+    90% {
+      opacity: 0.3;
+    }
+    100% {
+      transform: translateY(-10vh) rotate(360deg) scale(0.8);
+      opacity: 0;
+    }
   }
   
   /* —— 导航栏样式 —— */
@@ -1666,18 +2692,19 @@
   
   /* —— 卡片系统 —— */
   .music-card, .video-card {
-    background: rgba(255, 255, 255, 0.5); /* 增强透明感 */
-    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.6); /* 增强透明感 */
+    border-radius: 20px;
     overflow: hidden;
     box-shadow: 
-      0 12px 24px rgba(0, 0, 0, 0.08),
-      0 4px 12px rgba(0, 0, 0, 0.06),
+      0 8px 20px rgba(0, 0, 0, 0.06),
+      0 2px 8px rgba(0, 0, 0, 0.04),
       inset 0 1px 0 rgba(255, 255, 255, 0.8);
     transition: all 0.3s var(--ease-beat);
     position: relative;
-    padding: var(--space-6);
+    padding: var(--space-4);
     border: 1px solid rgba(255, 255, 255, 0.3);
     backdrop-filter: blur(20px);
+    min-height: 120px; /* 设置最小高度保持一致性 */
   }
   
   .music-card::before, .video-card::before {
@@ -1968,6 +2995,8 @@
   .audio-bar:nth-child(4) { animation-delay: 0.3s; height: 16px; }
   .audio-bar:nth-child(5) { animation-delay: 0.4s; height: 18px; }
   
+
+  
   @keyframes rhythmPulse {
     0%, 100% { transform: scale(1); opacity: 0.7; }
     50% { transform: scale(1.5); opacity: 1; }
@@ -2010,6 +3039,8 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    position: relative;
+    overflow-x: hidden; /* 防止水平滚动 */
   }
   
   /* —— 滚动动画基础样式 —— */
@@ -2049,18 +3080,307 @@
     border: none;
   }
   
-  /* —— 歌曲预览样式 —— */
-  .songs-preview {
-    border-top: 1px solid var(--gray-100);
-    padding-top: var(--space-4);
+  /* —— 播放专辑按钮 —— */
+  .play-album-btn {
+    background: linear-gradient(135deg, 
+      rgba(99, 102, 241, 0.1) 0%, 
+      rgba(139, 92, 246, 0.1) 50%, 
+      rgba(59, 130, 246, 0.1) 100%);
+    color: var(--music-primary);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-weight: var(--font-weight-medium);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s var(--ease-beat);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
   }
   
-  .songs-preview .flex {
-    border-bottom: 1px solid var(--gray-50);
+  .play-album-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+    transition: left 0.5s ease;
   }
   
-  .songs-preview .flex:last-child {
-    border-bottom: none;
+  .play-album-btn:hover {
+    background: linear-gradient(135deg, 
+      rgba(99, 102, 241, 0.9) 0%, 
+      rgba(139, 92, 246, 0.9) 50%, 
+      rgba(59, 130, 246, 0.9) 100%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+    border-color: rgba(99, 102, 241, 0.4);
+  }
+  
+  .play-album-btn:hover::before {
+    left: 100%;
+  }
+  
+  .play-album-btn:active {
+    transform: translateY(0);
+    transition: all 0.1s ease;
+  }
+  
+  .play-album-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  
+  .play-album-btn.loading {
+    background: linear-gradient(135deg, 
+      rgba(99, 102, 241, 0.3) 0%, 
+      rgba(139, 92, 246, 0.3) 50%, 
+      rgba(59, 130, 246, 0.3) 100%);
+    animation: loadingPulse 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes loadingPulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+  }
+  
+  .loading-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-right: 8px;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* —— 播放模式卡片样式 —— */
+  .playing-mode {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 2px solid rgba(99, 102, 241, 0.3) !important;
+    box-shadow: 
+      0 20px 40px rgba(99, 102, 241, 0.15),
+      0 8px 20px rgba(0, 0, 0, 0.08) !important;
+    transform: translateY(-5px) !important;
+    animation: cardPulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes cardPulse {
+    0%, 100% {
+      box-shadow: 
+        0 20px 40px rgba(99, 102, 241, 0.15),
+        0 8px 20px rgba(0, 0, 0, 0.08),
+        0 0 0 0 rgba(99, 102, 241, 0.3);
+    }
+    50% {
+      box-shadow: 
+        0 20px 40px rgba(99, 102, 241, 0.2),
+        0 8px 20px rgba(0, 0, 0, 0.08),
+        0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+  }
+  
+  .iframe-container {
+    padding: var(--space-4);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .iframe-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid var(--gray-100);
+  }
+  
+  .close-btn {
+    background: rgba(244, 63, 94, 0.1);
+    color: #f43f5e;
+    border: 1px solid rgba(244, 63, 94, 0.2);
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.3s var(--ease-beat);
+    backdrop-filter: blur(10px);
+    flex-shrink: 0;
+  }
+  
+  .close-btn:hover {
+    background: #f43f5e;
+    color: white;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(244, 63, 94, 0.3);
+  }
+  
+  .iframe-wrapper {
+    flex: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    background: var(--gray-50);
+  }
+  
+  .iframe-wrapper iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 12px;
+  }
+  
+  /* —— 网易云按钮样式 —— */
+  .netease-btn {
+    background: linear-gradient(135deg, 
+      rgba(99, 102, 241, 0.1) 0%, 
+      rgba(139, 92, 246, 0.1) 50%, 
+      rgba(59, 130, 246, 0.1) 100%);
+    color: var(--music-primary);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 12px;
+    padding: 8px 16px;
+    font-weight: var(--font-weight-medium);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s var(--ease-beat);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    text-decoration: none;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.15);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .netease-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+    transition: left 0.5s ease;
+  }
+  
+  .netease-btn:hover {
+    background: linear-gradient(135deg, 
+      rgba(99, 102, 241, 0.9) 0%, 
+      rgba(139, 92, 246, 0.9) 50%, 
+      rgba(59, 130, 246, 0.9) 100%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+    border-color: rgba(99, 102, 241, 0.4);
+  }
+  
+  .netease-btn:hover::before {
+    left: 100%;
+  }
+  
+  /* —— 标题Lottie动画容器 —— */
+  .title-lottie-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 1;
+  }
+  
+  .title-lottie {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    opacity: 0.6;
+    animation: titleLottieFloat 8s ease-in-out infinite;
+  }
+  
+  .title-lottie-1 {
+    top: -20px;
+    left: 20%;
+    animation-delay: 0s;
+  }
+  
+  .title-lottie-2 {
+    top: 40px;
+    right: 25%;
+    animation-delay: -3s;
+  }
+  
+  .title-lottie-3 {
+    top: -10px;
+    left: 70%;
+    animation-delay: -6s;
+  }
+  
+  @keyframes titleLottieFloat {
+    0%, 100% {
+      transform: translateY(0) rotate(0deg) scale(1);
+      opacity: 0.4;
+    }
+    50% {
+      transform: translateY(-15px) rotate(180deg) scale(1.1);
+      opacity: 0.7;
+    }
+  }
+  
+  /* —— 错误状态样式 —— */
+  .error-state {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    background: rgba(254, 226, 226, 0.8);
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+  }
+  
+  .error-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .retry-btn {
+    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: all 0.3s var(--ease-beat);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+  }
+  
+  .retry-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
   }
   
   /* —— 抖音卡片样式 —— */
@@ -2310,6 +3630,26 @@
     .music-section-lottie {
       display: none;
     }
+    
+    /* 移动设备上的音乐卡片和iframe */
+    .music-card {
+      min-height: 120px;
+      padding: var(--space-3);
+    }
+    
+    .iframe-wrapper iframe {
+      height: 350px;
+    }
+    
+    .iframe-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-2);
+    }
+    
+    .close-btn {
+      align-self: flex-end;
+    }
   }
   
   @media (min-width: 769px) {
@@ -2483,5 +3823,418 @@
     25% { transform: translateY(-8px) scale(1.02); }
     50% { transform: translateY(-2px) scale(1.01); }
     75% { transform: translateY(-5px) scale(1.01); }
+  }
+
+  /* —— 音乐专辑装饰动画 —— */
+  .music-album-section {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .animate-spin-slow {
+    animation: spin 8s linear infinite;
+  }
+
+  .animate-spin-slow-reverse {
+    animation: spin 12s linear infinite reverse;
+  }
+
+  .animate-spin-slow.delay-1000 {
+    animation-delay: 1s;
+  }
+
+  .animate-bounce.slow {
+    animation: bounce 3s infinite;
+  }
+
+  .animate-ping.slow {
+    animation: ping 4s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+
+  .animate-pulse.delay-300 {
+    animation-delay: 0.3s;
+  }
+
+  .animate-pulse.delay-500 {
+    animation-delay: 0.5s;
+  }
+
+  .animate-pulse.delay-700 {
+    animation-delay: 0.7s;
+  }
+
+  .animate-bounce.delay-500 {
+    animation-delay: 0.5s;
+  }
+
+  /* 音波动画 */
+  .animate-wave-1 {
+    animation: wave1 2s ease-in-out infinite;
+  }
+
+  .animate-wave-2 {
+    animation: wave2 2.2s ease-in-out infinite;
+  }
+
+  .animate-wave-3 {
+    animation: wave3 1.8s ease-in-out infinite;
+  }
+
+  .animate-wave-4 {
+    animation: wave4 2.4s ease-in-out infinite;
+  }
+
+  .animate-wave-1.delay-200 {
+    animation-delay: 0.2s;
+  }
+
+  .animate-wave-2.delay-300 {
+    animation-delay: 0.3s;
+  }
+
+  @keyframes wave1 {
+    0%, 100% { 
+      height: 2rem; 
+      opacity: 0.8;
+    }
+    50% { 
+      height: 3.5rem; 
+      opacity: 1;
+    }
+  }
+
+  @keyframes wave2 {
+    0%, 100% { 
+      height: 3rem; 
+      opacity: 0.7;
+    }
+    50% { 
+      height: 4rem; 
+      opacity: 1;
+    }
+  }
+
+  @keyframes wave3 {
+    0%, 100% { 
+      height: 1.5rem; 
+      opacity: 0.6;
+    }
+    50% { 
+      height: 2.5rem; 
+      opacity: 1;
+    }
+  }
+
+  @keyframes wave4 {
+    0%, 100% { 
+      height: 2.5rem; 
+      opacity: 0.8;
+    }
+    50% { 
+      height: 4.5rem; 
+      opacity: 1;
+    }
+  }
+
+  /* 音符悬浮效果 */
+  .music-note {
+    animation-fill-mode: both;
+    transform-origin: center;
+  }
+
+  .music-note:nth-child(odd) {
+    animation-direction: alternate;
+  }
+
+  .music-note:nth-child(even) {
+    animation-direction: alternate-reverse;
+  }
+
+  /* 唱片特效 */
+  .vinyl-record {
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .vinyl-record::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
+  }
+
+  /* 音乐线条流动效果 */
+  .music-lines {
+    animation: flow 6s ease-in-out infinite;
+  }
+
+  @keyframes flow {
+    0%, 100% {
+      opacity: 0.1;
+      transform: translateX(-100%);
+    }
+    50% {
+      opacity: 0.8;
+      transform: translateX(100%);
+    }
+  }
+
+  /* 专辑卡片增强效果 */
+  .music-card {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .music-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.03), transparent);
+    transform: rotate(45deg);
+    transition: all 0.5s;
+    opacity: 0;
+  }
+
+  .music-card:hover::before {
+    opacity: 1;
+    animation: shimmer 1.5s ease-in-out;
+  }
+
+  .music-card:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  }
+
+  @keyframes shimmer {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+  }
+
+  .album-cover img {
+    transition: all 0.3s ease;
+  }
+
+  .music-card:hover .album-cover img {
+    transform: scale(1.05);
+  }
+
+  /* 专辑装饰点动画增强 */
+  .animate-pulse.delay-100 {
+    animation-delay: 0.1s;
+  }
+
+  .animate-pulse.delay-200 {
+    animation-delay: 0.2s;
+  }
+
+  /* 文字截断样式 */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* 响应式调整音乐装饰 */
+  @media (max-width: 768px) {
+    .music-decorations .music-note {
+      font-size: 1.5rem;
+    }
+    
+    .vinyl-record {
+      width: 3rem !important;
+      height: 3rem !important;
+    }
+    
+    .sound-waves {
+      transform: scale(0.7);
+    }
+
+    .music-card:hover {
+      transform: translateY(-1px) scale(1.01);
+    }
+  }
+
+  /* —— 专辑展示区域样式 —— */
+  .album-showcase-container {
+    background: linear-gradient(135deg, 
+      rgba(255, 255, 255, 0.95) 0%, 
+      rgba(248, 250, 252, 0.9) 100%);
+    backdrop-filter: blur(20px);
+    border-radius: 20px;
+    margin: 2rem auto;
+    padding: 2rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .album-showcase-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: var(--album-bg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.25;
+    z-index: -1;
+    transition: all 0.5s ease;
+    filter: blur(0.3px);
+  }
+  
+  .album-showcase-container:hover::before {
+    opacity: 0.35;
+    filter: blur(0px);
+    transform: scale(1.01);
+  }
+  
+  .album-circle {
+    position: relative;
+  }
+  
+  .album-circle .w-80 {
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .shadow-music {
+    box-shadow: 0 40px 80px rgba(59, 130, 246, 0.3) !important;
+  }
+  
+  .album-title {
+    background: linear-gradient(135deg, #1f2937, #3b82f6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .achievement-item {
+    transition: all 0.3s ease;
+    padding: 0.5rem;
+    border-radius: 8px;
+  }
+  
+  .achievement-item:hover {
+    background: rgba(59, 130, 246, 0.05);
+    transform: translateX(8px);
+  }
+  
+  .album-stats .stat-item {
+    transition: transform 0.3s ease;
+  }
+  
+  .album-stats .stat-item:hover {
+    transform: translateY(-4px);
+  }
+  
+  /* 导航按钮样式 */
+  .nav-btn-inner {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .nav-btn:hover .nav-btn-inner {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  }
+  
+  .nav-btn:hover svg {
+    color: white !important;
+  }
+  
+  .indicator {
+    transition: all 0.3s ease;
+  }
+  
+  .indicator:hover {
+    transform: scale(1.5);
+  }
+  
+  /* 音频播放器样式 */
+  .music-player {
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+  }
+  
+  .music-player:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  }
+  
+  .progress-bar {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .progress-fill {
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    position: relative;
+  }
+  
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: shimmer 2s infinite;
+  }
+  
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  /* 专辑展示区域响应式 */
+  @media (max-width: 768px) {
+    .album-showcase {
+      flex-direction: column;
+      text-align: center;
+      min-height: auto !important;
+      padding: 1rem;
+    }
+
+    .album-visual {
+      margin-right: 0;
+      margin-bottom: 2rem;
+    }
+
+    .album-circle .w-80 {
+      width: 16rem !important;
+      height: 16rem !important;
+    }
+
+    .album-title {
+      font-size: 2.5rem !important;
+    }
+
+    .album-navigation {
+      bottom: 1rem;
+      space-x: 2rem;
+    }
+
+    .nav-btn-inner {
+      padding: 0.75rem;
+    }
+
+    .music-player {
+      margin-top: 2rem;
+    }
   }
   </style> 
