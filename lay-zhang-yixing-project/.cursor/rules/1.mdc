@@ -3,62 +3,120 @@ description:
 globs: 
 alwaysApply: false
 ---
-1. 前端技术规范
-框架与语言：Vue 3 + TypeScript，所有前端代码必须采用 TypeScript，确保类型安全。
 
-样式管理：使用 Tailwind CSS 进行原子化样式设计，确保样式的一致性和可重用性。
+1 端口 & 环境变量
+项目	端口	关键文件	说明
+Vite Dev Server	3004	vite.config.ts → server.port & server.hmr.port	浏览器必须走 3004；禁止 3000
+Spring Boot	8080	backend/src/main/resources/application.yml	仅导出静态 timeline.json
+Env	VITE_API_BASE_URL=http://localhost:8080/api	.env.local	Axios 基址
 
-组件化开发：所有 UI 组件必须符合苹果风格设计，并且按照功能进行模块化。
+2 路由规范（懒加载 · 三级跳）
+路径	name	组件	作用
+/	Home	Home.vue（或 ArtistJourney.vue）	站点首页
+含按钮 进入 3D 时间轴 → /timeline-landing
+/timeline-landing	TimelineLanding	TimelineLanding.vue	3D 首屏（全屏 Canvas3D + CTA）
+点击 CTA → /timeline
+/timeline	Timeline	TimelinePage.vue（包装 Timeline3D）	3D 卡片时间轴；BackTop 返回 /timeline-landing
+/year/:year(\\d{4})	YearDetail	YearDetail.vue	年份详情；BackTop 返回 /timeline
+/x-back	AdminLogin	AdminLogin.vue	后台登录
+/x-back/dashboard	AdminDashboard	AdminDashboard.vue	后台仪表盘；meta.requiresAuth
+其他	—	—	/:pathMatch(.*)* → /
 
-响应式布局：确保所有页面和组件在不同设备上有良好的适配，使用 Tailwind CSS 的响应式设计类。
+懒加载写法
+component: () => import('@/views/TimelinePage.vue')
 
-UI 动画：使用 Lottie-web 和 Vue3-lottie 库进行动画效果，保持流畅的用户体验。
+3 目录结构（关键层）
+bash
+复制
+编辑
+src/
+ ├─ views/
+ │   ├─ Home.vue
+ │   ├─ TimelineLanding.vue        # 3D 首屏
+ │   ├─ TimelinePage.vue           # BackTop + Timeline3D
+ │   ├─ Timeline3D.vue             # Swiper + ScrollTrigger + Canvas3D
+ │   ├─ ArtistJourney.vue
+ │   ├─ YearDetail.vue
+ │   ├─ AdminLogin.vue
+ │   └─ AdminDashboard.vue
+ ├─ components/
+ │   ├─ EnterButton.vue
+ │   ├─ timeline/BackTop.vue
+ │   └─ three/Canvas3D.vue
+ ├─ router/index.ts
+ ├─ store/timeline.ts
+ ├─ api/axios.ts
+ └─ …
+public/database/
+ ├─ timeline.json                  # 后端导出
+ ├─ thumbs/                        # 小图
+ └─ images/                        # 高清图
+4 Three.js & GSAP 交互
+场景	组件	关键点
+全局渲染	components/three/Canvas3D.vue	FOV 45，camera.position (0,0,80)；resize；粒子示例
+首页视差	TimelineLanding.vue	pointermove → 相机轻微 yaw/pitch
+时间轴滚动	Timeline3D.vue	ScrollTrigger：pin+scrub; snap=1/(yearCount-1); 相机 z 80→35
+详情页	YearDetail.vue	静态 UI（如网格大图）；无 3D 动画
 
-2. 后端技术规范
-Spring Boot 架构：使用 Spring Boot 作为后端框架，确保后端系统的高效性和可扩展性。
+5 静态数据
+文件 public/database/timeline.json
 
-数据库设计：使用 MySQL 进行数据持久化，采用 Spring Data JPA 进行 ORM 映射，确保数据库操作的简洁和安全。
+json
+复制
+编辑
+[
+  {
+    "year": 2020,
+    "events": [
+      {
+        "id": "e2020-1",
+        "title": "发行专辑",
+        "imagePath": "/database/images/2020_album.webp",
+        "timestamp": "2020-10-15"
+      }
+    ]
+  }
+]
+Pinia timeline store：
 
-安全性：后端 API 必须进行严格的权限控制与数据验证，确保数据安全性。
+years 数组
 
-文件上传：使用 Express 和 Multer 处理文件上传，所有上传文件应经过必要的安全检查。
+ensureLoaded() 懒加载 json（带缓存）
 
-3. 项目结构与组织
-前端结构：
+图片双通道：thumbs/ 列表用；images/ 详情页用；全部 WebP/AVIF + lazy。
 
-按照功能模块进行分层，组件、页面、服务等文件应按功能划分清晰。
+6 样式守则
+项目	规则
+TailwindCSS	全局启用；自定义渐变、阴影用 @apply
+禁止永久锁滚	只能在组件 onMounted 设置 body.style.overflow='hidden'，在 onUnmounted 清空
+FPS 目标	桌面 ≥ 30 fps，优先压缩纹理、降低粒子数
 
-路由配置应采用 Vue Router 进行模块化管理，避免过多耦合。
+7 “同步档”机制（协作必备）
+每次提交/讨论前请刷新并发送：
 
-后端结构：
+docs/PROJECT_TREE.md —— pnpm run gen:tree 生成第 3 层目录树
 
-后端项目应按业务功能进行分层，如控制器、服务、数据访问层等，确保清晰的分离关注点。
+docs/ROUTES.md —— 按上表更新
 
-API 设计遵循 RESTful 风格，所有接口都应提供适当的文档支持。
+docs/CONFIG_PORTS.md —— 端口 & env 一览
 
-4. 数据管理与存储
-开发环境：前端数据在开发环境下使用 LocalStorage 和 Pinia 状态管理进行存储。
+前端 package.json 中 dependencies + devDependencies 片段
 
-生产环境：数据存储采用 MySQL 数据库，并使用 Spring Data JPA 进行数据持久化。
+后端 pom.xml 中 <dependencies> 片段（若有改动）
 
-文件存储：图片上传使用 Express 和 Multer 进行管理，上传文件需要进行限制和安全检查。
-
-5. 部署与环境管理
-静态部署：支持通过 Netlify、Vercel、GitHub Pages 等平台进行静态网站托管，适用于轻量级展示。
-
-全栈部署：在需要用户数据持久化的情况下，采用 Spring Boot 后端 + MySQL 数据库进行全栈部署，确保系统的稳定性和可靠性。
-
-6. UI 风格与设计
-苹果风格：所有页面和组件的设计需遵循苹果风格极简设计原则，使用渐变蓝紫色系主题进行配色。
-
-毛玻璃效果与流畅动画：所有 UI 组件要根据需求加入毛玻璃效果，并使用 Lottie 动画确保过渡效果平滑。
-
-响应式布局：所有页面和组件必须具有响应式设计，适配不同设备和分辨率。
-
-7. 对话记忆与规则更新
-实时对话记忆：每次对话中，系统会自动记住当前对话的关键信息，避免重复查询之前的内容，提高沟通效率。
-
-规则调整提醒：如果出现需要调整的项目规则或用户规则，系统将主动提醒并要求确认调整内容。调整后的规则会自动更新并保存，以便下一次对话时能继续基于最新规则进行沟通。
-
-
-规则更新日志：每次规则更新时，会保留更新日志，帮助开发人员回溯历史规则调整，确保开发过程的一致性。
+8 脚本
+jsonc
+复制
+编辑
+// package.json
+{
+  "scripts": {
+    "dev": "vite",                 // 打开 3004
+    "gen:tree": "npx tree -I 'node_modules|dist|logs|.git|.idea|target' -L 3 -F --dirsfirst > docs/PROJECT_TREE.md"
+  }
+}
+9 常见坑 & 处理
+问题	解决方案
+浏览器仍 ping 3000	再次确认 vite.config.ts server.hmr.port=3004; 关闭旧标签
+返回首页后滚轮失效	确认未残留全局 CSS body{overflow:hidden}；用生命周期恢复
+模块路径报错	tsconfig.json paths 与目录别名 @ 一致；重启 Vite

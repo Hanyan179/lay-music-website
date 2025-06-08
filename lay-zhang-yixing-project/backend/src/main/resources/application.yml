@@ -30,3 +30,9 @@ logging:
     com.lay.music: debug
   pattern:
     console: '%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{50} - %msg%n' 
+
+# 导出配置
+export:
+  frontend-dir: ../frontend  # 前端项目目录，相对路径
+  image-prefix: /database/images/  # 图片URL前缀 
+  image-prefix: /database/images/  # 图片URL前缀 

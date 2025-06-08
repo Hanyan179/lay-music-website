@@ -119,8 +119,10 @@
             <div class="audio-bar"></div>
           </div>
           
-
-          
+          <!-- 3D时间轴入口按钮 -->
+          <div class="mt-16 flex justify-center">
+            <EnterButton @click="enterTimeline" />
+          </div>
 
         </div>
       </section>
@@ -610,11 +612,23 @@
           </nav>
         </div>
       </div>
+      <!-- 页面底部插入按钮 -->
+      <button
+        class="mt-10 px-6 py-3 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white
+               hover:scale-105 transition-transform"
+        @click="router.push({ name: 'Timeline' })"
+      >
+        进入 3D 时间轴
+      </button>
     </div>
   </template>
   
-  <script setup>
-  import { ref, onMounted, onUnmounted } from 'vue'
+  <script setup lang="ts">
+import EnterButton from '@/components/EnterButton.vue'
+import { onMounted, onUnmounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+  
+  const router = useRouter()
   
   // 响应式数据
   const hoverCount = ref(0)
@@ -906,6 +920,11 @@
     currentAlbumIndex.value = index
     currentAlbum.value = musicData[index]
     updateAlbumBackground()
+  }
+
+  // 进入3D时间轴首页
+  const enterTimeline = () => {
+    router.push({ name: 'Landing3D' })
   }
   
   // 更新专辑背景

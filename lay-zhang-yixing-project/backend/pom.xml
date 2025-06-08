@@ -45,7 +45,7 @@
             <scope>runtime</scope>
         </dependency>
         -->
-        
+
         <!-- MySQL连接器 (生产环境使用) -->
         <dependency>
             <groupId>com.mysql</groupId>
@@ -93,6 +93,13 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <!-- Swagger UI -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>1.7.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -105,6 +112,13 @@
                         <exclude>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project> 
                         </exclude>
                     </excludes>
                 </configuration>

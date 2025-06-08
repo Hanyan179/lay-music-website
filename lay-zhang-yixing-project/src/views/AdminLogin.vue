@@ -190,7 +190,7 @@ export default {
           
           // 延迟跳转，显示成功消息
           setTimeout(() => {
-            router.push('/x-back/dashboard')
+          router.push('/x-back/dashboard')
           }, 1500)
         } else {
           showNotification(response.message || '登录失败', 'error')

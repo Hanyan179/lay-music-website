@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>断点调试测试 - LAY音乐网站</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 16px;
+        }
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #ff5252;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            white-space: pre-wrap;
+        }
+        .debug-info {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐛 断点调试测试</h1>
+        
+        <div class="debug-info">
+            <h3>📋 调试步骤说明：</h3>
+            <p>1. 在VS Code中打开 AdminAuthController.java</p>
+            <p>2. 在第42行设置断点（登录验证那一行）</p>
+            <p>3. 使用"调试 Spring Boot"配置启动后端</p>
+            <p>4. 点击下面的"测试登录"按钮</p>
+            <p>5. 检查断点是否被触发</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">用户名：</label>
+                <input type="text" id="username" value="admin" placeholder="输入用户名">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">密码：</label>
+                <input type="password" id="password" value="LayMusic@2025" placeholder="输入密码">
+            </div>
+            
+            <button type="submit">🔍 测试登录（触发断点）</button>
+        </form>
+        
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = '🔄 正在发送请求... 请检查VS Code中的断点是否被触发！';
+                
+                const response = await fetch('http://localhost:8080/api/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+🎯 断点测试结果：
+状态码: ${response.status}
+响应数据: ${JSON.stringify(data, null, 2)}
+
+✅ 如果你在VS Code中看到了断点暂停，说明调试配置成功！
+你可以在断点处查看变量值、单步执行代码等。`;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `❌ 请求失败: ${error.message}
+请确保后端服务正在调试模式下运行`;
+            }
+        });
+    </script>
+</body>
+</html> 
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>断点调试测试 - LAY音乐网站</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 16px;
+        }
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #ff5252;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            white-space: pre-wrap;
+        }
+        .debug-info {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐛 断点调试测试</h1>
+        
+        <div class="debug-info">
+            <h3>📋 调试步骤说明：</h3>
+            <p>1. 在VS Code中打开 AdminAuthController.java</p>
+            <p>2. 在第42行设置断点（登录验证那一行）</p>
+            <p>3. 使用"调试 Spring Boot"配置启动后端</p>
+            <p>4. 点击下面的"测试登录"按钮</p>
+            <p>5. 检查断点是否被触发</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">用户名：</label>
+                <input type="text" id="username" value="admin" placeholder="输入用户名">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">密码：</label>
+                <input type="password" id="password" value="LayMusic@2025" placeholder="输入密码">
+            </div>
+            
+            <button type="submit">🔍 测试登录（触发断点）</button>
+        </form>
+        
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = '🔄 正在发送请求... 请检查VS Code中的断点是否被触发！';
+                
+                const response = await fetch('http://localhost:8080/api/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+🎯 断点测试结果：
+状态码: ${response.status}
+响应数据: ${JSON.stringify(data, null, 2)}
+
+✅ 如果你在VS Code中看到了断点暂停，说明调试配置成功！
+你可以在断点处查看变量值、单步执行代码等。`;
+                
+            } catch (error) {
+                resultDiv.innerHTML = `❌ 请求失败: ${error.message}
+请确保后端服务正在调试模式下运行`;
+            }
+        });
+    </script>
+</body>
+</html> 

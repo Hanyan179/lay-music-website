@@ -40,28 +40,28 @@ public class AdminAuthController {
         try {
             // 使用加密密码验证
             if ("admin".equals(username) && PasswordUtils.verifyPassword(password, STORED_PASSWORD)) {
-                Map<String, Object> data = new HashMap<>();
+            Map<String, Object> data = new HashMap<>();
                 data.put("token", "LAY-JWT-TOKEN-" + System.currentTimeMillis());
-                data.put("userInfo", Map.of(
-                    "id", "1",
-                    "username", "admin",
-                    "realName", "系统管理员",
-                    "department", "技术部",
+            data.put("userInfo", Map.of(
+                "id", "1",
+                "username", "admin",
+                "realName", "系统管理员",
+                "department", "技术部",
                     "position", "后台管理员",
                     "lastLoginTime", System.currentTimeMillis()
-                ));
-                
-                response.put("code", 200);
-                response.put("message", "登录成功");
-                response.put("data", data);
-                response.put("timestamp", System.currentTimeMillis());
+            ));
+            
+            response.put("code", 200);
+            response.put("message", "登录成功");
+            response.put("data", data);
+            response.put("timestamp", System.currentTimeMillis());
                 
                 // 记录登录日志
                 System.out.println("管理员登录成功: " + username + " - " + new java.util.Date());
                 
-            } else {
-                response.put("code", 401);
-                response.put("message", "用户名或密码错误");
+        } else {
+            response.put("code", 401);
+            response.put("message", "用户名或密码错误");
                 response.put("data", null);
                 response.put("timestamp", System.currentTimeMillis());
                 
@@ -185,8 +185,8 @@ public class AdminAuthController {
                     // 原密码正确，更新为新密码（实际应用中应该更新数据库）
                     String newEncryptedPassword = PasswordUtils.encryptPassword(request.getNewPassword());
                     
-                    response.put("code", 200);
-                    response.put("message", "密码修改成功");
+                response.put("code", 200);
+                response.put("message", "密码修改成功");
                     response.put("data", Map.of(
                         "message", "密码已更新，请重新登录",
                         "timestamp", System.currentTimeMillis()
@@ -196,9 +196,9 @@ public class AdminAuthController {
                     System.out.println("管理员密码修改成功 - " + new java.util.Date());
                     System.out.println("新密码加密值: " + newEncryptedPassword);
                     
-                } else {
-                    response.put("code", 400);
-                    response.put("message", "原密码错误");
+            } else {
+                response.put("code", 400);
+                response.put("message", "原密码错误");
                     response.put("data", null);
                     
                     // 记录密码修改失败日志

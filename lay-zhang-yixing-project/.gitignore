@@ -10,7 +10,6 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
-*.local
 
 # Editor directories and files
 .vscode/*
@@ -25,10 +24,10 @@ dist-ssr
 
 # Environment variables
 .env
-.env.local
 .env.development.local
 .env.test.local
 .env.production.local
+# Note: .env.local is tracked for development
 
 # Database
 *.db

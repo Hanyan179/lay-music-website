@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "张艺兴音乐主题网站 - Vue3 + Spring Boot",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 3004 --strictPort",
     "build": "vite build",
     "preview": "vite preview",
     "serve": "vite preview --port 3000"
@@ -14,13 +14,15 @@
     "crypto-js": "^4.2.0",
     "element-plus": "^2.4.0",
     "gsap": "^3.12.0",
+    "lil-gui": "^0.20.0",
     "lottie-web": "^5.12.0",
     "pinia": "^2.1.0",
-    "three": "^0.165.0",
+    "three": "0.165",
     "vue": "^3.4.0",
     "vue-router": "^4.2.0"
   },
   "devDependencies": {
+    "@types/three": "^0.177.0",
     "@vitejs/plugin-vue": "^5.0.0",
     "autoprefixer": "^10.4.0",
     "postcss": "^8.4.0",
