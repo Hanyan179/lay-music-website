@@ -1,10 +1,12 @@
 import { GUI } from 'lil-gui'
 import * as THREE from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { onMounted, onUnmounted } from 'vue'
 
 export function useThreeScene () {
   const scene = new THREE.Scene()
-  const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000)
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
   const renderer = new THREE.WebGLRenderer({ 
     antialias: true, 
     alpha: true,
@@ -14,396 +16,326 @@ export function useThreeScene () {
   
   // 核心对象
   let gui: GUI | null = null
-  let raycaster: THREE.Raycaster | null = null
-  let mouse = new THREE.Vector2()
+  let controls: OrbitControls | null = null
+  let loadedModel: THREE.Group | null = null
+  let mixer: THREE.AnimationMixer | null = null
   
-  // 场景元素组
-  let roomGroup: THREE.Group | null = null
-  let furnitureGroup: THREE.Group | null = null
-  let decorationGroup: THREE.Group | null = null
-  let interactiveObjects: THREE.Object3D[] = []
+  // 动画控制
+  let isEnteringAnimation = true
+  let animationProgress = 0
+  let animationDuration = 5.0 // 5秒进入动画
   
-  // 动画和交互
-  let targetCameraPosition = new THREE.Vector3(0, 8, 15)
-  let targetLookAt = new THREE.Vector3(0, 2, 0)
-  let hoveredObject: THREE.Object3D | null = null
+  // 相机路径
+  const entryPath = {
+    startPosition: new THREE.Vector3(0, 50, 100),    // 起始位置（远距离）
+    endPosition: new THREE.Vector3(0, 2, 0),         // 结束位置（模型内部）
+    startTarget: new THREE.Vector3(0, 0, 0),         // 起始观看目标
+    endTarget: new THREE.Vector3(0, 2, -5)           // 结束观看目标
+  }
 
-  // 少女心温馨屋子参数
+  // 场景参数
   const params = {
-    // 房间基础设置
-    wallColor: '#FFE4E6',           // 温暖粉色墙壁
-    floorColor: '#FFF8DC',          // 奶白色地板
-    ceilingColor: '#F8F8FF',        // 幽灵白天花板
+    // GLB模型设置
+    modelPath: '/modules/colored_fixed_preview.glb',
+    modelScale: 1.0,
+    
+    // 动画控制
+    animationSpeed: 1.0,
+    autoStart: true,
     
     // 光照系统
-    ambientIntensity: 0.4,          // 环境光强度
-    sunlightIntensity: 1.2,         // 阳光强度
-    warmLightIntensity: 0.8,        // 温暖光强度
-    sunlightColor: '#FFE4B5',       // 温暖阳光色
-    lampColor: '#FFB6C1',           // 粉色台灯
-    
-    // 装饰效果（预留）
-    decorativeElements: true,       // 装饰元素开关
-    
-    // 交互设置
-    hoverScale: 1.1,                // 悬停缩放
-    clickResponse: true,            // 点击响应
-    mouseInfluence: 0.3,            // 鼠标影响强度
-    autoRotate: false,              // 自动旋转
+    ambientIntensity: 0.6,
+    directionalIntensity: 1.0,
+    pointLightIntensity: 0.8,
     
     // 相机控制
-    cameraHeight: 8,                // 相机高度
-    cameraDistance: 15,             // 相机距离
-    cameraSpeed: 2.0,               // 相机移动速度
-    lookAtHeight: 2,                // 视线高度
+    enableControls: false,
     
-    // 音效（预留）
-    enableSounds: true,
-    ambientVolume: 0.3,
-    interactVolume: 0.5
+    // 材质增强
+    materialRoughness: 0.4,
+    materialMetalness: 0.1
   }
 
-  // 创建房间结构
-  function createRoom() {
-    roomGroup = new THREE.Group()
+  // 加载GLB模型
+  function loadGLBModel() {
+    const loader = new GLTFLoader()
     
-    const width = 20, height = 10, depth = 20
-    
-    // 地板
-    const floorGeometry = new THREE.PlaneGeometry(width, depth)
-    const floorMaterial = new THREE.MeshLambertMaterial({ 
-      color: params.floorColor
-    })
-    const floor = new THREE.Mesh(floorGeometry, floorMaterial)
-    floor.rotation.x = -Math.PI / 2
-    floor.receiveShadow = true
-    roomGroup.add(floor)
-    
-    // 墙壁
-    const wallMaterial = new THREE.MeshLambertMaterial({ 
-      color: params.wallColor
-    })
-    
-    // 后墙
-    const backWall = new THREE.Mesh(new THREE.PlaneGeometry(width, height), wallMaterial)
-    backWall.position.set(0, height/2, -depth/2)
-    roomGroup.add(backWall)
-    
-    // 左墙
-    const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(depth, height), wallMaterial)
-    leftWall.position.set(-width/2, height/2, 0)
-    leftWall.rotation.y = Math.PI / 2
-    roomGroup.add(leftWall)
-    
-    // 右墙
-    const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(depth, height), wallMaterial)
-    rightWall.position.set(width/2, height/2, 0)
-    rightWall.rotation.y = -Math.PI / 2
-    roomGroup.add(rightWall)
-    
-    // 天花板
-    const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(width, depth), new THREE.MeshLambertMaterial({ color: params.ceilingColor }))
-    ceiling.position.y = height
-    ceiling.rotation.x = Math.PI / 2
-    roomGroup.add(ceiling)
-    
-    // 窗户
-    const window = new THREE.Mesh(
-      new THREE.PlaneGeometry(6, 4), 
-      new THREE.MeshBasicMaterial({ color: 0x87CEEB, transparent: true, opacity: 0.3 })
+    loader.load(
+      params.modelPath,
+      (gltf) => {
+        console.log('🎯 GLB模型加载成功:', gltf)
+        
+        loadedModel = gltf.scene
+        loadedModel.scale.setScalar(params.modelScale)
+        
+        // 计算模型包围盒
+        const box = new THREE.Box3().setFromObject(loadedModel)
+        const center = box.getCenter(new THREE.Vector3())
+        const size = box.getSize(new THREE.Vector3())
+        
+        console.log('📦 模型尺寸:', { center, size })
+        
+        // 调整相机路径基于模型尺寸
+        const maxDimension = Math.max(size.x, size.y, size.z)
+        entryPath.startPosition.set(
+          center.x,
+          center.y + maxDimension * 2,
+          center.z + maxDimension * 3
+        )
+        entryPath.endPosition.copy(center)
+        entryPath.endPosition.y += size.y * 0.3
+        
+        entryPath.startTarget.copy(center)
+        entryPath.endTarget.copy(center)
+        entryPath.endTarget.z -= size.z * 0.3
+        
+        // 增强材质
+        enhanceModelMaterials(loadedModel)
+        
+        // 添加到场景
+        scene.add(loadedModel)
+        
+        // 处理动画
+        if (gltf.animations && gltf.animations.length > 0) {
+          mixer = new THREE.AnimationMixer(loadedModel)
+          gltf.animations.forEach((clip) => {
+            if (mixer) {
+              const action = mixer.clipAction(clip)
+              action.play()
+            }
+          })
+          console.log('🎬 找到', gltf.animations.length, '个动画')
+        }
+        
+        // 开始进入动画
+        if (params.autoStart) {
+          startEntryAnimation()
+        } else {
+          completeEntryAnimation()
+        }
+      },
+      (progress) => {
+        const percentage = (progress.loaded / progress.total) * 100
+        console.log('⏳ 模型加载进度:', percentage.toFixed(2) + '%')
+      },
+      (error) => {
+        console.error('❌ GLB模型加载失败:', error)
+        createFallbackScene()
+      }
     )
-    window.position.set(6, 6, -depth/2 + 0.1)
-    roomGroup.add(window)
-    
-    scene.add(roomGroup)
   }
 
-  // 创建家具
-  function createFurniture() {
-    furnitureGroup = new THREE.Group()
+  // 增强模型材质
+  function enhanceModelMaterials(model: THREE.Group) {
+    model.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        if (child.material instanceof THREE.MeshStandardMaterial) {
+          child.material.roughness = params.materialRoughness
+          child.material.metalness = params.materialMetalness
+          child.castShadow = true
+          child.receiveShadow = true
+        } else if (child.material instanceof THREE.MeshBasicMaterial) {
+          // 将基础材质升级为标准材质
+          const newMaterial = new THREE.MeshStandardMaterial({
+            map: child.material.map,
+            color: child.material.color,
+            roughness: params.materialRoughness,
+            metalness: params.materialMetalness
+          })
+          child.material = newMaterial
+          child.castShadow = true
+          child.receiveShadow = true
+        }
+      }
+    })
+  }
+
+  // 创建后备场景
+  function createFallbackScene() {
+    const geometry = new THREE.BoxGeometry(10, 10, 10)
+    const material = new THREE.MeshStandardMaterial({ 
+      color: '#ff6b9d',
+      roughness: 0.4,
+      metalness: 0.1
+    })
+    const cube = new THREE.Mesh(geometry, material)
+    cube.position.set(0, 0, 0)
+    scene.add(cube)
     
-    // 床
-    const bed = new THREE.Mesh(
-      new THREE.BoxGeometry(6, 1, 8),
-      new THREE.MeshPhongMaterial({ color: '#FFB6C1', shininess: 30 })
-    )
-    bed.position.set(-5, 0.5, -5)
-    bed.castShadow = true
-    bed.userData = { interactive: true, name: 'bed' }
-    furnitureGroup.add(bed)
-    interactiveObjects.push(bed)
+    console.log('📦 使用后备场景')
+    completeEntryAnimation()
+  }
+
+  // 开始进入动画
+  function startEntryAnimation() {
+    isEnteringAnimation = true
+    animationProgress = 0
     
-    // 枕头
-    for (let i = 0; i < 3; i++) {
-      const pillow = new THREE.Mesh(
-        new THREE.SphereGeometry(1, 16, 12),
-        new THREE.MeshPhongMaterial({ color: new THREE.Color().setHSL(0.9 + i * 0.05, 0.5, 0.9) })
-      )
-      pillow.position.set(-5 + i * 1.5, 1.5, -7)
-      pillow.scale.set(1, 0.6, 1.2)
-      pillow.castShadow = true
-      pillow.userData = { interactive: true, name: 'pillow' }
-      furnitureGroup.add(pillow)
-      interactiveObjects.push(pillow)
+    camera.position.copy(entryPath.startPosition)
+    camera.lookAt(entryPath.startTarget)
+    
+    console.log('🚀 开始进入动画')
+  }
+
+  // 完成进入动画
+  function completeEntryAnimation() {
+    isEnteringAnimation = false
+    animationProgress = 1.0
+    
+    camera.position.copy(entryPath.endPosition)
+    camera.lookAt(entryPath.endTarget)
+    
+    if (controls) {
+      controls.enabled = true
+      controls.target.copy(entryPath.endTarget)
+      controls.update()
     }
     
-    // 书桌
-    const desk = new THREE.Mesh(
-      new THREE.BoxGeometry(5, 0.2, 3),
-      new THREE.MeshPhongMaterial({ color: '#F5DEB3' })
-    )
-    desk.position.set(0, 2, 6)
-    desk.castShadow = true
-    desk.userData = { interactive: true, name: 'desk' }
-    furnitureGroup.add(desk)
-    interactiveObjects.push(desk)
-    
-    scene.add(furnitureGroup)
+    params.enableControls = true
+    console.log('✅ 进入动画完成，控制器已启用')
   }
 
-  // 创建装饰品
-  function createDecorations() {
-    decorationGroup = new THREE.Group()
+  // 更新进入动画
+  function updateEntryAnimation(deltaTime: number) {
+    if (!isEnteringAnimation) return
     
-    // 台灯
-    const lamp = new THREE.Mesh(
-      new THREE.ConeGeometry(1, 2, 8),
-      new THREE.MeshPhongMaterial({ 
-        color: params.lampColor,
-        emissive: params.lampColor,
-        emissiveIntensity: 0.2
-      })
-    )
-    lamp.position.set(-2, 3, 6)
-    lamp.userData = { interactive: true, name: 'lamp' }
-    decorationGroup.add(lamp)
-    interactiveObjects.push(lamp)
+    animationProgress += (deltaTime * params.animationSpeed) / animationDuration
     
-    // 台灯光源
-    const lampLight = new THREE.PointLight(params.lampColor, 0.8, 10)
-    lampLight.position.set(-2, 4, 6)
-    lampLight.castShadow = true
-    decorationGroup.add(lampLight)
-    
-    // 花瓶
-    const vase = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.5, 1, 2, 16),
-      new THREE.MeshPhongMaterial({ color: '#E6E6FA', shininess: 80 })
-    )
-    vase.position.set(2, 3, 6)
-    vase.userData = { interactive: true, name: 'vase' }
-    decorationGroup.add(vase)
-    interactiveObjects.push(vase)
-    
-    // 毛绒玩具
-    for (let i = 0; i < 4; i++) {
-      const toy = new THREE.Mesh(
-        new THREE.SphereGeometry(0.8, 12, 8),
-        new THREE.MeshPhongMaterial({ color: new THREE.Color().setHSL(0.9 + i * 0.1, 0.6, 0.8) })
-      )
-      toy.position.set(-8 + i * 2, 1.5, Math.random() * 8 - 4)
-      toy.userData = { interactive: true, name: 'toy' }
-      decorationGroup.add(toy)
-      interactiveObjects.push(toy)
+    if (animationProgress >= 1.0) {
+      completeEntryAnimation()
+      return
     }
     
-    scene.add(decorationGroup)
+    // 使用easeInOutCubic缓动函数
+    const t = easeInOutCubic(animationProgress)
+    
+    // 插值相机位置
+    camera.position.lerpVectors(entryPath.startPosition, entryPath.endPosition, t)
+    
+    // 插值观看目标
+    const currentTarget = new THREE.Vector3()
+    currentTarget.lerpVectors(entryPath.startTarget, entryPath.endTarget, t)
+    camera.lookAt(currentTarget)
   }
 
-  // 设置光照
+  // 缓动函数
+  function easeInOutCubic(t: number): number {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
+  }
+
+  // 设置光照系统
   function setupLighting() {
     // 环境光
-    const ambientLight = new THREE.AmbientLight(0xFFE4E6, params.ambientIntensity)
+    const ambientLight = new THREE.AmbientLight('#ffffff', params.ambientIntensity)
     scene.add(ambientLight)
     
-    // 阳光
-    const sunlight = new THREE.DirectionalLight(params.sunlightColor, params.sunlightIntensity)
-    sunlight.position.set(10, 10, -5)
-    sunlight.castShadow = true
-    sunlight.shadow.mapSize.width = 2048
-    sunlight.shadow.mapSize.height = 2048
-    scene.add(sunlight)
+    // 主方向光
+    const directionalLight = new THREE.DirectionalLight('#ffffff', params.directionalIntensity)
+    directionalLight.position.set(50, 50, 50)
+    directionalLight.castShadow = true
+    directionalLight.shadow.mapSize.width = 2048
+    directionalLight.shadow.mapSize.height = 2048
+    scene.add(directionalLight)
     
-    // 温暖补光
-    const warmLight = new THREE.DirectionalLight('#FFB6C1', params.warmLightIntensity)
-    warmLight.position.set(-10, 8, 10)
-    scene.add(warmLight)
+    // 补充点光源
+    const pointLight1 = new THREE.PointLight('#ffc0cb', params.pointLightIntensity, 100)
+    pointLight1.position.set(20, 20, 20)
+    scene.add(pointLight1)
+    
+    const pointLight2 = new THREE.PointLight('#87ceeb', params.pointLightIntensity, 100)
+    pointLight2.position.set(-20, 20, -20)
+    scene.add(pointLight2)
   }
 
-  // 鼠标交互
-  function setupInteraction() {
-    raycaster = new THREE.Raycaster()
-    
-    // 鼠标移动
-    window.addEventListener('mousemove', (event) => {
-      mouse.x = (event.clientX / window.innerWidth) * 2 - 1
-      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1
-      
-      // 相机跟随鼠标
-      if (params.mouseInfluence > 0) {
-        targetCameraPosition.x = mouse.x * 5
-        targetCameraPosition.y = params.cameraHeight + mouse.y * 2
-        targetLookAt.x = mouse.x * 3
-        targetLookAt.y = params.lookAtHeight + mouse.y
-      }
-      
-      // 射线检测悬停
-      if (raycaster) {
-        raycaster.setFromCamera(mouse, camera)
-        const intersects = raycaster.intersectObjects(interactiveObjects)
-        
-        // 重置之前悬停的对象
-        if (hoveredObject) {
-          hoveredObject.scale.setScalar(1)
-          hoveredObject = null
-          document.body.style.cursor = 'default'
-        }
-        
-        if (intersects.length > 0) {
-          hoveredObject = intersects[0].object
-          hoveredObject.scale.setScalar(params.hoverScale)
-          document.body.style.cursor = 'pointer'
-        }
-      }
-    })
-    
-    // 鼠标点击
-    window.addEventListener('click', (event) => {
-      if (!params.clickResponse || !raycaster) return
-      
-      raycaster.setFromCamera(mouse, camera)
-      const intersects = raycaster.intersectObjects(interactiveObjects)
-      
-      if (intersects.length > 0) {
-        const clickedObject = intersects[0].object
-        const objectName = clickedObject.userData.name
-        
-        // 点击动画
-        clickedObject.scale.setScalar(1.2)
-        setTimeout(() => {
-          clickedObject.scale.setScalar(1)
-        }, 200)
-        
-        // 根据物品类型执行不同动作
-        handleObjectClick(objectName, clickedObject)
-      }
-    })
-  }
-
-  // 处理物品点击
-  function handleObjectClick(objectName: string, object: THREE.Object3D) {
-    switch (objectName) {
-      case 'lamp':
-        // 切换灯光
-        if (object instanceof THREE.Mesh) {
-          const material = object.material as THREE.MeshPhongMaterial
-          material.emissiveIntensity = material.emissiveIntensity > 0 ? 0 : 0.3
-        }
-        break
-      case 'bed':
-        // 相机飞向床边
-        targetCameraPosition.set(-8, 5, -2)
-        targetLookAt.set(-5, 1, -5)
-        break
-      case 'desk':
-        // 相机飞向书桌
-        targetCameraPosition.set(0, 6, 12)
-        targetLookAt.set(0, 2, 6)
-        break
-      case 'toy':
-        // 玩具跳跃
-        const originalY = object.position.y
-        object.position.y += 2
-        setTimeout(() => {
-          object.position.y = originalY
-        }, 500)
-        break
-      default:
-        // 默认旋转动画
-        object.rotation.y += Math.PI / 4
-        break
-    }
-    
-    console.log(`🏠 点击了: ${objectName}`)
+  // 设置轨道控制器
+  function setupControls() {
+    controls = new OrbitControls(camera, renderer.domElement)
+    controls.enabled = false // 初始禁用，动画完成后启用
+    controls.enableDamping = true
+    controls.dampingFactor = 0.05
+    controls.minDistance = 1
+    controls.maxDistance = 100
   }
 
   // 创建GUI控制面板
   function createGUI() {
-    gui = new GUI({ title: '🏠 温馨少女屋控制台' })
+    gui = new GUI({ title: '🏛️ GLB模型探索器' })
     
-    // 房间设置
-    const roomFolder = gui.addFolder('🏠 房间设置')
-    roomFolder.addColor(params, 'wallColor').name('墙壁颜色').onChange(updateRoomColors)
-    roomFolder.addColor(params, 'floorColor').name('地板颜色').onChange(updateRoomColors)
-    roomFolder.addColor(params, 'ceilingColor').name('天花板颜色').onChange(updateRoomColors)
+    // 模型控制
+    const modelFolder = gui.addFolder('🎯 模型控制')
+    modelFolder.add(params, 'modelScale', 0.1, 5.0).name('模型缩放').onChange(() => {
+      if (loadedModel) {
+        loadedModel.scale.setScalar(params.modelScale)
+      }
+    })
+    
+    // 动画控制
+    const animationFolder = gui.addFolder('🎬 动画控制')
+    animationFolder.add(params, 'animationSpeed', 0.1, 3.0).name('动画速度')
+    animationFolder.add({ 重新开始: () => {
+      startEntryAnimation()
+      if (controls) controls.enabled = false
+      params.enableControls = false
+    }}, '重新开始').name('🔄 重新开始动画')
     
     // 光照控制
-    const lightFolder = gui.addFolder('💡 光照效果')
-    lightFolder.add(params, 'ambientIntensity', 0, 2).name('环境光强度').onChange(updateLighting)
-    lightFolder.add(params, 'sunlightIntensity', 0, 3).name('阳光强度').onChange(updateLighting)
-    lightFolder.addColor(params, 'sunlightColor').name('阳光颜色').onChange(updateLighting)
-    lightFolder.addColor(params, 'lampColor').name('台灯颜色').onChange(updateLighting)
-    
-    // 交互设置
-    const interactionFolder = gui.addFolder('🎮 交互控制')
-    interactionFolder.add(params, 'hoverScale', 1.0, 1.5).name('悬停缩放')
-    interactionFolder.add(params, 'clickResponse').name('点击响应')
-    interactionFolder.add(params, 'mouseInfluence', 0, 1).name('鼠标影响')
+    const lightFolder = gui.addFolder('💡 光照控制')
+    lightFolder.add(params, 'ambientIntensity', 0, 2).name('环境光强度').onChange(() => {
+      scene.traverse((child) => {
+        if (child instanceof THREE.AmbientLight) {
+          child.intensity = params.ambientIntensity
+        }
+      })
+    })
+    lightFolder.add(params, 'directionalIntensity', 0, 3).name('方向光强度').onChange(() => {
+      scene.traverse((child) => {
+        if (child instanceof THREE.DirectionalLight) {
+          child.intensity = params.directionalIntensity
+        }
+      })
+    })
+    lightFolder.add(params, 'pointLightIntensity', 0, 2).name('点光源强度').onChange(() => {
+      scene.traverse((child) => {
+        if (child instanceof THREE.PointLight) {
+          child.intensity = params.pointLightIntensity
+        }
+      })
+    })
     
     // 相机控制
     const cameraFolder = gui.addFolder('📷 相机控制')
-    cameraFolder.add(params, 'cameraHeight', 3, 15).name('相机高度')
-    cameraFolder.add(params, 'cameraDistance', 8, 25).name('相机距离')
-    cameraFolder.add(params, 'cameraSpeed', 0.5, 5.0).name('移动速度')
-    cameraFolder.add(params, 'lookAtHeight', 0, 8).name('视线高度')
-    cameraFolder.add(params, 'autoRotate').name('自动旋转')
+    cameraFolder.add(params, 'enableControls').name('启用控制器').onChange(() => {
+      if (controls) {
+        controls.enabled = params.enableControls
+      }
+    })
+    
+    // 材质控制
+    const materialFolder = gui.addFolder('🎨 材质控制')
+    materialFolder.add(params, 'materialRoughness', 0, 1).name('粗糙度').onChange(() => {
+      if (loadedModel) {
+        enhanceModelMaterials(loadedModel)
+      }
+    })
+    materialFolder.add(params, 'materialMetalness', 0, 1).name('金属度').onChange(() => {
+      if (loadedModel) {
+        enhanceModelMaterials(loadedModel)
+      }
+    })
     
     // 操作指南
     const guideFolder = gui.addFolder('📖 操作指南')
     const guide = {
-      '🖱️ 鼠标移动': '相机跟随鼠标移动',
-      '🎯 悬停物品': '物品高亮放大',
-      '👆 点击物品': '触发特殊效果',
-      '🛏️ 点击床铺': '飞向床边视角',
-      '📚 点击书桌': '飞向学习视角',
-      '💡 点击台灯': '切换灯光开关'
+      '🎯 模型探索': '动画完成后可自由探索',
+      '🖱️ 鼠标控制': '左键旋转，右键平移，滚轮缩放',
+      '⌨️ 重新开始': '点击重新开始按钮重播动画',
+      '🎛️ 参数调节': '使用控制面板自定义效果',
+      '🏛️ 模型导航': '在模型内部自由移动探索'
     }
     
     Object.entries(guide).forEach(([action, description]) => {
       const obj = { [action]: () => console.log(description) }
       guideFolder.add(obj, action).name(`${description}`)
-    })
-  }
-
-  // 更新函数
-  function updateRoomColors() {
-    if (roomGroup) {
-      roomGroup.traverse((child) => {
-        if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshLambertMaterial) {
-          if (child.rotation.x === -Math.PI / 2) {
-            // 地板
-            child.material.color.setStyle(params.floorColor)
-          } else if (child.rotation.x === Math.PI / 2) {
-            // 天花板
-            child.material.color.setStyle(params.ceilingColor)
-          } else {
-            // 墙壁
-            child.material.color.setStyle(params.wallColor)
-          }
-        }
-      })
-    }
-  }
-
-  function updateLighting() {
-    scene.traverse((child) => {
-      if (child instanceof THREE.AmbientLight) {
-        child.intensity = params.ambientIntensity
-      }
-      if (child instanceof THREE.DirectionalLight) {
-        child.intensity = params.sunlightIntensity
-        child.color.setStyle(params.sunlightColor)
-      }
     })
   }
 
@@ -414,55 +346,39 @@ export function useThreeScene () {
     renderer.setSize(window.innerWidth, window.innerHeight)
     renderer.shadowMap.enabled = true
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
+    renderer.toneMapping = THREE.ACESFilmicToneMapping
+    renderer.toneMappingExposure = 1.0
     renderer.outputColorSpace = THREE.SRGBColorSpace
     
-    // 相机初始位置
-    camera.position.copy(targetCameraPosition)
-    camera.lookAt(targetLookAt)
-    
     // 场景背景
-    scene.background = new THREE.Color('#F0F8FF')
-    scene.fog = new THREE.Fog('#F0F8FF', 15, 50)
+    scene.background = new THREE.Color('#000510')
     
-    // 创建场景元素
-    createRoom()
-    createFurniture()
-    createDecorations()
+    // 设置各个系统
     setupLighting()
-    setupInteraction()
+    setupControls()
     createGUI()
+    
+    // 加载GLB模型
+    loadGLBModel()
     
     // 窗口大小调整
     window.addEventListener('resize', onResize)
     
     // 主渲染循环
     function animate() {
-      const time = clock.getElapsedTime()
+      const deltaTime = clock.getDelta()
       
-      // 平滑相机运动
-      camera.position.lerp(targetCameraPosition, 0.02 * params.cameraSpeed)
+      // 更新进入动画
+      updateEntryAnimation(deltaTime)
       
-      const currentLookAt = new THREE.Vector3()
-      camera.getWorldDirection(currentLookAt)
-      currentLookAt.add(camera.position)
-      currentLookAt.lerp(targetLookAt, 0.02 * params.cameraSpeed)
-      camera.lookAt(currentLookAt)
-      
-      if (params.autoRotate) {
-        const angle = time * 0.1
-        camera.position.x = Math.cos(angle) * params.cameraDistance
-        camera.position.z = Math.sin(angle) * params.cameraDistance
-        camera.lookAt(0, params.lookAtHeight, 0)
+      // 更新模型动画
+      if (mixer) {
+        mixer.update(deltaTime)
       }
       
-      // 装饰品动画
-      if (decorationGroup) {
-        decorationGroup.children.forEach((child, index) => {
-          if (child.userData.name === 'toy') {
-            child.rotation.y += 0.01
-            child.position.y += Math.sin(time + index) * 0.002
-          }
-        })
+      // 更新轨道控制器
+      if (controls && controls.enabled) {
+        controls.update()
       }
       
       renderer.render(scene, camera)
@@ -482,16 +398,18 @@ export function useThreeScene () {
   
   onUnmounted(() => {
     window.removeEventListener('resize', onResize)
-    window.removeEventListener('mousemove', () => {})
-    window.removeEventListener('click', () => {})
     
     if (gui) {
       gui.destroy()
     }
-    renderer.dispose()
+    if (controls) {
+      controls.dispose()
+    }
+    if (mixer) {
+      mixer.stopAllAction()
+    }
     
-    // 重置鼠标样式
-    document.body.style.cursor = 'default'
+    renderer.dispose()
   })
 
   return { scene, camera, renderer }
