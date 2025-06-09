@@ -10,8 +10,8 @@
       :class="{ 'visible': showYear }"
     >
       {{ currentYear }}
-    </div>
-    
+      </div>
+      
     <!-- 年份选择器 -->
     <div 
       class="year-selector" 
@@ -40,7 +40,7 @@
     >
       <h3>{{ currentEvent?.title }}</h3>
       <p>{{ currentEvent?.description }}</p>
-    </div>
+      </div>
     
     <!-- 导航提示 -->
     <div class="navigation-hints">
@@ -51,7 +51,7 @@
       <div class="hint">
         <span class="icon">🔄</span>
         <span>滚轮在走廊中前进后退</span>
-      </div>
+    </div>
     </div>
 
     <!-- 返回按钮 -->
@@ -673,8 +673,8 @@ const animateCardHover = (group: THREE.Group) => {
   // 轻微的纸张抬起效果
   gsap.to(cardGroup.position, {
     z: 5,
-    duration: 0.3,
-    ease: "power2.out"
+        duration: 0.3,
+        ease: "power2.out"
   })
   
   // 轻微缩放
@@ -682,9 +682,9 @@ const animateCardHover = (group: THREE.Group) => {
     x: 1.05,
     y: 1.05,
     z: 1.05,
-    duration: 0.3,
-    ease: "power2.out"
-  })
+        duration: 0.3,
+        ease: "power2.out"
+      })
 }
 
 // 重置卡片动画（简化版）
@@ -756,7 +756,7 @@ const updateCurrentYear = () => {
         scale: 0.8,
         rotationY: -90
       }, {
-        scale: 1,
+    scale: 1,
         rotationY: 0,
         duration: 0.5,
         ease: "back.out(1.7)"
@@ -815,7 +815,7 @@ const handleMouseDown = (event: MouseEvent) => {
         opacity: 0,
         rotationY: -180
       }, {
-        scale: 1,
+    scale: 1,
         opacity: 1,
         rotationY: 0,
         duration: 0.6,
@@ -829,13 +829,13 @@ const handleMouseDown = (event: MouseEvent) => {
       if (yearSelectorRef.value) {
         gsap.fromTo(yearSelectorRef.value, {
           scale: 0.8,
-          opacity: 0,
+    opacity: 0,
           y: 50
         }, {
           scale: 1,
           opacity: 1,
           y: 0,
-          duration: 0.8,
+    duration: 0.8,
           ease: "elastic.out(1, 0.5)"
         })
       }
@@ -856,7 +856,7 @@ const handleMouseUp = () => {
   if (yearDisplayRef.value) {
     gsap.to(yearDisplayRef.value, {
       scale: 0.3,
-      opacity: 0,
+    opacity: 0,
       rotationY: 180,
       duration: 0.5,
       ease: "power2.in",
@@ -915,7 +915,7 @@ const goBack = () => {
   if (containerRef.value) {
     gsap.to(containerRef.value, {
       opacity: 0,
-      scale: 0.9,
+    scale: 0.9,
       duration: 0.5,
       ease: "power2.in",
       onComplete: () => {
