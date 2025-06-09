@@ -975,7 +975,7 @@ import { useRouter } from 'vue-router'
   // 转场错误事件
   const onTransitionError = (error: Event) => {
     console.error('❌ 视频转场出错:', error)
-    showNotification('转场视频加载失败，将直接跳转')
+    console.warn('转场视频加载失败，将直接跳转')
     
     // 发生错误时直接跳转
     setTimeout(() => {
@@ -4328,4 +4328,4 @@ import { useRouter } from 'vue-router'
       margin-top: 2rem;
     }
   }
-  </style> 
+  </style>  

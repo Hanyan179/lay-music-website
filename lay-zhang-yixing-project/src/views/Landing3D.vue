@@ -90,10 +90,16 @@ let camera: THREE.PerspectiveCamera
 let renderer: THREE.WebGLRenderer
 let timelineGroup: THREE.Group
 let particleSystem: THREE.Points
-let animationId: number
+let animationId: number | null = null
 let raycaster: THREE.Raycaster
 let mouse: THREE.Vector2
 let hoveredObject: THREE.Group | null = null
+
+// D&G风格滚轮效果变量
+let scrollProgress = 0
+let parallaxLayers = new Map() // 视差分层
+let isScrolling = false
+let scrollTimeout: number | null = null
 
 // 时间轴数据接口
 interface TimelineEvent {
@@ -192,12 +198,15 @@ const initThreeJS = () => {
   // 场景
   scene = new THREE.Scene()
   
-  // 创建简约背景
+  // 创建D&G风格背景
   createMinimalBackground()
+  
+  // 创建视差环境
+  createParallaxEnvironment()
 
   // 相机 - 调整视角以适应更大的图片
   camera = new THREE.PerspectiveCamera(
-    60, // 减小视角，让图片显得更大
+    60,
     window.innerWidth / window.innerHeight,
     0.1,
     2000
@@ -211,10 +220,15 @@ const initThreeJS = () => {
     powerPreference: "high-performance"
   })
   renderer.setSize(window.innerWidth, window.innerHeight)
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)) // 高清显示
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   renderer.shadowMap.enabled = true
   renderer.shadowMap.type = THREE.PCFSoftShadowMap
   renderer.outputColorSpace = THREE.SRGBColorSpace
+  
+  // D&G风格渲染设置
+  renderer.toneMappingExposure = 1.2
+  renderer.toneMapping = THREE.ACESFilmicToneMapping
+  
   canvasRef.value.appendChild(renderer.domElement)
 
   // 鼠标射线检测
@@ -234,17 +248,103 @@ const initThreeJS = () => {
   // 加载当前视野内的卡片
   loadVisibleCards()
 
-  // 添加简化光照
+  // 添加D&G风格光照
   setupMinimalLighting()
 
   // 开始渲染循环
   animate()
 }
 
-// 创建简约背景
+// 动画循环 - D&G风格增强
+const animate = () => {
+  animationId = requestAnimationFrame(animate) as number
+
+  // 检查是否需要加载新卡片
+  if (Math.abs(currentCameraZ - targetCameraZ) < 50) {
+    loadVisibleCards()
+  }
+
+  // 更新D&G风格视差层
+  updateParallaxLayers()
+
+  // 更新事件对象的D&G风格效果
+  updateEventObjects()
+
+  // 更新D&G风格相机效果
+  updateCamera()
+
+  // 渲染场景
+  renderer.render(scene, camera)
+}
+
+// 创建简约背景 - 增强D&G风格
 const createMinimalBackground = () => {
-  // 纯色背景（暂时用纯色，等用户提供素材）
-  scene.background = new THREE.Color(0xf8f9fa)
+  // 创建渐变背景几何体（类似香水广告的背景）
+  const bgGeometry = new THREE.SphereGeometry(1000, 32, 32)
+  const bgMaterial = new THREE.MeshBasicMaterial({
+    color: new THREE.Color(0xf5f5f5),
+    side: THREE.BackSide,
+    transparent: true,
+    opacity: 0.95
+  })
+  const bgSphere = new THREE.Mesh(bgGeometry, bgMaterial)
+  scene.add(bgSphere)
+  
+  // 添加环境雾效（营造香水广告的朦胧感）
+  scene.fog = new THREE.Fog(0xf8f9fa, 300, 1500)
+  
+  // 存储背景引用用于动画
+  parallaxLayers.set('background', bgSphere)
+}
+
+// 创建D&G风格视差环境
+const createParallaxEnvironment = () => {
+  // 创建浮动粒子（模拟香水分子）
+  const particleCount = 50
+  const particleGeometry = new THREE.BufferGeometry()
+  const positions = new Float32Array(particleCount * 3)
+  
+  for (let i = 0; i < particleCount * 3; i += 3) {
+    positions[i] = (Math.random() - 0.5) * 2000
+    positions[i + 1] = (Math.random() - 0.5) * 1000
+    positions[i + 2] = (Math.random() - 0.5) * 2000
+  }
+  
+  particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+  
+  const particleMaterial = new THREE.PointsMaterial({
+    color: 0xdedede,
+    size: 2,
+    transparent: true,
+    opacity: 0.6,
+    blending: THREE.AdditiveBlending
+  })
+  
+  const particles = new THREE.Points(particleGeometry, particleMaterial)
+  scene.add(particles)
+  parallaxLayers.set('particles', particles)
+  
+  // 创建光晕几何体（背景装饰）
+  const ringGeometry = new THREE.RingGeometry(200, 220, 32)
+  const ringMaterial = new THREE.MeshBasicMaterial({
+    color: 0xffffff,
+    transparent: true,
+    opacity: 0.1,
+    side: THREE.DoubleSide
+  })
+  
+  for (let i = 0; i < 3; i++) {
+    const ring = new THREE.Mesh(ringGeometry, ringMaterial.clone())
+    ring.position.set(
+      (Math.random() - 0.5) * 1000,
+      (Math.random() - 0.5) * 500,
+      (Math.random() - 0.5) * 1500
+    )
+    ring.rotation.x = Math.random() * Math.PI
+    ring.rotation.y = Math.random() * Math.PI
+    scene.add(ring)
+    parallaxLayers.set(`ring${i}`, ring)
+  }
 }
 
 // 创建简约走廊结构
@@ -253,24 +353,35 @@ const createMinimalCorridor = () => {
   // 不添加任何几何体，保持纯净背景
 }
 
-// 设置简化光照
+// 设置简化光照 - D&G风格增强
 const setupMinimalLighting = () => {
-  // 主环境光
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.8)
+  // 主环境光（香水广告式柔和光照）
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
   scene.add(ambientLight)
 
-  // 顶部定向光
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6)
-  directionalLight.position.set(0, 200, 100)
+  // 主要定向光（模拟摄影棚光照）
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8)
+  directionalLight.position.set(100, 200, 100)
   directionalLight.castShadow = true
-  directionalLight.shadow.mapSize.width = 1024
-  directionalLight.shadow.mapSize.height = 1024
+  directionalLight.shadow.mapSize.width = 2048
+  directionalLight.shadow.mapSize.height = 2048
+  directionalLight.shadow.camera.near = 0.5
+  directionalLight.shadow.camera.far = 500
   scene.add(directionalLight)
 
-  // 补充填充光
-  const fillLight = new THREE.DirectionalLight(0xffffff, 0.3)
-  fillLight.position.set(0, -50, -100)
-  scene.add(fillLight)
+  // 侧面补光（增强立体感）
+  const sideLight1 = new THREE.DirectionalLight(0xffffff, 0.3)
+  sideLight1.position.set(-200, 100, 50)
+  scene.add(sideLight1)
+  
+  const sideLight2 = new THREE.DirectionalLight(0xffffff, 0.3)
+  sideLight2.position.set(200, 100, 50)
+  scene.add(sideLight2)
+
+  // 背光（营造轮廓光效果）
+  const backLight = new THREE.DirectionalLight(0xffffff, 0.4)
+  backLight.position.set(0, 50, -200)
+  scene.add(backLight)
 }
 
 // 初始化卡片容器
@@ -381,7 +492,7 @@ const unloadCard = (index: number) => {
   group.userData.frontMaterial = null
 }
 
-// 创建图片卡片（平面纸张效果）- 提高清晰度
+// 创建图片卡片（D&G香水瓶风格）- 提高清晰度
 const createImageCard = (group: THREE.Group, event: TimelineEvent) => {
   // 创建高清占位符 - 增大尺寸
   const placeholderGeometry = new THREE.PlaneGeometry(200, 200)
@@ -410,47 +521,75 @@ const createImageCard = (group: THREE.Group, event: TimelineEvent) => {
       texture.magFilter = THREE.LinearFilter
       texture.wrapS = THREE.ClampToEdgeWrapping
       texture.wrapT = THREE.ClampToEdgeWrapping
-      texture.flipY = true // 修复图片翻转问题
+      texture.flipY = true
       
       // 移除占位符
       group.remove(placeholder)
       
-      // 根据图片尺寸调整卡片大小 - 增大基础尺寸
+      // 根据图片尺寸调整卡片大小
       const aspectRatio = texture.image.width / texture.image.height
-      let cardWidth = 200  // 增大基础尺寸
+      let cardWidth = 200
       let cardHeight = 200
       
-      // 保持纵横比，最大边200px
       if (aspectRatio > 1) {
         cardHeight = cardWidth / aspectRatio
       } else {
         cardWidth = cardHeight * aspectRatio
       }
       
-      // 创建平面纸张卡片
+      // 创建D&G风格卡片容器
       const cardGroup = new THREE.Group()
       
-      // 主卡片（高清图片）- 无雾蒙效果
+      // 主卡片（香水瓶风格）
       const cardGeometry = new THREE.PlaneGeometry(cardWidth, cardHeight)
-      const cardMaterial = new THREE.MeshBasicMaterial({ 
+      const cardMaterial = new THREE.MeshPhongMaterial({ 
         map: texture,
-        transparent: false, // 移除透明效果避免雾蒙感
-        side: THREE.DoubleSide
+        transparent: true,
+        opacity: 0.95,
+        side: THREE.DoubleSide,
+        shininess: 100,
+        specular: 0x222222
       })
       const card = new THREE.Mesh(cardGeometry, cardMaterial)
       card.castShadow = true
       card.receiveShadow = true
       cardGroup.add(card)
       
-      // 纸张阴影层（增强纸张感）
+      // 创建玻璃质感边框（香水瓶效果）
+      const borderGeometry = new THREE.PlaneGeometry(cardWidth + 4, cardHeight + 4)
+      const borderMaterial = new THREE.MeshPhongMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.2,
+        side: THREE.DoubleSide,
+        shininess: 200,
+        specular: 0x444444
+      })
+      const border = new THREE.Mesh(borderGeometry, borderMaterial)
+      border.position.z = -0.5
+      cardGroup.add(border)
+      
+      // 光晕效果（香水瓶光泽）
+      const glowGeometry = new THREE.PlaneGeometry(cardWidth + 20, cardHeight + 20)
+      const glowMaterial = new THREE.MeshBasicMaterial({
+        color: event.color,
+        transparent: true,
+        opacity: 0.1,
+        blending: THREE.AdditiveBlending
+      })
+      const glow = new THREE.Mesh(glowGeometry, glowMaterial)
+      glow.position.z = -2
+      cardGroup.add(glow)
+      
+      // 阴影层（增强立体感）
       const shadowGeometry = new THREE.PlaneGeometry(cardWidth + 8, cardHeight + 8)
       const shadowMaterial = new THREE.MeshLambertMaterial({
         color: 0x000000,
         transparent: true,
-        opacity: 0.15
+        opacity: 0.2
       })
       const shadow = new THREE.Mesh(shadowGeometry, shadowMaterial)
-      shadow.position.z = -1
+      shadow.position.z = -3
       shadow.position.x = 4
       shadow.position.y = -4
       cardGroup.add(shadow)
@@ -466,19 +605,20 @@ const createImageCard = (group: THREE.Group, event: TimelineEvent) => {
       // 存储引用
       group.userData.frontMaterial = cardMaterial
       group.userData.cardGroup = cardGroup
+      group.userData.glowMaterial = glowMaterial
+      group.userData.borderMaterial = borderMaterial
       group.userData.cardWidth = cardWidth
       group.userData.cardHeight = cardHeight
     },
     undefined,
     (error) => {
       console.error('Error loading texture:', error)
-      // CORS错误时显示错误信息
       console.warn('图片加载失败，可能是CORS问题。请确保图片在本地或允许跨域访问。')
     }
   )
 }
 
-// 创建视频卡片（平面纸张效果）- 提高清晰度
+// 创建视频卡片（D&G香水瓶风格）
 const createVideoCard = (group: THREE.Group, event: TimelineEvent) => {
   // 创建视频元素
   const video = document.createElement('video')
@@ -496,16 +636,14 @@ const createVideoCard = (group: THREE.Group, event: TimelineEvent) => {
   videoTexture.magFilter = THREE.LinearFilter
   videoTexture.wrapS = THREE.ClampToEdgeWrapping
   videoTexture.wrapT = THREE.ClampToEdgeWrapping
-  videoTexture.flipY = true // 修复视频翻转问题
+  videoTexture.flipY = true
   
   // 等视频加载后获取尺寸
   video.addEventListener('loadedmetadata', () => {
-    // 根据视频尺寸调整卡片大小 - 增大基础尺寸
     const aspectRatio = video.videoWidth / video.videoHeight
-    let cardWidth = 200  // 增大基础尺寸
+    let cardWidth = 200
     let cardHeight = 200
     
-    // 保持纵横比，最大边200px
     if (aspectRatio > 1) {
       cardHeight = cardWidth / aspectRatio
     } else {
@@ -518,41 +656,79 @@ const createVideoCard = (group: THREE.Group, event: TimelineEvent) => {
     card.geometry.dispose()
     card.geometry = cardGeometry
     
-    // 更新阴影
-    const shadow = cardGroup.children[1] as THREE.Mesh
+    // 更新其他元素尺寸
+    const border = cardGroup.children[1] as THREE.Mesh
+    const borderGeometry = new THREE.PlaneGeometry(cardWidth + 4, cardHeight + 4)
+    border.geometry.dispose()
+    border.geometry = borderGeometry
+    
+    const glow = cardGroup.children[2] as THREE.Mesh
+    const glowGeometry = new THREE.PlaneGeometry(cardWidth + 20, cardHeight + 20)
+    glow.geometry.dispose()
+    glow.geometry = glowGeometry
+    
+    const shadow = cardGroup.children[3] as THREE.Mesh
     const shadowGeometry = new THREE.PlaneGeometry(cardWidth + 8, cardHeight + 8)
     shadow.geometry.dispose()
     shadow.geometry = shadowGeometry
     
-    // 存储尺寸
     group.userData.cardWidth = cardWidth
     group.userData.cardHeight = cardHeight
   })
   
-  // 创建平面纸张卡片
+  // 创建D&G风格视频卡片
   const cardGroup = new THREE.Group()
   
-  // 主卡片（高清视频）- 无雾蒙效果
-  const cardGeometry = new THREE.PlaneGeometry(200, 200) // 增大默认尺寸
-  const cardMaterial = new THREE.MeshBasicMaterial({ 
+  // 主卡片（视频）
+  const cardGeometry = new THREE.PlaneGeometry(200, 200)
+  const cardMaterial = new THREE.MeshPhongMaterial({ 
     map: videoTexture,
-    transparent: false, // 移除透明效果避免雾蒙感
-    side: THREE.DoubleSide
+    transparent: true,
+    opacity: 0.95,
+    side: THREE.DoubleSide,
+    shininess: 100,
+    specular: 0x222222
   })
   const card = new THREE.Mesh(cardGeometry, cardMaterial)
   card.castShadow = true
   card.receiveShadow = true
   cardGroup.add(card)
   
-  // 纸张阴影层
-  const shadowGeometry = new THREE.PlaneGeometry(208, 208) // 增大默认尺寸
+  // 玻璃质感边框
+  const borderGeometry = new THREE.PlaneGeometry(204, 204)
+  const borderMaterial = new THREE.MeshPhongMaterial({
+    color: 0xffffff,
+    transparent: true,
+    opacity: 0.2,
+    side: THREE.DoubleSide,
+    shininess: 200,
+    specular: 0x444444
+  })
+  const border = new THREE.Mesh(borderGeometry, borderMaterial)
+  border.position.z = -0.5
+  cardGroup.add(border)
+  
+  // 光晕效果
+  const glowGeometry = new THREE.PlaneGeometry(220, 220)
+  const glowMaterial = new THREE.MeshBasicMaterial({
+    color: event.color,
+    transparent: true,
+    opacity: 0.1,
+    blending: THREE.AdditiveBlending
+  })
+  const glow = new THREE.Mesh(glowGeometry, glowMaterial)
+  glow.position.z = -2
+  cardGroup.add(glow)
+  
+  // 阴影层
+  const shadowGeometry = new THREE.PlaneGeometry(208, 208)
   const shadowMaterial = new THREE.MeshLambertMaterial({
     color: 0x000000,
     transparent: true,
-    opacity: 0.15
+    opacity: 0.2
   })
   const shadow = new THREE.Mesh(shadowGeometry, shadowMaterial)
-  shadow.position.z = -1
+  shadow.position.z = -3
   shadow.position.x = 4
   shadow.position.y = -4
   cardGroup.add(shadow)
@@ -565,77 +741,127 @@ const createVideoCard = (group: THREE.Group, event: TimelineEvent) => {
   group.userData.videoTexture = videoTexture
   group.userData.frontMaterial = cardMaterial
   group.userData.cardGroup = cardGroup
+  group.userData.glowMaterial = glowMaterial
+  group.userData.borderMaterial = borderMaterial
   
   // 开始播放视频
   video.play().catch(console.error)
 }
 
-// 动画循环
-const animate = () => {
-  animationId = requestAnimationFrame(animate)
-
-  // 平滑移动相机（走廊行走）
-  const easing = 0.05
-  currentCameraZ += (targetCameraZ - currentCameraZ) * easing
-  camera.position.z = currentCameraZ
-
-  // 检查是否需要加载新卡片
-  if (Math.abs(currentCameraZ - targetCameraZ) < 50) {
-    loadVisibleCards()
+// D&G风格视差滚动更新
+const updateParallaxLayers = () => {
+  const time = Date.now() * 0.001
+  const scrollFactor = scrollProgress * 0.01
+  
+  // 背景球体缓慢旋转
+  const bgSphere = parallaxLayers.get('background')
+  if (bgSphere) {
+    bgSphere.rotation.y = time * 0.02 + scrollFactor * 0.5
+    bgSphere.rotation.x = Math.sin(time * 0.01) * 0.1
   }
-
-  // 更新事件对象的效果
-  updateEventObjects()
-
-  // 更新相机效果
-  updateCamera()
-
-  // 渲染场景
-  renderer.render(scene, camera)
+  
+  // 粒子系统动画
+  const particles = parallaxLayers.get('particles')
+  if (particles) {
+    particles.rotation.y = time * 0.05 + scrollFactor * 0.3
+    particles.position.y = Math.sin(time * 0.5) * 20
+    
+    // 更新粒子位置
+    const positions = particles.geometry.attributes.position.array as Float32Array
+    for (let i = 1; i < positions.length; i += 3) {
+      positions[i] += Math.sin(time + i) * 0.1
+    }
+    particles.geometry.attributes.position.needsUpdate = true
+  }
+  
+  // 光晕环动画
+  for (let i = 0; i < 3; i++) {
+    const ring = parallaxLayers.get(`ring${i}`)
+    if (ring) {
+      ring.rotation.z = time * (0.1 + i * 0.05) + scrollFactor * 0.2
+      ring.scale.setScalar(1 + Math.sin(time + i) * 0.1)
+      
+      // 视差移动
+      const parallaxSpeed = 0.3 + i * 0.2
+      ring.position.y = Math.sin(time * 0.3 + i) * 50 + scrollFactor * parallaxSpeed * 100
+    }
+  }
 }
 
-// 更新事件对象效果 - 适应新尺寸
+// D&G风格卡片动画更新
 const updateEventObjects = () => {
+  const time = Date.now() * 0.001
+  
   eventObjects.forEach((obj, index) => {
     if (!obj.userData.loaded) return
     
     const distance = Math.abs(obj.position.z - currentCameraZ)
-    
-    // 景深效果 - 调整为新的间距
-    const maxDistance = 300 // 增大最大距离以适应新间距
+    const maxDistance = 300
     const normalizedDistance = Math.min(distance / maxDistance, 1)
-    const scale = Math.max(0.5, 1 - normalizedDistance * 0.5) // 调整缩放范围
     
-    // 应用缩放
-    obj.scale.setScalar(scale)
+    // D&G风格缩放动画（香水瓶聚焦效果）
+    const baseScale = Math.max(0.4, 1 - normalizedDistance * 0.6)
+    const pulseScale = 1 + Math.sin(time * 2 + index) * 0.02
+    obj.scale.setScalar(baseScale * pulseScale)
     
-    // 根据距离调整材质（仅对阴影应用透明度）
     const cardGroup = obj.userData.cardGroup
-    if (cardGroup && cardGroup.children.length > 1) {
-      const shadow = cardGroup.children[1] as THREE.Mesh
-      const shadowMaterial = shadow.material as THREE.MeshLambertMaterial
-      if (shadowMaterial) {
-        const shadowOpacity = Math.max(0.05, 0.15 - normalizedDistance * 0.1)
-        shadowMaterial.opacity = shadowOpacity
+    if (cardGroup) {
+      // 香水瓶式旋转动画
+      const rotationSpeed = 0.5 + normalizedDistance * 0.5
+      cardGroup.rotation.y = Math.sin(time * rotationSpeed + index) * 0.05
+      cardGroup.rotation.x = Math.sin(time * rotationSpeed * 0.7 + index) * 0.03
+      
+      // 轻微浮动（香水分子飘散效果）
+      const floatAmplitude = 3 + normalizedDistance * 2
+      obj.position.y = timelineEvents[index].position.y + 
+                      Math.sin(time * 0.8 + index * 0.5) * floatAmplitude
+      
+      // 景深模糊效果
+      const frontMaterial = obj.userData.frontMaterial
+      if (frontMaterial) {
+        frontMaterial.opacity = Math.max(0.3, 1 - normalizedDistance * 0.7)
+      }
+      
+      // 光晕强度变化
+      const glowMaterial = obj.userData.glowMaterial
+      if (glowMaterial) {
+        glowMaterial.opacity = Math.max(0.05, 0.15 - normalizedDistance * 0.1) * 
+                              (1 + Math.sin(time * 3 + index) * 0.2)
+      }
+      
+      // 边框高光效果
+      const borderMaterial = obj.userData.borderMaterial
+      if (borderMaterial) {
+        borderMaterial.opacity = Math.max(0.1, 0.3 - normalizedDistance * 0.2) *
+                                (1 + Math.sin(time * 2.5 + index) * 0.15)
       }
     }
-    
-    // 轻微浮动动画 - 减小幅度以适应更大的图片
-    const time = Date.now() * 0.001
-    obj.position.y = timelineEvents[index].position.y + Math.sin(time + index) * 2
   })
 }
 
-// 更新相机效果
+// D&G风格相机动画
 const updateCamera = () => {
   const time = Date.now() * 0.001
   
-  // 轻微的行走摇摆效果
-  camera.position.y = Math.sin(time * 2) * 1
-  camera.position.x = Math.cos(time * 1.5) * 0.5
+  // 平滑相机移动
+  const easing = 0.08
+  currentCameraZ += (targetCameraZ - currentCameraZ) * easing
+  camera.position.z = currentCameraZ
   
-  // 轻微的头部转动
-  camera.rotation.z = Math.sin(time * 0.8) * 0.005
+  // D&G风格相机摇摆（模拟摄影师手持）
+  const swayAmplitude = isScrolling ? 2 : 1
+  camera.position.y = Math.sin(time * 1.5) * swayAmplitude
+  camera.position.x = Math.cos(time * 1.2) * (swayAmplitude * 0.5)
+  
+  // 轻微相机旋转（增加电影感）
+  camera.rotation.z = Math.sin(time * 0.8) * 0.008
+  camera.rotation.x = Math.sin(time * 0.6) * 0.005
+  
+  // FOV动态变化（聚焦效果）
+  const baseFOV = 60
+  const fovVariation = Math.sin(time * 0.3) * 2
+  camera.fov = baseFOV + fovVariation
+  camera.updateProjectionMatrix()
 }
 
 // 处理鼠标移动（悬停检测）
@@ -711,17 +937,38 @@ const resetCardAnimation = (group: THREE.Group) => {
   })
 }
 
-// 处理滚轮事件 - 调整范围
+// D&G风格滚轮处理
 const handleWheel = (event: WheelEvent) => {
   event.preventDefault()
   
   const delta = event.deltaY > 0 ? 1 : -1
-  targetCameraZ += delta * walkSpeed
+  const scrollSensitivity = 0.8 // 降低滚动敏感度，更加优雅
   
-  // 限制行走范围 - 调整为新间距
+  // 更新滚动进度
+  scrollProgress += delta * 10
+  
+  // 设置滚动状态
+  isScrolling = true
+  if (scrollTimeout) clearTimeout(scrollTimeout)
+  scrollTimeout = window.setTimeout(() => {
+    isScrolling = false
+  }, 150)
+  
+  // D&G风格缓动移动
+  const smoothDelta = delta * walkSpeed * scrollSensitivity
+  targetCameraZ += smoothDelta
+  
+  // 限制范围
   const minZ = -900
   const maxZ = 500
   targetCameraZ = Math.max(minZ, Math.min(maxZ, targetCameraZ))
+  
+  // 触发相机震动效果（模拟香水瓶碰撞）
+  if (Math.abs(delta) > 0.5) {
+    const shakeIntensity = Math.min(Math.abs(delta) * 0.5, 2)
+    camera.position.x += (Math.random() - 0.5) * shakeIntensity
+    camera.position.y += (Math.random() - 0.5) * shakeIntensity
+  }
   
   // 更新当前年份
   updateCurrentYear()
@@ -995,7 +1242,7 @@ onUnmounted(() => {
     clearTimeout(longPressTimer)
   }
   
-  if (animationId) {
+  if (animationId !== null) {
     cancelAnimationFrame(animationId)
   }
   
