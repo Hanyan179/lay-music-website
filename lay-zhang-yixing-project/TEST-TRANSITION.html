@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 视频转场效果测试页面</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .test-container {
+            text-align: center;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, #fff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .features {
+            text-align: left;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .features h3 {
+            margin-bottom: 1rem;
+            color: #64B5F6;
+        }
+
+        .features ul {
+            list-style: none;
+        }
+
+        .features li {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .features li::before {
+            content: "✨";
+            position: absolute;
+            left: 0;
+        }
+
+        .test-button {
+            display: inline-block;
+            padding: 1rem 2.5rem;
+            background: linear-gradient(135deg, #64B5F6, #8B5CF6);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(100, 181, 246, 0.3);
+            border: none;
+            cursor: pointer;
+            margin: 0.5rem;
+        }
+
+        .test-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(100, 181, 246, 0.4);
+            background: linear-gradient(135deg, #5AA0F2, #7C3AED);
+        }
+
+        .test-button:active {
+            transform: translateY(-1px);
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            text-align: left;
+        }
+
+        .info-box h4 {
+            color: #EC4899;
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+
+        .info-box p {
+            line-height: 1.5;
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.4);
+            border-radius: 20px;
+            color: #81C784;
+            font-size: 0.9rem;
+            margin: 1rem 0;
+        }
+
+        .demo-link {
+            color: #64B5F6;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .demo-link:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .test-container {
+                margin: 1rem;
+                padding: 2rem;
+            }
+
+            .title {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1 class="title">🎬 增强版转场测试</h1>
+        <p class="subtitle">体验从视频播放到多层过渡动画的完整转场效果</p>
+        
+        <div class="status">✅ 转场功能已就绪</div>
+        
+        <div class="features">
+            <h3>🆕 新增特效预览</h3>
+            <ul>
+                <li>50个彩色粒子上升飘散</li>
+                <li>4道旋转光线扩散特效</li>
+                <li>3层同心圆涟漪动画</li>
+                <li>"进入音乐世界" 文字特效</li>
+                <li>2.5秒精美过渡动画</li>
+            </ul>
+        </div>
+
+        <div class="info-box">
+            <h4>📋 测试说明</h4>
+            <p>
+                点击下方按钮访问应用，然后滚动到页面底部点击 "进入 3D 时间轴" 按钮。
+                您将看到：视频播放 → 过渡动画 → 页面跳转的完整流程。
+            </p>
+        </div>
+
+        <div class="info-box">
+            <h4>🎯 转场流程</h4>
+            <p>
+                <strong>第1阶段</strong>: 您的 timeline.mp4 视频全屏播放<br>
+                <strong>第2阶段</strong>: 华丽的过渡动画特效 (2.5秒)<br>
+                <strong>第3阶段</strong>: 平滑跳转到 Landing3D 页面
+            </p>
+        </div>
+
+        <a href="http://localhost:3005" class="test-button" target="_blank">
+            🚀 开始测试转场效果
+        </a>
+
+        <br>
+
+        <a href="http://localhost:3005" class="demo-link" target="_blank">
+            直接访问应用: localhost:3005
+        </a>
+
+        <div class="info-box" style="margin-top: 2rem;">
+            <h4>💡 提示</h4>
+            <p>
+                如果端口 3005 无法访问，请确保开发服务器正在运行：<br>
+                <code style="background: rgba(0,0,0,0.3); padding: 0.2rem 0.5rem; border-radius: 4px;">npm run dev -- --port 3005</code>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // 添加一些交互效果
+        document.addEventListener('DOMContentLoaded', function() {
+            const button = document.querySelector('.test-button');
+            
+            button.addEventListener('click', function(e) {
+                // 创建点击动画效果
+                const ripple = document.createElement('div');
+                ripple.style.cssText = `
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.6);
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    pointer-events: none;
+                `;
+                
+                const rect = button.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                
+                button.style.position = 'relative';
+                button.style.overflow = 'hidden';
+                button.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+
+        // 添加 CSS 动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html> 

@@ -621,11 +621,27 @@
         进入 3D 时间轴
       </button>
     </div>
+    
+    <!-- 视频转场组件 -->
+    <VideoTransition
+      v-if="showVideoTransition"
+      ref="videoTransitionRef"
+      video-src="/timeline.mp4"
+      target-route="/landing-3d"
+      :auto-start="false"
+      :transition-duration="2500"
+      @started="onTransitionStarted"
+      @ended="onTransitionEnded"
+      @error="onTransitionError"
+      @video-ended="onVideoEnded"
+      @transition-started="onTransitionAnimationStarted"
+    />
   </template>
   
   <script setup lang="ts">
 import EnterButton from '@/components/EnterButton.vue'
-import { onMounted, onUnmounted, ref } from 'vue'
+import VideoTransition from '@/components/VideoTransition.vue'
+import { onMounted, onUnmounted, ref, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
   
   const router = useRouter()
@@ -637,6 +653,10 @@ import { useRouter } from 'vue-router'
   const currentPlayingId = ref(null)
   const isLoading = ref(false)
   const failedAlbumId = ref(null)
+  
+  // 转场相关状态
+  const showVideoTransition = ref(false)
+  const videoTransitionRef = ref<InstanceType<typeof VideoTransition>>()
   
   // 专辑展示相关状态
   const currentAlbumIndex = ref(0)
@@ -924,7 +944,44 @@ import { useRouter } from 'vue-router'
 
   // 进入3D时间轴首页
   const enterTimeline = () => {
-    router.push({ name: 'Landing3D' })
+    console.log('🎬 启动视频转场到 3D 时间轴')
+    
+    // 显示视频转场组件
+    showVideoTransition.value = true
+    
+    // 等待下一个渲染周期，然后启动转场
+    nextTick(() => {
+      if (videoTransitionRef.value) {
+        videoTransitionRef.value.startTransition()
+      } else {
+        console.warn('⚠️ 视频转场组件未找到，使用直接跳转')
+        router.push('/landing-3d')
+      }
+    })
+  }
+  
+  // 转场开始事件
+  const onTransitionStarted = () => {
+    console.log('🎬 视频转场已开始')
+    // 可以在这里添加一些额外的效果，比如停止背景音乐等
+  }
+  
+  // 转场结束事件
+  const onTransitionEnded = () => {
+    console.log('✅ 视频转场已完成')
+    showVideoTransition.value = false
+  }
+  
+  // 转场错误事件
+  const onTransitionError = (error: Event) => {
+    console.error('❌ 视频转场出错:', error)
+    showNotification('转场视频加载失败，将直接跳转')
+    
+    // 发生错误时直接跳转
+    setTimeout(() => {
+      router.push('/landing-3d')
+      showVideoTransition.value = false
+    }, 1000)
   }
   
   // 更新专辑背景
@@ -1974,6 +2031,21 @@ import { useRouter } from 'vue-router'
           maxParticles: maxParticles
         }
       }
+    }
+  }
+  
+  // 视频播放结束事件
+  const onVideoEnded = () => {
+    console.log('🎬 视频播放已结束，准备开始过渡动画')
+    // 可以在这里添加一些视频结束时的特效
+  }
+  
+  // 过渡动画开始事件
+  const onTransitionAnimationStarted = () => {
+    console.log('✨ 过渡动画已开始')
+    // 可以在这里暂停背景音乐、停止粒子系统等
+    if (particlesInterface && particlesInterface.cleanup) {
+      particlesInterface.cleanup()
     }
   }
   </script>
