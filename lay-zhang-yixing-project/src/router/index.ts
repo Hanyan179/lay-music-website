@@ -3,7 +3,7 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 
 const routes: RouteRecordRaw[] = [
   { path: '/',                 name: 'ArtistJourney',       component: () => import('@/views/ArtistJourney.vue') },
-  { path: '/home',             name: 'Home',                component: () => import('@/views/Home.vue') },
+
   { path: '/landing-3d',       name: 'Landing3D',           component: () => import('@/views/Landing3D.vue') },
 
   /* 唯一的 /timeline */

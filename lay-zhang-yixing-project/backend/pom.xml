@@ -119,10 +119,3 @@
         </plugins>
     </build>
 </project> 
-                        </exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-</project> 

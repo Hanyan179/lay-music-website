@@ -21,18 +21,19 @@
       </div>
       
       <!-- 导航栏 -->
-      <nav class="fixed top-0 w-full z-50">
+      <nav class="fixed top-0 w-full z-[90] bg-transparent">
         <div class="container mx-auto px-6 py-4">
           <div class="flex items-center justify-between">
-            <div class="music-brand">
+            <div class="music-brand text-gray-800">
               LAY 张艺兴
             </div>
-            <div class="hidden md:flex space-x-8">
+            <div class="flex space-x-8">
               <a href="#home" class="nav-link">首页</a>
               <a href="#about" class="nav-link">简介</a>
               <a href="#music" class="nav-link">音乐</a>
               <a href="#videos" class="nav-link">视频</a>
               <a href="#timeline" class="nav-link">时间轴</a>
+              <a href="#other" class="nav-link">其他废案</a>
             </div>
             <button id="menu-toggle" class="md:hidden control-button" title="菜单">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,41 +70,109 @@
           </div>
           
           <!-- 介绍卡片 -->
-          <div class="glass-card max-w-lg mx-auto p-8 mb-12 lottie-glass-card" 
-               id="lottie-glass-card"
-               style="cursor: pointer; transition: all 0.3s ease; position: relative;"
-               @mouseover="onCardHover" 
-               @mouseout="onCardLeave" 
-               @click="onCardClick">
-            
-            <!-- Lottie动画容器 - 放在卡片边框 -->
-            <div id="lottie-container" 
-                 style="position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; 
-                        width: calc(100% + 20px); height: calc(100% + 20px); 
-                        border-radius: 20px; overflow: hidden; pointer-events: none; z-index: -1;"></div>
-            
-            <div class="text-center">
-              <h3 class="text-2xl font-bold mb-4 text-gray-900">🎵 音乐魔法</h3>
-              <p class="text-gray-600 leading-relaxed mb-6">
-                悬浮在卡片上2秒感受音乐的力量。动画会在您悬浮时播放，离开时暂停。
-              </p>
-              
-              <!-- 统计信息 -->
-              <div style="display: flex; justify-content: center; gap: 20px; font-size: 14px; color: #666; margin-bottom: 16px;">
-                <div>💫 悬浮 <span id="hover-count">{{ hoverCount }}</span> 次</div>
-                <div>✨ 点击 <span id="click-count">{{ clickCount }}</span> 次</div>
-              </div>
-              <div style="font-size: 12px; color: #999;">
-                动画状态: <span id="animation-status">{{ animationStatus }}</span>
+          <!-- 3D模型展示区域 -->
+          <div class="model-container max-w-4xl mx-auto p-8 mb-12 relative" ref="modelContainer">
+            <div class="flex gap-8">
+              <!-- 模型展示 -->
+              <div class="flex-1">
+                <canvas ref="modelCanvas" class="w-full h-[600px] rounded-lg"></canvas>
               </div>
               
-              <!-- 节拍点装饰 -->
-              <div class="rhythm-dots mt-6">
-                <div class="rhythm-dot"></div>
-                <div class="rhythm-dot"></div>
-                <div class="rhythm-dot"></div>
-                <div class="rhythm-dot"></div>
-                <div class="rhythm-dot"></div>
+              <!-- 参数控制面板 -->
+              <div class="w-80 bg-white/80 backdrop-blur rounded-lg p-6 overflow-y-auto max-h-[400px] model-params-panel">
+                <h3 class="text-lg font-bold mb-4">模型参数控制</h3>
+                
+                <!-- 模型变换 -->
+                <div class="param-group mb-6">
+                  <h4 class="font-medium mb-2">模型变换</h4>
+                  <div class="space-y-2">
+                    <div class="flex items-center">
+                      <span class="w-20 text-sm">缩放:</span>
+                      <input type="range" v-model="modelParams.scale" min="0.1" max="5" step="0.1" class="flex-1" @input="updateModelParams">
+                      <span class="w-12 text-right text-sm">{{ modelParams.scale }}</span>
+                    </div>
+                    <div v-for="axis in ['X', 'Y', 'Z']" :key="axis" class="flex items-center">
+                      <span class="w-20 text-sm">旋转{{ axis }}:</span>
+                      <input type="range" v-model="modelParams['rotation'+axis]" min="-180" max="180" step="1" class="flex-1" @input="updateModelParams">
+                      <span class="w-12 text-right text-sm">{{ modelParams['rotation'+axis] }}°</span>
+                    </div>
+                    <div v-for="axis in ['X', 'Y', 'Z']" :key="axis" class="flex items-center">
+                      <span class="w-20 text-sm">位置{{ axis }}:</span>
+                      <input type="range" v-model="modelParams['position'+axis]" min="-5" max="5" step="0.1" class="flex-1" @input="updateModelParams">
+                      <span class="w-12 text-right text-sm">{{ modelParams['position'+axis] }}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- 相机参数 -->
+                <div class="param-group mb-6">
+                  <h4 class="font-medium mb-2">相机参数</h4>
+                  <div class="space-y-2">
+                    <div v-for="axis in ['X', 'Y', 'Z']" :key="axis" class="flex items-center">
+                      <span class="w-20 text-sm">相机{{ axis }}:</span>
+                      <input type="range" v-model="modelParams['cameraPosition'+axis]" min="-10" max="10" step="0.1" class="flex-1" @input="updateModelParams">
+                      <span class="w-12 text-right text-sm">{{ modelParams['cameraPosition'+axis] }}</span>
+                    </div>
+                    <div class="flex items-center">
+                      <span class="w-20 text-sm">视角:</span>
+                      <input type="range" v-model="modelParams.cameraFov" min="20" max="90" step="1" class="flex-1" @input="updateModelParams">
+                      <span class="w-12 text-right text-sm">{{ modelParams.cameraFov }}°</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- 灯光参数 -->
+                <div class="param-group mb-6">
+                  <h4 class="font-medium mb-2">灯光参数</h4>
+                  <div class="space-y-2">
+                    <div class="flex items-center">
+                      <span class="w-20 text-sm">环境光:</span>
+                      <input type="range" v-model="modelParams.ambientIntensity" min="0" max="2" step="0.1" class="flex-1" @input="updateModelParams">
+                      <span class="w-12 text-right text-sm">{{ modelParams.ambientIntensity }}</span>
+                    </div>
+                    <div class="flex items-center">
+                      <span class="w-20 text-sm">平行光:</span>
+                      <input type="range" v-model="modelParams.directionalIntensity" min="0" max="2" step="0.1" class="flex-1" @input="updateModelParams">
+                      <span class="w-12 text-right text-sm">{{ modelParams.directionalIntensity }}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- 控制参数 -->
+                <div class="param-group mb-6">
+                  <h4 class="font-medium mb-2">控制参数</h4>
+                  <div class="space-y-2">
+                    <div class="flex items-center">
+                      <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" v-model="modelParams.autoRotate" class="mr-2">
+                        <span class="text-sm">自动旋转</span>
+                      </label>
+                    </div>
+                    <div class="flex items-center" v-if="modelParams.autoRotate">
+                      <span class="w-20 text-sm">旋转速度:</span>
+                      <input type="range" v-model="modelParams.autoRotateSpeed" min="0.001" max="0.02" step="0.001" class="flex-1">
+                      <span class="w-12 text-right text-sm">{{ modelParams.autoRotateSpeed }}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- 导入导出 -->
+                <div class="flex gap-4">
+                  <button @click="exportParams" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm">
+                    导出参数
+                  </button>
+                  <label class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 cursor-pointer text-sm">
+                    导入参数
+                    <input type="file" class="hidden" accept=".json" @change="e => {
+                      const file = e.target.files[0]
+                      if (file) {
+                        const reader = new FileReader()
+                        reader.onload = () => importParams(reader.result)
+                        reader.readAsText(file)
+                      }
+                    }">
+                  </label>
+                </div>
               </div>
             </div>
           </div>
@@ -128,53 +197,87 @@
       </section>
   
       <!-- 个人简介 -->
-      <section id="about" class="section-padding bg-gray-50 scroll-reveal">
-        <div class="container">
-          <div class="text-center mb-16">
-            <h2 class="section-title animate-title" data-animate="fadeInDown">艺术家简介</h2>
-            <p class="section-subtitle animate-subtitle" data-animate="fadeInUp" data-delay="0.2">
-              多才多艺的音乐人，在创作、制作、表演等方面都有着卓越的表现
-            </p>
+      <section id="about" class="section-padding bg-gray-50 scroll-reveal min-h-screen flex items-center justify-center relative overflow-hidden">
+        <!-- 艺术背景效果 -->
+        <div class="artistic-bg absolute inset-0">
+          <div class="artistic-circle"></div>
+          <!-- 动态线条背景 -->
+          <div class="flowing-lines">
+            <div class="line-group diagonal">
+              <div class="line"></div>
+              <div class="line"></div>
+              <div class="line"></div>
+            </div>
+            <div class="line-group horizontal">
+              <div class="line"></div>
+              <div class="line"></div>
+            </div>
+            <div class="line-group vertical">
+              <div class="line"></div>
+              <div class="line"></div>
+            </div>
           </div>
-          
-          <div class="grid grid-2 gap-16 items-center">
-            <!-- 图片容器 -->
-            <div class="order-2 md:order-1">
-              <div class="floating-card animate-slide-left" data-animate="slideInLeft" data-delay="0.4">
-                <div class="album-cover aspect-square">
-                  <img :src="artistImage" alt="张艺兴" class="rounded-2xl">
-                </div>
-              </div>
+          <div class="grain-overlay"></div>
+        </div>
+
+        <div class="container relative z-10">
+          <div class="text-center">
+            <!-- 装饰线条 -->
+            <div class="decorative-line mb-16">
+              <span class="line"></span>
+              <span class="dot"></span>
+              <span class="line"></span>
             </div>
             
-            <!-- 文字内容 -->
-            <div class="order-1 md:order-2">
-              <div class="glass-card p-8 animate-slide-right" data-animate="slideInRight" data-delay="0.6">
-                <h3 class="text-4xl font-black mb-6 animate-text animate-bounce-text" data-animate="bounceInDown" data-delay="0.8" style="background: var(--gradient-music); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                  张艺兴 LAY
-                </h3>
-                <div class="space-y-6 text-gray-600 leading-relaxed">
-                  <p class="animate-text animate-bounce-text" data-animate="bounceInUp" data-delay="1.2">中国内地流行乐男歌手、音乐制作人、演员、舞者，男子演唱组合EXO/EXO-M中国籍成员。</p>
-                  <p class="animate-text animate-bounce-text" data-animate="bounceInUp" data-delay="1.6">2012年4月8日以EXO/EXO-M成员身份正式出道。2016年10月7日发行首张个人专辑《LOSE CONTROL》。</p>
-                  <p class="animate-text animate-bounce-text" data-animate="bounceInUp" data-delay="2.0">多才多艺的音乐人，在创作、制作、表演等方面都有着卓越的表现，是当代华语流行音乐的重要力量。</p>
+            <!-- 主标题打字效果 -->
+            <div class="title-container mb-16 relative">
+              <div class="title-bg"></div>
+              <h2 class="typewriter-text text-6xl md:text-8xl font-black tracking-tighter" ref="typewriterText">
+                LAY ZHANG
+              </h2>
+            </div>
+            
+            <!-- 简介文字 -->
+            <div class="max-w-2xl mx-auto px-6">
+              <p class="artist-intro text-xl md:text-2xl mb-12 text-gray-600 font-light tracking-wide opacity-0 transform translate-y-8" ref="artistIntro">
+              努力努力再努力！！！
+              </p>
+              
+              <!-- 身份标签轮播 -->
+              <div class="identity-showcase relative opacity-0 transform translate-y-8" ref="identityShowcase">
+                <div class="identity-carousel text-lg md:text-xl text-gray-500 font-light" ref="identityCarousel">
+                  <span class="identity-text">全民制作人</span>
+                  <span class="identity-text">舞者</span>
+                  <span class="identity-text">歌手</span>
+                  <span class="identity-text">创作者</span>
                 </div>
-                
-                <!-- 成就标签 -->
-                <div class="flex flex-wrap gap-3 mt-8">
-                  <span class="achievement-tag animate-badge" data-animate="bounceIn" data-delay="2.4">歌手</span>
-                  <span class="achievement-tag animate-badge" data-animate="bounceIn" data-delay="2.6">制作人</span>
-                  <span class="achievement-tag animate-badge" data-animate="bounceIn" data-delay="2.8">演员</span>
-                  <span class="achievement-tag animate-badge" data-animate="bounceIn" data-delay="3.0">舞者</span>
-                  <span class="achievement-tag animate-badge" data-animate="bounceIn" data-delay="3.2">创作人</span>
-                </div>
+                <!-- 装饰元素 -->
+                <div class="identity-decor left"></div>
+                <div class="identity-decor right"></div>
               </div>
             </div>
           </div>
         </div>
+
+        <!-- 下滑提示 -->
+        <div class="scroll-hint absolute bottom-12 left-1/2 transform -translate-x-1/2 opacity-0" ref="scrollHint">
+          <div class="scroll-text mb-4 text-sm tracking-widest text-gray-400 uppercase">探索更多</div>
+          <div class="scroll-line">
+            <div class="scroll-dot"></div>
+          </div>
+        </div>
       </section>
+  
+      <!-- 页面过渡遮罩 -->
+      <div class="page-transition-mask"></div>
   
       <!-- 音乐作品 -->
       <section id="music" class="section-padding relative scroll-reveal music-album-section">
+        <!-- 高设计感鼠标交互背景 -->
+        <div class="water-ripple-container" ref="waterRippleContainer">
+          <canvas ref="waterCanvas" class="water-canvas"></canvas>
+        </div>
+        
         <div class="container">
           <!-- 音乐装饰背景 -->
           <div class="music-decorations absolute inset-0 pointer-events-none overflow-hidden">
@@ -186,38 +289,8 @@
             <div class="music-note absolute bottom-16 right-1/3 text-purple-300/20 text-4xl animate-bounce delay-500">♫</div>
             <div class="music-note absolute top-32 right-1/4 text-cyan-400/15 text-2xl animate-pulse delay-700">♪</div>
             
-            <!-- 唱片装饰 -->
-            <div class="vinyl-record absolute top-4 left-8 w-20 h-20 bg-gradient-to-r from-gray-800 to-gray-600 rounded-full opacity-10 animate-spin-slow">
-              <div class="absolute inset-4 bg-gray-900 rounded-full">
-                <div class="absolute inset-3 bg-blue-500/30 rounded-full"></div>
-              </div>
-            </div>
-            <div class="vinyl-record absolute bottom-8 right-12 w-24 h-24 bg-gradient-to-r from-purple-800 to-purple-600 rounded-full opacity-8 animate-spin-slow-reverse">
-              <div class="absolute inset-5 bg-purple-900 rounded-full">
-                <div class="absolute inset-3 bg-purple-400/40 rounded-full"></div>
-              </div>
-            </div>
-            <div class="vinyl-record absolute top-1/2 left-4 w-16 h-16 bg-gradient-to-r from-pink-700 to-pink-500 rounded-full opacity-12 animate-spin-slow delay-1000">
-              <div class="absolute inset-3 bg-pink-900 rounded-full">
-                <div class="absolute inset-2 bg-pink-300/50 rounded-full"></div>
-              </div>
-            </div>
-            
-            <!-- 音波效果 -->
-            <div class="sound-waves absolute top-1/3 left-8 flex space-x-1">
-              <div class="wave w-1 h-8 bg-blue-400/20 rounded-full animate-wave-1"></div>
-              <div class="wave w-1 h-12 bg-blue-400/15 rounded-full animate-wave-2"></div>
-              <div class="wave w-1 h-6 bg-blue-400/10 rounded-full animate-wave-3"></div>
-              <div class="wave w-1 h-10 bg-blue-400/25 rounded-full animate-wave-4"></div>
-              <div class="wave w-1 h-14 bg-blue-400/18 rounded-full animate-wave-1 delay-200"></div>
-            </div>
-            <div class="sound-waves absolute top-2/3 right-12 flex space-x-1 rotate-180">
-              <div class="wave w-1 h-6 bg-purple-400/20 rounded-full animate-wave-2"></div>
-              <div class="wave w-1 h-10 bg-purple-400/15 rounded-full animate-wave-3"></div>
-              <div class="wave w-1 h-8 bg-purple-400/10 rounded-full animate-wave-1"></div>
-              <div class="wave w-1 h-12 bg-purple-400/25 rounded-full animate-wave-4"></div>
-              <div class="wave w-1 h-16 bg-purple-400/18 rounded-full animate-wave-2 delay-300"></div>
-            </div>
+   
+      
             
             <!-- 流动的音乐线条 -->
             <div class="music-lines absolute top-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-400/20 to-transparent animate-pulse"></div>
@@ -232,21 +305,9 @@
             <div class="current-album-info mt-4 text-sm text-gray-600">
               当前展示：<span class="font-semibold text-blue-600">{{ currentAlbum.albumTitle }}</span> ({{ currentAlbum.year }})
             </div>
-            <!-- 节拍点装饰 -->
-            <div class="rhythm-dots animate-dots" data-animate="fadeInUp" data-delay="0.4">
-              <div class="rhythm-dot"></div>
-              <div class="rhythm-dot"></div>
-              <div class="rhythm-dot"></div>
-              <div class="rhythm-dot"></div>
-              <div class="rhythm-dot"></div>
-            </div>
+    
             
-            <!-- 在标题附近添加Lottie动画容器 -->
-            <div class="title-lottie-container">
-              <div id="title-lottie-1" class="title-lottie title-lottie-1"></div>
-              <div id="title-lottie-2" class="title-lottie title-lottie-2"></div>
-              <div id="title-lottie-3" class="title-lottie title-lottie-3"></div>
-            </div>
+     
             
             <!-- 跳转网易云按钮 -->
             <div class="absolute top-0 right-0">
@@ -387,57 +448,7 @@
             </div>
           </div>
           
-          <!-- 音频播放器 -->
-          <div class="music-player-container mt-12">
-            <div class="music-player bg-white rounded-2xl shadow-lg p-6 max-w-md mx-auto">
-              <div class="player-info flex items-center space-x-4 mb-4">
-                <div class="player-album-cover w-12 h-12 rounded-lg overflow-hidden">
-                  <img :src="currentAlbum.albumCover" :alt="currentAlbum.albumTitle" class="w-full h-full object-cover">
-                </div>
-                <div class="player-text flex-1">
-                  <div class="player-title text-sm font-semibold text-gray-900 truncate">{{ currentAlbum.albumTitle }}</div>
-                  <div class="player-artist text-xs text-gray-500">张艺兴 LAY</div>
-                </div>
-              </div>
-              
-              <div class="player-controls flex items-center justify-center space-x-6">
-                <button class="control-btn text-gray-600 hover:text-gray-900 transition-colors">
-                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M6 6h2v12H6V6zm10 0h2v12h-2V6z"/>
-                  </svg>
-                </button>
-                
-                <button @click="togglePlay" 
-                        class="play-pause-btn bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 transform transition-all duration-200 hover:scale-105">
-                  <svg v-if="!isPlaying" class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z"/>
-                  </svg>
-                  <svg v-else class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
-                  </svg>
-                </button>
-                
-                <button class="control-btn text-gray-600 hover:text-gray-900 transition-colors">
-                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
-                  </svg>
-                </button>
-              </div>
-              
-              <!-- 进度条 -->
-              <div class="player-progress mt-4">
-                <div class="progress-bar bg-gray-200 rounded-full h-1">
-                  <div class="progress-fill bg-blue-500 rounded-full h-1 transition-all duration-300" 
-                       :style="{ width: progressPercent + '%' }"></div>
-                </div>
-                <div class="progress-time flex justify-between text-xs text-gray-500 mt-1">
-                  <span>{{ currentTime }}</span>
-                  <span>{{ totalTime }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          
+     
           <!-- 音乐板块Lottie动画 -->
           <div id="music-lottie" class="music-section-lottie"></div>
         </div>
@@ -641,8 +652,11 @@
   <script setup lang="ts">
 import EnterButton from '@/components/EnterButton.vue'
 import VideoTransition from '@/components/VideoTransition.vue'
-import { onMounted, onUnmounted, ref, nextTick } from 'vue'
+import { onMounted, onUnmounted, onBeforeUnmount, ref, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
+import * as THREE from 'three'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
   
   const router = useRouter()
   
@@ -653,6 +667,10 @@ import { useRouter } from 'vue-router'
   const currentPlayingId = ref(null)
   const isLoading = ref(false)
   const failedAlbumId = ref(null)
+  
+  // 高设计感鼠标交互相关
+  const waterRippleContainer = ref<HTMLElement>()
+  const waterCanvas = ref<HTMLCanvasElement>()
   
   // 转场相关状态
   const showVideoTransition = ref(false)
@@ -1464,6 +1482,408 @@ import { useRouter } from 'vue-router'
   let particlesCleanup = null
   let particlesInterface = null
   
+  // 高设计感鼠标交互系统 - 综合粒子、磁性、流体效果
+  const initAdvancedMouseInteraction = () => {
+    if (!waterCanvas.value || !waterRippleContainer.value) return
+    
+    const canvas = waterCanvas.value
+    const container = waterRippleContainer.value
+    const ctx = canvas.getContext('2d')!
+    
+    // 设置画布尺寸 - 高清渲染
+    const resizeCanvas = () => {
+      const rect = container.getBoundingClientRect()
+      canvas.width = rect.width * window.devicePixelRatio
+      canvas.height = rect.height * window.devicePixelRatio
+      canvas.style.width = rect.width + 'px'
+      canvas.style.height = rect.height + 'px'
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio)
+    }
+    
+    resizeCanvas()
+    window.addEventListener('resize', resizeCanvas)
+    
+    // 鼠标状态追踪
+    let mouseX = 0
+    let mouseY = 0
+    let isMousePressed = false
+    let mouseVelocityX = 0
+    let mouseVelocityY = 0
+    let lastMouseX = 0
+    let lastMouseY = 0
+    
+    // 粒子系统数据结构
+    interface Particle {
+      x: number
+      y: number
+      vx: number
+      vy: number
+      radius: number
+      opacity: number
+      life: number
+      maxLife: number
+      hue: number
+      type: 'trail' | 'magnetic' | 'explosion' | 'flow'
+      targetX?: number
+      targetY?: number
+      magnetStrength?: number
+    }
+    
+    interface FlowField {
+      x: number
+      y: number
+      angle: number
+      intensity: number
+    }
+    
+    const particles: Particle[] = []
+    const flowField: FlowField[] = []
+    const maxParticles = 200
+    
+    // 初始化流场系统
+    const initFlowField = () => {
+      const gridSize = 30
+      for (let x = 0; x < canvas.width; x += gridSize) {
+        for (let y = 0; y < canvas.height; y += gridSize) {
+          flowField.push({
+            x,
+            y,
+            angle: Math.random() * Math.PI * 2,
+            intensity: Math.random() * 0.5 + 0.2
+          })
+        }
+      }
+    }
+    
+    initFlowField()
+    
+    // 智能粒子创建系统
+    const createParticle = (x: number, y: number, type: Particle['type'], count = 1) => {
+      for (let i = 0; i < count; i++) {
+        if (particles.length >= maxParticles) {
+          particles.shift()
+        }
+        
+        let particle: Particle
+        
+        switch (type) {
+          case 'trail':
+            // 拖尾粒子 - 快速移动时
+            particle = {
+              x: x + (Math.random() - 0.5) * 20,
+              y: y + (Math.random() - 0.5) * 20,
+              vx: (Math.random() - 0.5) * 3,
+              vy: (Math.random() - 0.5) * 3,
+              radius: Math.random() * 4 + 2,
+              opacity: 0.8,
+              life: 1,
+              maxLife: 1,
+              hue: 220 + Math.random() * 60, // 蓝紫色系
+              type: 'trail'
+            }
+            break
+            
+          case 'magnetic':
+            // 磁性粒子 - 静止悬停时
+            particle = {
+              x: x + (Math.random() - 0.5) * 100,
+              y: y + (Math.random() - 0.5) * 100,
+              vx: 0,
+              vy: 0,
+              radius: Math.random() * 3 + 1,
+              opacity: 0.6,
+              life: 1,
+              maxLife: 1,
+              hue: 280 + Math.random() * 40, // 紫色系
+              type: 'magnetic',
+              targetX: x,
+              targetY: y,
+              magnetStrength: Math.random() * 0.1 + 0.05
+            }
+            break
+            
+          case 'explosion':
+            // 爆炸粒子 - 点击时
+            const angle = (Math.PI * 2 / count) * i + Math.random() * 0.5
+            const speed = Math.random() * 8 + 4
+            particle = {
+              x,
+              y,
+              vx: Math.cos(angle) * speed,
+              vy: Math.sin(angle) * speed,
+              radius: Math.random() * 6 + 3,
+              opacity: 1,
+              life: 1,
+              maxLife: 1,
+              hue: 200 + Math.random() * 80, // 蓝绿色系
+              type: 'explosion'
+            }
+            break
+            
+          case 'flow':
+            // 流动粒子 - 慢速移动时
+            particle = {
+              x: x + (Math.random() - 0.5) * 50,
+              y: y + (Math.random() - 0.5) * 50,
+              vx: (Math.random() - 0.5) * 2,
+              vy: (Math.random() - 0.5) * 2,
+              radius: Math.random() * 2 + 0.5,
+              opacity: 0.4,
+              life: 1,
+              maxLife: 1,
+              hue: 180 + Math.random() * 120, // 彩虹色系
+              type: 'flow'
+            }
+            break
+        }
+        
+        particles.push(particle)
+      }
+    }
+    
+    // 动态流场更新
+    const updateFlowField = () => {
+      const time = Date.now() * 0.001
+      flowField.forEach(field => {
+        const distToMouse = Math.sqrt(
+          Math.pow(field.x - mouseX, 2) + Math.pow(field.y - mouseY, 2)
+        )
+        
+        if (distToMouse < 150) {
+          // 鼠标影响范围内
+          const influence = (150 - distToMouse) / 150
+          field.angle = Math.atan2(mouseY - field.y, mouseX - field.x) + 
+                       Math.sin(time * 2) * influence * 0.5
+          field.intensity = 0.8 * influence + 0.2
+        } else {
+          // 自然波动
+          field.angle += Math.sin(time + field.x * 0.01) * 0.02
+          field.intensity = 0.3
+        }
+      })
+    }
+    
+    // 获取流场影响力
+    const getFlowInfluence = (x: number, y: number) => {
+      const gridSize = 30
+      const gridX = Math.floor(x / gridSize) * gridSize
+      const gridY = Math.floor(y / gridSize) * gridSize
+      
+      const field = flowField.find(f => f.x === gridX && f.y === gridY)
+      if (field) {
+        return {
+          vx: Math.cos(field.angle) * field.intensity,
+          vy: Math.sin(field.angle) * field.intensity
+        }
+      }
+      return { vx: 0, vy: 0 }
+    }
+    
+    // 智能鼠标事件处理
+    const handleMouseMove = (event: MouseEvent) => {
+      const rect = container.getBoundingClientRect()
+      const newMouseX = event.clientX - rect.left
+      const newMouseY = event.clientY - rect.top
+      
+      // 计算鼠标速度
+      mouseVelocityX = newMouseX - lastMouseX
+      mouseVelocityY = newMouseY - lastMouseY
+      lastMouseX = mouseX
+      lastMouseY = mouseY
+      
+      mouseX = newMouseX
+      mouseY = newMouseY
+      
+      // 根据鼠标速度智能创建粒子
+      const velocity = Math.sqrt(mouseVelocityX ** 2 + mouseVelocityY ** 2)
+      
+      if (velocity > 15) {
+        // 快速移动：拖尾效果
+        createParticle(mouseX, mouseY, 'trail', Math.min(Math.floor(velocity / 10), 5))
+      } else if (velocity > 5) {
+        // 慢速移动：流动效果
+        createParticle(mouseX, mouseY, 'flow', 2)
+      } else {
+        // 静止悬停：磁性效果
+        createParticle(mouseX, mouseY, 'magnetic', 1)
+      }
+    }
+    
+    const handleMouseDown = () => {
+      isMousePressed = true
+      // 点击爆炸效果
+      createParticle(mouseX, mouseY, 'explosion', 12)
+    }
+    
+    const handleMouseUp = () => {
+      isMousePressed = false
+    }
+    
+    const handleMouseLeave = () => {
+      isMousePressed = false
+    }
+    
+    // 事件监听器
+    container.addEventListener('mousemove', handleMouseMove)
+    container.addEventListener('mousedown', handleMouseDown)
+    container.addEventListener('mouseup', handleMouseUp)
+    container.addEventListener('mouseleave', handleMouseLeave)
+    
+    // 60fps 渲染引擎
+    const animate = () => {
+      // 微拖尾效果
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.03)'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      
+      // 更新流场
+      updateFlowField()
+      
+      // 粒子系统更新与渲染
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const particle = particles[i]
+        
+        // 基于类型的物理行为
+        switch (particle.type) {
+          case 'trail':
+            particle.vx *= 0.98
+            particle.vy *= 0.98
+            particle.life -= 0.02
+            break
+            
+          case 'magnetic':
+            if (particle.targetX !== undefined && particle.targetY !== undefined) {
+              const dx = mouseX - particle.x
+              const dy = mouseY - particle.y
+              const distance = Math.sqrt(dx ** 2 + dy ** 2)
+              
+              if (distance > 5) {
+                particle.vx += (dx / distance) * (particle.magnetStrength || 0.05)
+                particle.vy += (dy / distance) * (particle.magnetStrength || 0.05)
+              }
+              
+              // 速度限制
+              const maxSpeed = 8
+              const currentSpeed = Math.sqrt(particle.vx ** 2 + particle.vy ** 2)
+              if (currentSpeed > maxSpeed) {
+                particle.vx = (particle.vx / currentSpeed) * maxSpeed
+                particle.vy = (particle.vy / currentSpeed) * maxSpeed
+              }
+            }
+            particle.life -= 0.01
+            break
+            
+          case 'explosion':
+            particle.vy += 0.1 // 重力
+            particle.vx *= 0.995
+            particle.vy *= 0.995
+            particle.life -= 0.015
+            break
+            
+          case 'flow':
+            const flowInfluence = getFlowInfluence(particle.x, particle.y)
+            particle.vx += flowInfluence.vx * 0.5
+            particle.vy += flowInfluence.vy * 0.5
+            particle.vx *= 0.99
+            particle.vy *= 0.99
+            particle.life -= 0.008
+            break
+        }
+        
+        // 位置更新
+        particle.x += particle.vx
+        particle.y += particle.vy
+        
+        // 透明度更新
+        particle.opacity = particle.life * 0.8
+        
+        // 生命周期管理
+        if (particle.life <= 0) {
+          particles.splice(i, 1)
+          continue
+        }
+        
+        // 高质量粒子渲染
+        ctx.save()
+        ctx.globalAlpha = particle.opacity
+        
+        // HSL色彩渐变
+        const gradient = ctx.createRadialGradient(
+          particle.x, particle.y, 0,
+          particle.x, particle.y, particle.radius * 2
+        )
+        
+        const hsl = `hsl(${particle.hue}, 70%, 60%)`
+        const hslTransparent = `hsl(${particle.hue}, 70%, 60%, 0)`
+        
+        gradient.addColorStop(0, hsl)
+        gradient.addColorStop(0.5, hsl)
+        gradient.addColorStop(1, hslTransparent)
+        
+        ctx.fillStyle = gradient
+        ctx.beginPath()
+        ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2)
+        ctx.fill()
+        
+        // 发光效果
+        if (particle.type === 'explosion' || particle.type === 'magnetic') {
+          ctx.shadowColor = hsl
+          ctx.shadowBlur = particle.radius * 2
+          ctx.globalAlpha = particle.opacity * 0.5
+          ctx.fill()
+          ctx.shadowBlur = 0
+        }
+        
+        ctx.restore()
+      }
+      
+      // 鼠标光环系统
+      if (mouseX > 0 && mouseY > 0) {
+        const time = Date.now() * 0.005
+        
+        ctx.save()
+        ctx.globalAlpha = 0.3
+        
+        // 3层呼吸光环
+        for (let i = 0; i < 3; i++) {
+          const radius = 20 + i * 15 + Math.sin(time + i) * 5
+          const hue = 220 + Math.sin(time * 0.5 + i) * 40
+          
+          const gradient = ctx.createRadialGradient(
+            mouseX, mouseY, radius * 0.5,
+            mouseX, mouseY, radius
+          )
+          
+          gradient.addColorStop(0, `hsla(${hue}, 70%, 60%, 0)`)
+          gradient.addColorStop(0.7, `hsla(${hue}, 70%, 60%, 0.2)`)
+          gradient.addColorStop(1, `hsla(${hue}, 70%, 60%, 0)`)
+          
+          ctx.strokeStyle = gradient
+          ctx.lineWidth = 2
+          ctx.beginPath()
+          ctx.arc(mouseX, mouseY, radius, 0, Math.PI * 2)
+          ctx.stroke()
+        }
+        
+        ctx.restore()
+      }
+      
+      requestAnimationFrame(animate)
+    }
+    
+    animate()
+    
+    // 清理函数
+    return () => {
+      container.removeEventListener('mousemove', handleMouseMove)
+      container.removeEventListener('mousedown', handleMouseDown)
+      container.removeEventListener('mouseup', handleMouseUp)
+      container.removeEventListener('mouseleave', handleMouseLeave)
+      window.removeEventListener('resize', resizeCanvas)
+      particles.length = 0
+      flowField.length = 0
+    }
+  }
+  
   // 初始化应用
   const initApp = async () => {
     try {
@@ -1474,6 +1894,11 @@ import { useRouter } from 'vue-router'
         particlesInterface = initParticlesBackground()
         particlesCleanup = particlesInterface.cleanup
       }, 100)
+      
+      // 初始化高设计感鼠标交互
+      setTimeout(() => {
+        initAdvancedMouseInteraction()
+      }, 200)
       
       // 初始化Lottie动画
       setTimeout(() => {
@@ -2048,6 +2473,322 @@ import { useRouter } from 'vue-router'
       particlesInterface.cleanup()
     }
   }
+
+  const typewriterText = ref(null)
+  const artistIntro = ref(null)
+  const identityShowcase = ref(null)
+  const identityCarousel = ref(null)
+  const scrollHint = ref(null)
+  let currentIdentityIndex = 0
+
+  // 打字效果实现
+  const startTypewriter = () => {
+    if (!typewriterText.value) return
+    
+    const text = typewriterText.value.textContent
+    typewriterText.value.textContent = ''
+    typewriterText.value.classList.add('typing')
+    
+    let i = 0
+    const typeInterval = setInterval(() => {
+      if (i < text.length) {
+        typewriterText.value.textContent += text.charAt(i)
+        i++
+      } else {
+        clearInterval(typeInterval)
+        // 打字效果完成后显示简介和身份标签
+        setTimeout(() => {
+          if (artistIntro.value) {
+            artistIntro.value.classList.add('show')
+          }
+          setTimeout(() => {
+            if (identityShowcase.value) {
+              identityShowcase.value.classList.add('show')
+              startIdentityCarousel()
+            }
+            // 最后显示滚动提示
+            setTimeout(() => {
+              if (scrollHint.value) {
+                scrollHint.value.classList.add('show')
+              }
+            }, 500)
+          }, 400)
+        }, 400)
+      }
+    }, 100)
+  }
+
+  // 身份标签轮播实现
+  const startIdentityCarousel = () => {
+    if (!identityCarousel.value) return
+    
+    const identities = identityCarousel.value.querySelectorAll('.identity-text')
+    identities[0].classList.add('active')
+    
+    setInterval(() => {
+      identities[currentIdentityIndex].classList.remove('active')
+      currentIdentityIndex = (currentIdentityIndex + 1) % identities.length
+      identities[currentIdentityIndex].classList.add('active')
+    }, 2000)
+  }
+
+  // 监听滚动事件，处理过渡效果
+  const handleScroll = () => {
+    const aboutSection = document.getElementById('about')
+    
+    if (aboutSection && scrollHint.value) {
+      const aboutRect = aboutSection.getBoundingClientRect()
+      // 只在about部分且未滚动时显示滚动提示
+      if (aboutRect.top === 0 || (aboutRect.top > 0 && aboutRect.bottom > window.innerHeight)) {
+        scrollHint.value.classList.remove('hide')
+        scrollHint.value.classList.add('show')
+      } else {
+        scrollHint.value.classList.remove('show')
+        scrollHint.value.classList.add('hide')
+      }
+    }
+    
+    // 处理页面过渡效果
+    const sections = document.querySelectorAll('section')
+    sections.forEach(section => {
+      const rect = section.getBoundingClientRect()
+      const isVisible = rect.top < window.innerHeight * 0.8 && rect.bottom > window.innerHeight * 0.2
+      
+      if (isVisible) {
+        section.classList.remove('transitioning')
+      } else {
+        section.classList.add('transitioning')
+      }
+    })
+  }
+
+  // 监听滚动事件，触发打字效果
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        startTypewriter()
+        observer.disconnect()
+      }
+    })
+  }, { threshold: 0.5 })
+
+  onMounted(() => {
+    if (typewriterText.value) {
+      observer.observe(typewriterText.value)
+    }
+    window.addEventListener('scroll', handleScroll)
+  })
+
+  onUnmounted(() => {
+    window.removeEventListener('scroll', handleScroll)
+  })
+
+  const modelContainer = ref(null)
+const modelCanvas = ref(null)
+let scene, camera, renderer, controls, model
+let animationFrameId = null
+
+// 模型参数
+const modelParams = ref({
+  // 模型参数
+  scale: 3.2,
+  rotationX: -2,
+  rotationY: 0,
+  rotationZ: 0,
+  positionX: 0.1,
+  positionY: 0,
+  positionZ: 0,
+  
+  // 相机参数
+  cameraPositionX: 0,
+  cameraPositionY: 0,
+  cameraPositionZ: 5,
+  cameraFov: 45,
+  
+  // 灯光参数
+  ambientIntensity: 0.5,
+  directionalIntensity: 1.0,
+  directionalPositionX: 5,
+  directionalPositionY: 5,
+  directionalPositionZ: 5,
+  
+  // 控制参数
+  autoRotate: false,
+  autoRotateSpeed: 0.005,
+  enableDamping: true,
+  dampingFactor: 0.05
+})
+
+// 更新模型参数
+const updateModelParams = () => {
+  if (!model) return
+  
+  // 更新模型变换
+  model.scale.set(modelParams.value.scale, modelParams.value.scale, modelParams.value.scale)
+  model.rotation.set(
+    modelParams.value.rotationX * Math.PI / 180,
+    modelParams.value.rotationY * Math.PI / 180,
+    modelParams.value.rotationZ * Math.PI / 180
+  )
+  model.position.set(modelParams.value.positionX, modelParams.value.positionY, modelParams.value.positionZ)
+  
+  // 更新相机
+  camera.position.set(
+    modelParams.value.cameraPositionX,
+    modelParams.value.cameraPositionY,
+    modelParams.value.cameraPositionZ
+  )
+  camera.fov = modelParams.value.cameraFov
+  camera.updateProjectionMatrix()
+  
+  // 更新灯光
+  if (scene.children.length > 0) {
+    const ambientLight = scene.children.find(child => child instanceof THREE.AmbientLight)
+    const directionalLight = scene.children.find(child => child instanceof THREE.DirectionalLight)
+    
+    if (ambientLight) {
+      ambientLight.intensity = modelParams.value.ambientIntensity
+    }
+    if (directionalLight) {
+      directionalLight.intensity = modelParams.value.directionalIntensity
+      directionalLight.position.set(
+        modelParams.value.directionalPositionX,
+        modelParams.value.directionalPositionY,
+        modelParams.value.directionalPositionZ
+      )
+    }
+  }
+  
+  // 更新控制器
+  if (controls) {
+    controls.enableDamping = modelParams.value.enableDamping
+    controls.dampingFactor = modelParams.value.dampingFactor
+  }
+}
+
+// 导出参数为JSON
+const exportParams = () => {
+  const json = JSON.stringify(modelParams.value, null, 2)
+  const blob = new Blob([json], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'model-params.json'
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+// 导入参数
+const importParams = (json) => {
+  try {
+    const params = JSON.parse(json)
+    modelParams.value = { ...modelParams.value, ...params }
+    updateModelParams()
+  } catch (error) {
+    console.error('导入参数失败:', error)
+  }
+}
+
+  // 初始化3D场景
+  const initScene = () => {
+    scene = new THREE.Scene()
+    
+    // 设置相机
+    camera = new THREE.PerspectiveCamera(
+      45,
+      modelCanvas.value.clientWidth / modelCanvas.value.clientHeight,
+      0.1,
+      1000
+    )
+    camera.position.set(0, 0, 5)
+
+      // 设置渲染器
+  renderer = new THREE.WebGLRenderer({
+    canvas: modelCanvas.value,
+    antialias: true,
+    alpha: true
+  })
+  renderer.setSize(modelCanvas.value.clientWidth, modelCanvas.value.clientHeight)
+  renderer.setPixelRatio(window.devicePixelRatio)
+  renderer.outputEncoding = THREE.sRGBEncoding
+  renderer.setClearColor(0x000000, 0) // 设置透明背景
+    
+    // 添加环境光和平行光
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
+    scene.add(ambientLight)
+    
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1)
+    directionalLight.position.set(5, 5, 5)
+    scene.add(directionalLight)
+
+    // 添加轨道控制器
+    controls = new OrbitControls(camera, modelCanvas.value)
+    controls.enableDamping = true
+    controls.dampingFactor = 0.05
+    
+      // 加载模型
+  const loader = new GLTFLoader()
+  loader.load(
+    './models/model.glb',
+      (gltf) => {
+        model = gltf.scene
+        scene.add(model)
+        
+              // 应用初始参数
+      updateModelParams()
+      
+      // 动画循环
+      const animate = () => {
+        if (model && modelParams.value.autoRotate) {
+          model.rotation.y += modelParams.value.autoRotateSpeed
+          modelParams.value.rotationY = (model.rotation.y * 180 / Math.PI) % 360
+        }
+        controls.update()
+        renderer.render(scene, camera)
+        animationFrameId = requestAnimationFrame(animate)
+      }
+      animate()
+      },
+      (progress) => {
+        console.log('Loading model...', (progress.loaded / progress.total * 100) + '%')
+      },
+      (error) => {
+        console.error('Error loading model:', error)
+      }
+    )
+  }
+
+  // 处理窗口大小变化
+  const handleResize = () => {
+    if (camera && renderer && modelCanvas.value) {
+      camera.aspect = modelCanvas.value.clientWidth / modelCanvas.value.clientHeight
+      camera.updateProjectionMatrix()
+      renderer.setSize(modelCanvas.value.clientWidth, modelCanvas.value.clientHeight)
+    }
+  }
+
+  onMounted(() => {
+    initScene()
+    window.addEventListener('resize', handleResize)
+  })
+
+  onBeforeUnmount(() => {
+  window.removeEventListener('resize', handleResize)
+  if (animationFrameId !== null) {
+    cancelAnimationFrame(animationFrameId)
+  }
+  if (controls) {
+    controls.dispose()
+  }
+  if (renderer) {
+    renderer.dispose()
+  }
+  if (scene) {
+    while(scene.children.length > 0) { 
+      scene.remove(scene.children[0])
+    }
+  }
+})
   </script>
   
   <style>
@@ -2152,7 +2893,7 @@ import { useRouter } from 'vue-router'
     background-position: center center;
     background-repeat: no-repeat;
     border-radius: 20px;
-    z-index: 1;
+    z-index: 95;
     opacity: 0.8;
   }
   
@@ -2351,11 +3092,16 @@ import { useRouter } from 'vue-router'
   
   .nav-link {
     position: relative;
-    padding: var(--space-3) var(--space-4);
-    color: var(--gray-600);
+    padding: 0.75rem 1rem;
+    color: rgba(31, 41, 55, 0.8);
     text-decoration: none;
-    font-weight: var(--font-weight-medium);
-    transition: all 0.3s var(--ease-beat);
+    font-weight: 500;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+  }
+
+  .nav-link:hover {
+    color: rgba(31, 41, 55, 1);
   }
   
   .nav-link:hover {
@@ -4328,4 +5074,622 @@ import { useRouter } from 'vue-router'
       margin-top: 2rem;
     }
   }
-  </style>  
+
+  /* —— 高设计感鼠标交互背景 —— */
+  .water-ripple-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    pointer-events: auto;
+    cursor: crosshair;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.02) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.02) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(236, 72, 153, 0.01) 0%, transparent 50%),
+      linear-gradient(135deg, 
+        rgba(248, 250, 252, 0.98) 0%,
+        rgba(241, 245, 249, 0.95) 25%,
+        rgba(235, 238, 243, 0.92) 50%,
+        rgba(241, 245, 249, 0.95) 75%,
+        rgba(248, 250, 252, 0.98) 100%);
+    background-size: 800px 800px, 600px 600px, 1000px 1000px, 400% 400%;
+    animation: ambientFlow 25s ease-in-out infinite;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .water-ripple-container:hover {
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.03) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(236, 72, 153, 0.02) 0%, transparent 50%),
+      linear-gradient(135deg, 
+        rgba(248, 250, 252, 0.95) 0%,
+        rgba(241, 245, 249, 0.92) 25%,
+        rgba(235, 238, 243, 0.88) 50%,
+        rgba(241, 245, 249, 0.92) 75%,
+        rgba(248, 250, 252, 0.95) 100%);
+    cursor: none; /* 隐藏默认光标，显示自定义光环 */
+  }
+
+  .water-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+    opacity: 0.9;
+    mix-blend-mode: screen;
+    filter: blur(0.3px) contrast(1.15) brightness(1.05);
+    transition: all 0.3s ease;
+  }
+
+  .water-ripple-container:hover .water-canvas {
+    opacity: 1;
+    filter: blur(0px) contrast(1.25) brightness(1.1);
+  }
+
+  @keyframes ambientFlow {
+    0%, 100% {
+      background-position: 0% 0%, 100% 100%, 50% 50%, 0% 50%;
+    }
+    25% {
+      background-position: 100% 0%, 0% 100%, 80% 20%, 100% 0%;
+    }
+    50% {
+      background-position: 100% 100%, 0% 0%, 20% 80%, 200% 50%;
+    }
+    75% {
+      background-position: 0% 100%, 100% 0%, 50% 50%, 100% 100%;
+    }
+  }
+
+  /* 音乐模块内容层级提升 */
+  .music-album-section .container {
+    position: relative;
+    z-index: 10;
+  }
+
+  /* 导航按钮增强透明度 */
+  .nav-btn .nav-btn-inner {
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+  }
+
+  .nav-btn:hover .nav-btn-inner {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-color: rgba(59, 130, 246, 0.3);
+  }
+
+  /* 专辑展示容器透明度调整 */
+  .album-showcase-container {
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+  }
+
+  .album-showcase-container:hover {
+    background: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  /* 响应式交互效果 */
+  @media (max-width: 768px) {
+    .water-ripple-container {
+      opacity: 0.8;
+      cursor: default; /* 移动端保持默认光标 */
+    }
+    
+    .water-canvas {
+      opacity: 0.7;
+      filter: blur(0.2px) contrast(1.1);
+    }
+
+    .water-ripple-container:hover {
+      cursor: default;
+    }
+  }
+
+  /* 粒子系统性能优化 */
+  @media (prefers-reduced-motion: reduce) {
+    .water-ripple-container {
+      animation: none;
+    }
+    
+    .ambientFlow {
+      animation: none;
+    }
+  }
+
+  /* 高刷新率显示器优化 */
+  @media (min-resolution: 120dpi) {
+    .water-canvas {
+      image-rendering: crisp-edges;
+    }
+  }
+
+  /* 打字效果样式 */
+  .typewriter-text {
+    opacity: 0;
+    background: linear-gradient(135deg, #1a1a1a 0%, #404040 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+    transform: translateY(30px);
+    transition: transform 0.8s cubic-bezier(0.215, 0.61, 0.355, 1),
+                opacity 0.8s cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+
+  .typewriter-text.typing {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* 身份标签轮播样式 */
+  .identity-carousel {
+    position: relative;
+    height: 1.5em;
+    overflow: hidden;
+  }
+
+  .identity-text {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+  }
+
+  .identity-text.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* 下滑提示动画 */
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-bounce {
+    animation: bounce 2s infinite;
+  }
+
+  /* 艺术背景效果 */
+  .artistic-bg {
+    background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(248,250,252,0.9));
+    overflow: hidden;
+  }
+
+  .artistic-circle {
+    position: absolute;
+    width: 80vw;
+    height: 80vw;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.03);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: rotateCircle 30s linear infinite;
+  }
+
+  /* 流动线条背景 */
+  .flowing-lines {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .line-group {
+    position: absolute;
+    inset: -20%;
+  }
+
+  .line-group.diagonal {
+    transform: rotate(-45deg);
+  }
+
+  .line-group.horizontal {
+    transform: rotate(0deg);
+  }
+
+  .line-group.vertical {
+    transform: rotate(90deg);
+  }
+
+  .line {
+    position: absolute;
+    background: linear-gradient(90deg, 
+      transparent,
+      rgba(99, 102, 241, 0.01) 20%,
+      rgba(99, 102, 241, 0.02) 50%,
+      rgba(99, 102, 241, 0.01) 80%,
+      transparent
+    );
+    height: 1px;
+    width: 140%;
+    left: -20%;
+    animation: flowLine 15s infinite linear;
+  }
+
+  .line-group.diagonal .line:nth-child(1) {
+    top: 30%;
+    animation-delay: 0s;
+    opacity: 0.7;
+  }
+
+  .line-group.diagonal .line:nth-child(2) {
+    top: 50%;
+    animation-delay: -5s;
+    opacity: 0.5;
+  }
+
+  .line-group.diagonal .line:nth-child(3) {
+    top: 70%;
+    animation-delay: -10s;
+    opacity: 0.3;
+  }
+
+  .line-group.horizontal .line:nth-child(1) {
+    top: 40%;
+    animation-delay: -3s;
+    opacity: 0.4;
+  }
+
+  .line-group.horizontal .line:nth-child(2) {
+    top: 60%;
+    animation-delay: -8s;
+    opacity: 0.6;
+  }
+
+  .line-group.vertical .line:nth-child(1) {
+    top: 45%;
+    animation-delay: -2s;
+    opacity: 0.3;
+  }
+
+  .line-group.vertical .line:nth-child(2) {
+    top: 65%;
+    animation-delay: -7s;
+    opacity: 0.5;
+  }
+
+  @keyframes flowLine {
+    0% {
+      transform: translateX(-10%) scaleX(0.9);
+      opacity: 0;
+    }
+    5% {
+      opacity: 1;
+    }
+    45% {
+      transform: translateX(30%) scaleX(1.1);
+      opacity: 1;
+    }
+    95% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(70%) scaleX(0.9);
+      opacity: 0;
+    }
+  }
+
+  @keyframes rotateCircle {
+    from {
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+    to {
+      transform: translate(-50%, -50%) rotate(360deg);
+    }
+  }
+
+  .grain-overlay {
+    position: absolute;
+    inset: 0;
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjc1IiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbHRlcj0idXJsKCNhKSIgb3BhY2l0eT0iLjA1Ii8+PC9zdmc+');
+    opacity: 0.2;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+  }
+
+  /* 添加模糊光晕效果 */
+   .artistic-bg::before {
+     content: '';
+     position: absolute;
+     inset: 0;
+     background: radial-gradient(
+       circle at 50% 50%,
+       rgba(99, 102, 241, 0.03) 0%,
+       transparent 70%
+     );
+     animation: pulseGlow 8s ease-in-out infinite alternate;
+   }
+
+   @keyframes pulseGlow {
+     0% {
+       opacity: 0.5;
+       transform: scale(1);
+     }
+     100% {
+       opacity: 1;
+       transform: scale(1.1);
+     }
+   }
+
+   /* 装饰线条 */
+   .decorative-line {
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     gap: 2rem;
+   }
+
+   .decorative-line .line {
+     width: 60px;
+     height: 1px;
+     background: linear-gradient(90deg, transparent, var(--gray-300), transparent);
+   }
+
+   .decorative-line .dot {
+     width: 4px;
+     height: 4px;
+     background: var(--gray-400);
+     border-radius: 50%;
+   }
+
+   /* 标题容器 */
+   .title-container {
+     perspective: 1000px;
+   }
+
+   .title-bg {
+     position: absolute;
+     inset: -2rem;
+     background: radial-gradient(circle at center, rgba(99,102,241,0.05) 0%, transparent 70%);
+     transform: translateZ(-100px);
+     opacity: 0;
+     transition: opacity 1s ease;
+   }
+
+   .typewriter-text {
+     opacity: 0;
+     background: linear-gradient(135deg, #1a1a1a 0%, #404040 100%);
+     background-clip: text;
+     -webkit-background-clip: text;
+     -webkit-text-fill-color: transparent;
+     position: relative;
+     transform: translateZ(50px);
+     letter-spacing: -0.02em;
+   }
+
+   .typewriter-text.typing {
+     opacity: 1;
+   }
+
+   .typewriter-text.typing + .title-bg {
+     opacity: 1;
+   }
+
+   /* 艺术家简介文字 */
+   .artist-intro {
+     position: relative;
+     display: inline-block;
+     padding: 0 1rem;
+   }
+
+   .artist-intro::before,
+   .artist-intro::after {
+     content: '';
+     position: absolute;
+     top: 50%;
+     width: 20px;
+     height: 1px;
+     background: var(--gray-300);
+   }
+
+   .artist-intro::before {
+     left: -30px;
+     transform: rotate(-45deg);
+   }
+
+   .artist-intro::after {
+     right: -30px;
+     transform: rotate(45deg);
+   }
+
+   /* 身份标签展示区 */
+   .identity-showcase {
+     padding: 2rem 0;
+   }
+
+   .identity-carousel {
+     position: relative;
+     height: 1.5em;
+     overflow: hidden;
+   }
+
+   .identity-text {
+     position: absolute;
+     width: 100%;
+     left: 0;
+     opacity: 0;
+     transform: translateY(20px) rotateX(-20deg);
+     transition: all 0.6s cubic-bezier(0.215, 0.61, 0.355, 1);
+   }
+
+   .identity-text.active {
+     opacity: 1;
+     transform: translateY(0) rotateX(0);
+   }
+
+   .identity-decor {
+     position: absolute;
+     width: 40px;
+     height: 1px;
+     background: linear-gradient(90deg, transparent, var(--gray-300));
+     top: 50%;
+   }
+
+   .identity-decor.left {
+     left: 20%;
+     transform: translateX(-100%);
+   }
+
+   .identity-decor.right {
+     right: 20%;
+     transform: translateX(100%);
+     background: linear-gradient(90deg, var(--gray-300), transparent);
+   }
+
+   /* 下滑提示 */
+   .scroll-hint {
+     opacity: 0.7;
+   }
+
+   .scroll-line {
+     width: 1px;
+     height: 60px;
+     background: linear-gradient(to bottom, var(--gray-300), transparent);
+     margin: 0 auto;
+     position: relative;
+   }
+
+   .scroll-dot {
+     position: absolute;
+     width: 3px;
+     height: 3px;
+     background: var(--gray-400);
+     border-radius: 50%;
+     left: -1px;
+     animation: scrollDot 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+   }
+
+   @keyframes scrollDot {
+     0% {
+       top: 0;
+       opacity: 1;
+     }
+     100% {
+       top: 100%;
+       opacity: 0;
+     }
+   }
+
+   /* 响应式调整 */
+   @media (max-width: 768px) {
+     .artistic-circle {
+       width: 120vw;
+       height: 120vw;
+     }
+     
+     .identity-decor {
+       width: 20px;
+     }
+     
+     .identity-decor.left {
+       left: 10%;
+     }
+     
+     .identity-decor.right {
+       right: 10%;
+     }
+   }
+
+   /* 修改和新增的样式 */
+   .artist-intro,
+   .identity-showcase {
+     transition: all 0.8s cubic-bezier(0.215, 0.61, 0.355, 1);
+   }
+
+   .artist-intro.show,
+   .identity-showcase.show {
+     opacity: 1;
+     transform: translateY(0);
+   }
+
+   /* 滚动提示样式优化 */
+   .scroll-hint {
+     transition: all 0.6s cubic-bezier(0.215, 0.61, 0.355, 1);
+     z-index: 50;
+   }
+
+   .scroll-hint.show {
+     opacity: 0.7;
+   }
+
+   .scroll-hint.hide {
+     opacity: 0;
+     transform: translate(-50%, 20px);
+   }
+
+   /* 页面过渡遮罩 */
+   .page-transition-mask {
+     position: fixed;
+     top: 0;
+     left: 0;
+     width: 100%;
+     height: 100%;
+     background: rgba(255, 255, 255, 0.98);
+     z-index: 100;
+     pointer-events: none;
+     opacity: 0;
+     transition: opacity 0.8s cubic-bezier(0.215, 0.61, 0.355, 1);
+   }
+
+   .page-transition-mask.active {
+     opacity: 1;
+   }
+
+   /* 优化section过渡 */
+   section {
+     transition: transform 0.8s cubic-bezier(0.215, 0.61, 0.355, 1),
+                opacity 0.8s cubic-bezier(0.215, 0.61, 0.355, 1);
+   }
+
+   section.transitioning {
+     transform: scale(0.95);
+     opacity: 0;
+   }
+
+   /* 调整打字效果动画 */
+   .typewriter-text {
+     opacity: 0;
+     background: linear-gradient(135deg, #1a1a1a 0%, #404040 100%);
+     background-clip: text;
+     -webkit-background-clip: text;
+     -webkit-text-fill-color: transparent;
+     position: relative;
+     transform: translateY(30px);
+     transition: transform 0.8s cubic-bezier(0.215, 0.61, 0.355, 1),
+                opacity 0.8s cubic-bezier(0.215, 0.61, 0.355, 1);
+   }
+
+   .typewriter-text.typing {
+     opacity: 1;
+     transform: translateY(0);
+   }
+
+   /* 3D模型容器样式 */
+   .model-container {
+     perspective: 1000px;
+   }
+
+   .model-container canvas {
+  background: transparent;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+   .model-container canvas:hover {
+     transform: translateY(-5px);
+   }
+   </style>  
