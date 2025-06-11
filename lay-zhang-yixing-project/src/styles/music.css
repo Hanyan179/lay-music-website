@@ -1,0 +1,398 @@
+/* 音乐相关样式 */
+
+/* —— 音频可视化器 —— */
+.audio-visualizer {
+  display: flex;
+  justify-content: center;
+  align-items: end;
+  gap: 6px; /* 增加间距 */
+  height: 40px;
+  margin: var(--space-8) 0;
+}
+
+.audio-bar {
+  background: linear-gradient(135deg, var(--music-primary), var(--music-secondary));
+  border-radius: 3px;
+  width: 4px; /* 增加宽度 */
+  animation: audioWave 1.5s var(--ease-rhythm) infinite;
+  transition: all 0.3s ease;
+}
+
+.audio-bar:hover {
+  animation-duration: 0.5s;
+  transform: scaleY(2) scaleX(1.5);
+}
+
+.audio-bar:nth-child(1) { animation-delay: 0s; height: 20px; }
+.audio-bar:nth-child(2) { animation-delay: 0.1s; height: 12px; }
+.audio-bar:nth-child(3) { animation-delay: 0.2s; height: 24px; }
+.audio-bar:nth-child(4) { animation-delay: 0.3s; height: 16px; }
+.audio-bar:nth-child(5) { animation-delay: 0.4s; height: 18px; }
+
+/* —— 节拍点动画 —— */
+.rhythm-dots {
+  display: flex;
+  justify-content: center;
+  gap: 12px; /* 增加间距 */
+  margin: var(--space-8) 0;
+}
+
+.rhythm-dot {
+  width: 10px; /* 增大尺寸 */
+  height: 10px;
+  border-radius: 50%;
+  background: var(--music-primary);
+  animation: rhythmPulse 1.5s var(--ease-pulse) infinite;
+  transition: all 0.3s ease;
+}
+
+.rhythm-dot:hover {
+  animation-duration: 0.5s;
+  transform: scale(1.5);
+}
+
+.rhythm-dot:nth-child(1) { animation-delay: 0s; }
+.rhythm-dot:nth-child(2) { animation-delay: 0.2s; }
+.rhythm-dot:nth-child(3) { animation-delay: 0.4s; }
+.rhythm-dot:nth-child(4) { animation-delay: 0.6s; }
+.rhythm-dot:nth-child(5) { animation-delay: 0.8s; }
+
+/* —— 音乐卡片 —— */
+.music-card, .video-card {
+  background: rgba(255, 255, 255, 0.6); /* 增强透明感 */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px; /* 更加圆润 */
+  box-shadow: 
+    0 12px 24px rgba(0, 0, 0, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition: all 0.4s var(--ease-harmony);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(25px); /* 增强毛玻璃效果 */
+}
+
+.music-card:hover, .video-card:hover {
+  transform: translateY(-8px);
+  background: rgba(255, 255, 255, 0.8); /* 悬浮时增加不透明度 */
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.12),
+    0 8px 20px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* —— 专辑封面 —— */
+.album-cover {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px; /* 内部元素也更圆润 */
+}
+
+.album-cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(0,0,0,0.1) 100%);
+  opacity: 0;
+  transition: opacity 0.3s var(--ease-beat);
+}
+
+.album-cover:hover::after {
+  opacity: 1;
+}
+
+.album-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s var(--ease-beat);
+}
+
+.album-cover:hover img {
+  transform: scale(1.05);
+}
+
+/* —— 播放按钮 —— */
+.play-button {
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  backdrop-filter: blur(15px);
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+.play-button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--gradient-music);
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: -1;
+}
+
+.play-button:hover {
+  transform: scale(1.2) rotate(360deg);
+  color: white;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+.play-button:hover::after {
+  opacity: 1;
+}
+
+/* —— 音乐播放器样式 —— */
+.music-player {
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.music-player:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.progress-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  position: relative;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* —— 播放专辑按钮 —— */
+.play-album-btn {
+  background: linear-gradient(135deg, 
+    rgba(99, 102, 241, 0.1) 0%, 
+    rgba(139, 92, 246, 0.1) 50%, 
+    rgba(59, 130, 246, 0.1) 100%);
+  color: var(--music-primary);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-weight: var(--font-weight-medium);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-beat);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.play-album-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.play-album-btn:hover {
+  background: linear-gradient(135deg, 
+    rgba(99, 102, 241, 0.9) 0%, 
+    rgba(139, 92, 246, 0.9) 50%, 
+    rgba(59, 130, 246, 0.9) 100%);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.play-album-btn:hover::before {
+  left: 100%;
+}
+
+/* —— 成就标签 —— */
+.achievement-tag {
+  background: rgba(243, 244, 246, 0.8); /* 增加透明感 */
+  color: var(--gray-700);
+  padding: var(--space-2) var(--space-4);
+  border-radius: 24px;
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium);
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.achievement-tag::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  transition: left 0.5s ease;
+}
+
+.achievement-tag:hover {
+  background: var(--music-primary);
+  color: white;
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+}
+
+.achievement-tag:hover::before {
+  left: 100%;
+}
+
+/* —— 控制按钮 —— */
+.control-button {
+  background: rgba(255, 255, 255, 0.7); /* 增强透明感 */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: var(--space-2);
+  cursor: pointer;
+  transition: all 0.3s var(--ease-beat);
+  backdrop-filter: blur(15px);
+  color: var(--gray-600);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.control-button:hover {
+  background: var(--music-primary);
+  color: white;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* —— 专辑导航 —— */
+.album-navigation {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 1rem;
+  z-index: 10;
+}
+
+.nav-btn {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-beat);
+  backdrop-filter: blur(15px);
+  color: var(--gray-600);
+}
+
+.nav-btn:hover {
+  background: var(--music-primary);
+  color: white;
+  transform: scale(1.1);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+.nav-btn-inner {
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.nav-btn:hover .nav-btn-inner {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+/* —— 专辑展示容器 —— */
+.album-showcase-container {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.album-showcase-container:hover {
+  background: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* —— 成功消息 —— */
+.success-message {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+}
+
+/* —— 响应式设计 —— */
+@media (max-width: 768px) {
+  .album-showcase {
+    flex-direction: column;
+    text-align: center;
+    min-height: auto !important;
+    padding: 1rem;
+  }
+
+  .album-visual {
+    margin-right: 0;
+    margin-bottom: 2rem;
+  }
+
+  .album-circle .w-80 {
+    width: 16rem !important;
+    height: 16rem !important;
+  }
+
+  .album-title {
+    font-size: 2.5rem !important;
+  }
+
+  .album-navigation {
+    bottom: 1rem;
+    gap: 2rem;
+  }
+
+  .nav-btn-inner {
+    padding: 0.75rem;
+  }
+
+  .music-player {
+    margin-top: 2rem;
+  }
+} 

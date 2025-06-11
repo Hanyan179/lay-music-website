@@ -1,0 +1,73 @@
+/* 布局相关样式 */
+
+.artist-journey {
+  width: 100%;
+  min-height: 100vh;
+  font-family: var(--font-primary);
+  color: var(--gray-800);
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.9) 0%, 
+    rgba(248, 250, 252, 0.95) 25%,
+    rgba(241, 245, 249, 0.9) 50%,
+    rgba(248, 250, 252, 0.95) 75%,
+    rgba(255, 255, 255, 0.9) 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  position: relative;
+  overflow-x: hidden; /* 防止水平滚动 */
+}
+
+/* Hero左侧背景图片区域 */
+.hero-background-right {
+  position: absolute;
+  top: 5%;
+  left: 2%;
+  width: 35%;
+  height: 90%;
+  background-image: url('/artist-journey/assets/background.jpg');
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  border-radius: 20px;
+  z-index: 95;
+  opacity: 0.8;
+}
+
+/* 容器系统 */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.section-padding {
+  padding: 4rem 0;
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+  
+  .section-padding {
+    padding: 2rem 0;
+  }
+  
+  .hero-background-right {
+    display: none; /* 移动端隐藏背景图 */
+  }
+}
+
+/* 背景动画 */
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+} 

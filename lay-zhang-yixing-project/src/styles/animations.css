@@ -1,0 +1,266 @@
+/* 动画样式 */
+
+/* —— 基础动画 —— */
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes musicNote {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+  50% { transform: translateY(-3px) rotate(5deg); opacity: 1; }
+}
+
+@keyframes musicPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* —— Hero 标题动画 —— */
+@keyframes heroTitleFall {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes wordFloat {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* —— 音频可视化动画 —— */
+@keyframes audioWave {
+  0%, 100% {
+    transform: scaleY(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scaleY(1.5);
+    opacity: 1;
+  }
+}
+
+@keyframes rhythmPulse {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.5); opacity: 1; }
+}
+
+/* —— 海浪背景动画 —— */
+@keyframes waveFloat {
+  0%, 100% {
+    transform: rotate(0deg) scale(1) translate(0, 0);
+    opacity: 0.3;
+  }
+  25% {
+    transform: rotate(90deg) scale(1.1) translate(20px, -10px);
+    opacity: 0.5;
+  }
+  50% {
+    transform: rotate(180deg) scale(0.9) translate(-10px, 20px);
+    opacity: 0.4;
+  }
+  75% {
+    transform: rotate(270deg) scale(1.05) translate(15px, 15px);
+    opacity: 0.6;
+  }
+}
+
+/* —— 气泡动画 —— */
+@keyframes bubbleFloat {
+  0% {
+    transform: translateY(100vh) rotate(0deg) scale(1);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(50vh) rotate(180deg) scale(1.1);
+    opacity: 0.6;
+  }
+  90% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(-10vh) rotate(360deg) scale(0.8);
+    opacity: 0;
+  }
+}
+
+/* —— 背景交互动画 —— */
+@keyframes ambientFlow {
+  0%, 100% {
+    background-position: 0% 0%, 100% 100%, 50% 50%, 0% 50%;
+  }
+  25% {
+    background-position: 100% 0%, 0% 100%, 80% 20%, 100% 0%;
+  }
+  50% {
+    background-position: 100% 100%, 0% 0%, 20% 80%, 200% 50%;
+  }
+  75% {
+    background-position: 0% 100%, 100% 0%, 50% 50%, 100% 100%;
+  }
+}
+
+/* —— 打字效果 —— */
+.typewriter-text {
+  opacity: 0;
+  background: linear-gradient(135deg, #1a1a1a 0%, #404040 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+  transform: translateY(30px);
+  transition: transform 0.8s cubic-bezier(0.215, 0.61, 0.355, 1),
+              opacity 0.8s cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+.typewriter-text.typing {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* —— 身份标签轮播 —— */
+.identity-carousel {
+  position: relative;
+  height: 1.5em;
+  overflow: hidden;
+}
+
+.identity-text {
+  position: absolute;
+  width: 100%;
+  left: 0;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.5s ease;
+}
+
+.identity-text.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* —— 下滑提示动画 —— */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 2s infinite;
+}
+
+/* —— 浮动动画 —— */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes glow {
+  0% { opacity: 0.1; }
+  100% { opacity: 0.3; }
+}
+
+/* —— 艺术背景效果 —— */
+@keyframes rotateCircle {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* —— 滚动动画 —— */
+.animate-hidden {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: none;
+}
+
+.animate-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* —— 浮动卡片 —— */
+.floating-card::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  background: conic-gradient(from 0deg, var(--music-primary), var(--music-secondary), var(--music-accent), var(--music-primary));
+  border-radius: 20px;
+  opacity: 0.1;
+  animation: glow 4s var(--ease-pulse) infinite alternate;
+  z-index: -1;
+}
+
+/* —— 标题下降动画 —— */
+@keyframes titleDrop {
+  0% {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* —— 响应式动画优化 —— */
+@media (prefers-reduced-motion: reduce) {
+  .animate-hidden,
+  .animate-visible,
+  .floating-card {
+    animation: none;
+    transition: none;
+  }
+  
+  .rhythm-dot,
+  .audio-bar {
+    animation: none;
+  }
+  
+  .water-ripple-container {
+    animation: none;
+  }
+  
+  .ambientFlow {
+    animation: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .animate-hidden {
+    transform: translateY(20px);
+  }
+  
+  @keyframes titleDrop {
+    0% {
+      opacity: 0;
+      transform: translateY(-50px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+} 

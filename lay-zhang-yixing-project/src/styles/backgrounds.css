@@ -1,0 +1,348 @@
+/* 背景相关样式 */
+
+/* —— 粒子背景（音波可视化） —— */
+#particles-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10; /* 更高z-index确保可以接收事件 */
+  pointer-events: auto; /* 允许交互 */
+  opacity: 0.6; /* 提高可见度 */
+  transition: opacity 0.3s ease;
+  cursor: default; /* 默认光标 */
+}
+
+/* —— 海浪波纹背景 —— */
+.wave-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.wave {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, 
+    rgba(99, 102, 241, 0.03) 0%, 
+    rgba(139, 92, 246, 0.05) 25%, 
+    rgba(59, 130, 246, 0.03) 50%, 
+    rgba(236, 72, 153, 0.04) 75%, 
+    rgba(99, 102, 241, 0.03) 100%);
+  border-radius: 45%;
+  animation: waveFloat 20s ease-in-out infinite;
+  transform-origin: center center;
+}
+
+.wave1 {
+  top: -50%;
+  left: -50%;
+  animation-delay: 0s;
+  animation-duration: 18s;
+}
+
+.wave2 {
+  top: -60%;
+  right: -50%;
+  animation-delay: -5s;
+  animation-duration: 22s;
+  animation-direction: reverse;
+}
+
+.wave3 {
+  bottom: -50%;
+  left: -40%;
+  animation-delay: -10s;
+  animation-duration: 25s;
+}
+
+.wave4 {
+  bottom: -60%;
+  right: -60%;
+  animation-delay: -15s;
+  animation-duration: 20s;
+  animation-direction: reverse;
+}
+
+/* —— 装饰性气泡 —— */
+.bubble-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 20%, 
+    rgba(99, 102, 241, 0.1), 
+    rgba(139, 92, 246, 0.05), 
+    transparent);
+  border: 1px solid rgba(99, 102, 241, 0.08);
+  animation: bubbleFloat 25s linear infinite;
+}
+
+.bubble1 {
+  width: 60px;
+  height: 60px;
+  left: 10%;
+  animation-delay: -5s;
+  animation-duration: 30s;
+}
+
+.bubble2 {
+  width: 40px;
+  height: 40px;
+  left: 20%;
+  animation-delay: -10s;
+  animation-duration: 35s;
+}
+
+.bubble3 {
+  width: 80px;
+  height: 80px;
+  left: 70%;
+  animation-delay: -15s;
+  animation-duration: 25s;
+}
+
+.bubble4 {
+  width: 30px;
+  height: 30px;
+  left: 85%;
+  animation-delay: -20s;
+  animation-duration: 40s;
+}
+
+.bubble5 {
+  width: 50px;
+  height: 50px;
+  left: 45%;
+  animation-delay: -25s;
+  animation-duration: 28s;
+}
+
+.bubble6 {
+  width: 35px;
+  height: 35px;
+  left: 60%;
+  animation-delay: -30s;
+  animation-duration: 32s;
+}
+
+/* —— 高设计感鼠标交互背景 —— */
+.water-ripple-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  pointer-events: auto;
+  cursor: crosshair;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(236, 72, 153, 0.01) 0%, transparent 50%),
+    linear-gradient(135deg, 
+      rgba(248, 250, 252, 0.98) 0%,
+      rgba(241, 245, 249, 0.95) 25%,
+      rgba(235, 238, 243, 0.92) 50%,
+      rgba(241, 245, 249, 0.95) 75%,
+      rgba(248, 250, 252, 0.98) 100%);
+  background-size: 800px 800px, 600px 600px, 1000px 1000px, 400% 400%;
+  animation: ambientFlow 25s ease-in-out infinite;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.water-ripple-container:hover {
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(236, 72, 153, 0.02) 0%, transparent 50%),
+    linear-gradient(135deg, 
+      rgba(248, 250, 252, 0.95) 0%,
+      rgba(241, 245, 249, 0.92) 25%,
+      rgba(235, 238, 243, 0.88) 50%,
+      rgba(241, 245, 249, 0.92) 75%,
+      rgba(248, 250, 252, 0.95) 100%);
+  cursor: none; /* 隐藏默认光标，显示自定义光环 */
+}
+
+.water-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+  opacity: 0.9;
+  mix-blend-mode: screen;
+  filter: blur(0.3px) contrast(1.15) brightness(1.05);
+  transition: all 0.3s ease;
+}
+
+.water-ripple-container:hover .water-canvas {
+  opacity: 1;
+  filter: blur(0px) contrast(1.25) brightness(1.1);
+}
+
+/* —— 艺术背景效果 —— */
+.artistic-bg {
+  background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(248,250,252,0.9));
+  overflow: hidden;
+}
+
+.artistic-circle {
+  position: absolute;
+  width: 80vw;
+  height: 80vw;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.03);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: rotateCircle 30s linear infinite;
+}
+
+/* —— 流动线条背景 —— */
+.flowing-lines {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.line-group {
+  position: absolute;
+  inset: -20%;
+}
+
+.line-group.diagonal {
+  transform: rotate(-45deg);
+}
+
+.line-group.horizontal {
+  transform: rotate(0deg);
+}
+
+.line-group.vertical {
+  transform: rotate(90deg);
+}
+
+.line {
+  position: absolute;
+  background: linear-gradient(90deg, 
+    transparent,
+    rgba(99, 102, 241, 0.01) 20%,
+    rgba(99, 102, 241, 0.02) 50%,
+    rgba(99, 102, 241, 0.01) 80%,
+    transparent);
+  height: 1px;
+  width: 100%;
+  animation: lineFlow 8s linear infinite;
+}
+
+.line-group.diagonal .line:nth-child(1) {
+  top: 20%;
+  animation-delay: 0s;
+}
+
+.line-group.diagonal .line:nth-child(2) {
+  top: 40%;
+  animation-delay: 2s;
+}
+
+.line-group.diagonal .line:nth-child(3) {
+  top: 60%;
+  animation-delay: 4s;
+}
+
+.line-group.horizontal .line:nth-child(1) {
+  top: 25%;
+  animation-delay: 1s;
+}
+
+.line-group.horizontal .line:nth-child(2) {
+  top: 75%;
+  animation-delay: 3s;
+}
+
+.line-group.vertical .line:nth-child(1) {
+  top: 30%;
+  animation-delay: 1.5s;
+}
+
+.line-group.vertical .line:nth-child(2) {
+  top: 70%;
+  animation-delay: 3.5s;
+}
+
+@keyframes lineFlow {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* —— 纹理叠加 —— */
+.grain-overlay {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(0,0,0,0.005) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(0,0,0,0.005) 0%, transparent 50%);
+  background-size: 100px 100px, 80px 80px;
+  animation: grainShift 10s linear infinite;
+}
+
+@keyframes grainShift {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-10px, -5px); }
+  50% { transform: translate(-5px, -10px); }
+  75% { transform: translate(-15px, -2px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* —— 响应式优化 —— */
+@media (max-width: 768px) {
+  .water-ripple-container {
+    opacity: 0.8;
+    cursor: default; /* 移动端保持默认光标 */
+  }
+  
+  .water-canvas {
+    opacity: 0.7;
+    filter: blur(0.2px) contrast(1.1);
+  }
+
+  .water-ripple-container:hover {
+    cursor: default;
+  }
+  
+  .bubble {
+    animation-duration: 20s; /* 移动端减慢动画 */
+  }
+}
+
+/* —— 高刷新率显示器优化 —— */
+@media (min-resolution: 120dpi) {
+  .water-canvas {
+    image-rendering: crisp-edges;
+  }
+} 

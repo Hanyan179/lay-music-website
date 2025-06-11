@@ -1,0 +1,275 @@
+/* 组件样式 */
+
+/* —— 导航栏样式 —— */
+nav {
+  background: rgba(255, 255, 255, 0.7); /* 增强透明感 */
+  backdrop-filter: blur(30px); /* 增强毛玻璃效果 */
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s var(--ease-harmony);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06); /* 增加轻微阴影 */
+}
+
+.nav-link {
+  position: relative;
+  padding: 0.75rem 1rem;
+  color: rgba(31, 41, 55, 0.8);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.nav-link:hover {
+  color: var(--music-primary);
+  transform: translateY(-1px);
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--gradient-music);
+  transition: all 0.4s var(--ease-rhythm);
+  transform: translateX(-50%);
+  border-radius: 1px;
+}
+
+.nav-link:hover::after {
+  width: 80%;
+}
+
+/* —— 音乐品牌标识 —— */
+.music-brand {
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-bold);
+  background: var(--gradient-music);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+}
+
+.music-brand::before {
+  content: '♪';
+  position: absolute;
+  left: -1.5rem;
+  top: 0;
+  color: var(--music-accent);
+  animation: musicNote 2s var(--ease-melody) infinite;
+}
+
+@keyframes musicNote {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+  50% { transform: translateY(-3px) rotate(5deg); opacity: 1; }
+}
+
+/* —— 卡片系统 —— */
+.glass-card {
+  background: rgba(255, 255, 255, 0.6); /* 降低不透明度 */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 24px;
+  box-shadow: 
+    0 12px 24px rgba(0, 0, 0, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition: all 0.4s var(--ease-harmony);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(25px); /* 增强毛玻璃效果 */
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    rgba(99, 102, 241, 0.8), 
+    rgba(139, 92, 246, 0.8), 
+    rgba(59, 130, 246, 0.8));
+  opacity: 0;
+  transition: opacity 0.3s var(--ease-beat);
+}
+
+.glass-card:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.8); /* 悬浮时增加不透明度 */
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.12),
+    0 8px 20px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.glass-card:hover::before {
+  opacity: 1;
+}
+
+/* —— Lottie玻璃卡片特殊样式 —— */
+.lottie-glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 28px; /* 更加圆润 */
+  overflow: visible; /* 允许边框动画溢出 */
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.08),
+    0 8px 20px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8); /* 苹果风格内阴影 */
+}
+
+/* —— 按钮样式 —— */
+.btn-primary {
+  background: linear-gradient(135deg, 
+    rgba(99, 102, 241, 0.95) 0%, 
+    rgba(139, 92, 246, 0.95) 50%, 
+    rgba(59, 130, 246, 0.95) 100%);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 14px 32px;
+  font-weight: var(--font-weight-semibold);
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 8px 32px rgba(99, 102, 241, 0.2),
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  transition: all 0.6s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 
+    0 12px 40px rgba(99, 102, 241, 0.3),
+    0 8px 24px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.btn-primary:hover::before {
+  left: 100%;
+}
+
+.btn-primary:active {
+  transform: translateY(-1px);
+  transition: all 0.1s ease;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--gray-700);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  padding: 14px 32px;
+  font-weight: var(--font-weight-semibold);
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  position: relative;
+  backdrop-filter: blur(20px);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, 
+    rgba(99, 102, 241, 0.95) 0%, 
+    rgba(139, 92, 246, 0.95) 50%, 
+    rgba(59, 130, 246, 0.95) 100%);
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 
+    0 12px 40px rgba(99, 102, 241, 0.3),
+    0 8px 24px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-secondary:active {
+  transform: translateY(-1px);
+  transition: all 0.1s ease;
+}
+
+/* —— 播放音乐按钮特殊样式 —— */
+.music-play-button {
+  background: linear-gradient(135deg, 
+    rgba(99, 102, 241, 0.95) 0%, 
+    rgba(139, 92, 246, 0.95) 50%, 
+    rgba(59, 130, 246, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 8px 32px rgba(99, 102, 241, 0.2),
+    0 4px 16px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.music-play-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  transition: all 0.6s ease;
+}
+
+.music-play-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 
+    0 12px 40px rgba(99, 102, 241, 0.3),
+    0 8px 24px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.music-play-button:hover::before {
+  left: 100%;
+}
+
+.music-play-button svg {
+  animation: musicPulse 2s var(--ease-pulse) infinite;
+}
+
+@keyframes musicPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.music-play-button:active {
+  transform: translateY(-1px);
+  transition: all 0.1s ease;
+} 

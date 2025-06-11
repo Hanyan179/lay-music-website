@@ -1,0 +1,73 @@
+/* 张艺兴艺术家主页样式统一入口 */
+
+/* 导入所有样式文件 */
+@import './variables.css';
+@import './layout.css';
+@import './components.css';
+@import './animations.css';
+@import './backgrounds.css';
+@import './music.css';
+
+/* 全局样式 */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--music-primary), var(--music-secondary));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, var(--music-secondary), var(--music-accent));
+}
+
+/* 选择文本样式 */
+::selection {
+  background: var(--music-primary);
+  color: white;
+}
+
+::-moz-selection {
+  background: var(--music-primary);
+  color: white;
+}
+
+/* 焦点样式 */
+:focus {
+  outline: 2px solid var(--music-primary);
+  outline-offset: 2px;
+}
+
+/* 无障碍优化 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  :root {
+    --gray-800: #000000;
+    --gray-700: #1a1a1a;
+    --gray-600: #333333;
+  }
+} 

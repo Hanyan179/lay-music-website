@@ -3,6 +3,9 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 
 const routes: RouteRecordRaw[] = [
   { path: '/',                 name: 'ArtistJourney',       component: () => import('@/views/ArtistJourney.vue') },
+  
+  /* 移动端页面 */
+  { path: '/mobile',           name: 'MobileArtistJourney', component: () => import('@/views/MobileArtistJourney.vue') },
 
   { path: '/landing-3d',       name: 'Landing3D',           component: () => import('@/views/Landing3D.vue') },
 
@@ -16,6 +19,8 @@ const routes: RouteRecordRaw[] = [
   { path: '/x-back',           name: 'AdminLogin',          component: () => import('@/views/AdminLogin.vue') },
   { path: '/x-back/dashboard', name: 'AdminDashboard', meta: { requiresAuth: true },
     component: () => import('@/views/AdminDashboard.vue') },
+  { path: '/x-back/mobile-dashboard', name: 'MobileAdminDashboard', meta: { requiresAuth: true },
+    component: () => import('@/views/MobileAdminDashboard.vue') },
 
   /* 404 → 首页 */
   { path: '/:pathMatch(.*)*',  redirect: '/' }
