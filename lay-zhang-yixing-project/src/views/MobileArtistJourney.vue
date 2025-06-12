@@ -1,5 +1,5 @@
 <template>
-  <div class="mobile-artist-journey" :class="`style-${currentStyle}`">
+  <div class="mobile-artist-journey">
     <!-- Apple 风格移动端导航栏 -->
     <nav class="mobile-nav" :class="{ 'nav-scrolled': isScrolled }">
       <div class="nav-container">
@@ -24,8 +24,12 @@
         
         <!-- 右侧操作区 -->
         <div class="nav-actions">
-          <button @click="switchToPC" class="secondary-btn">切换PC版</button>
-          <button @click="scrollToSection('timeline')" class="primary-btn">立即体验</button>
+          <button @click="switchToPC" class="secondary-btn" title="切换到PC版">
+            切换PC版
+          </button>
+          <button @click="scrollToSection('timeline')" class="primary-btn">
+            立即体验
+          </button>
           <button @click="toggleMenu" class="menu-toggle" :class="{ 'menu-active': menuOpen }">
             <span class="hamburger-line"></span>
             <span class="hamburger-line"></span>
@@ -61,19 +65,21 @@
 
     <!-- 主页 Hero Section -->
     <section id="home" class="hero-section">
-      <!-- 默认风格内容 -->
-      <div class="hero-content default-style">
+      <div class="hero-content">
+        <!-- 艺术家头像 -->
         <div class="artist-avatar">
           <img src="/artist-journey/assets/background.jpg" alt="LAY 张艺兴" />
           <div class="avatar-ring"></div>
         </div>
         
+        <!-- 主标题 -->
         <h1 class="hero-title">
           <span class="title-char">张</span>
           <span class="title-char">艺</span>
           <span class="title-char">兴</span>
         </h1>
         
+        <!-- 副标题 -->
         <div class="hero-subtitle">
           <span class="subtitle-word">音乐</span>
           <span class="subtitle-dot">·</span>
@@ -82,98 +88,25 @@
           <span class="subtitle-word">永恒</span>
         </div>
         
-        <p class="hero-intro">努力努力再努力！！！</p>
+        <!-- 简介 -->
+        <p class="hero-intro">努力努力再努力</p>
         
+        <!-- 按钮组 -->
         <div class="hero-buttons">
-          <button @click="scrollToSection('about')" class="about-btn">个人简介</button>
-          <button @click="scrollToSection('timeline')" class="enter-btn">探索音乐之旅</button>
+          <button @click="scrollToSection('about')" class="about-btn">
+            个人简介
+          </button>
+          <button @click="scrollToSection('timeline')" class="enter-btn">
+            探索音乐之旅
+          </button>
         </div>
         
+        <!-- 滑动提示 -->
         <div class="scroll-indicator">
           <div class="scroll-text">向下滑动探索更多</div>
           <div class="scroll-arrow">
             <span class="arrow-line"></span>
             <span class="arrow-point"></span>
-          </div>
-        </div>
-      </div>
-
-      <!-- LAY Zhang 风格 - 中国古典音乐之旅 -->
-      <div class="chinese-musical-journey lay-zhang-style">
-        <!-- 水墨背景 -->
-        <div class="ink-wash-bg">
-          <div class="mountain-silhouette"></div>
-          <div class="floating-notes"></div>
-          <canvas id="inkCanvas" class="ink-canvas"></canvas>
-        </div>
-        
-        <!-- 太极主视觉 -->
-        <div class="taiji-main-visual">
-          <div class="taiji-container">
-            <div class="taiji-symbol">
-              <div class="taiji-half taiji-yin"></div>
-              <div class="taiji-half taiji-yang"></div>
-              <div class="taiji-dot taiji-yin-dot"></div>
-              <div class="taiji-dot taiji-yang-dot"></div>
-            </div>
-            <div class="taiji-rings">
-              <div class="ring ring-1"></div>
-              <div class="ring ring-2"></div>
-              <div class="ring ring-3"></div>
-            </div>
-          </div>
-          
-          <!-- 艺术家肖像 -->
-          <div class="artist-portrait-container">
-            <div class="portrait-frame">
-              <div class="dragon-ornament dragon-left"></div>
-              <div class="dragon-ornament dragon-right"></div>
-              <img src="/artist-journey/assets/background.jpg" alt="张艺兴" class="artist-portrait" />
-              <div class="portrait-glow"></div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- 书法风格标题 -->
-        <div class="calligraphy-title">
-          <div class="name-calligraphy">
-            <span class="char-张">张</span>
-            <span class="char-艺">艺</span>
-            <span class="char-兴">兴</span>
-          </div>
-          <div class="title-seal">
-            <div class="seal-border"></div>
-            <div class="seal-text">LAY</div>
-          </div>
-        </div>
-        
-        <!-- 诗意描述 -->
-        <div class="poetic-description">
-          <div class="poem-line">「 音 律 如 流 水 」</div>
-          <div class="poem-line">「 梦 想 载 青 云 」</div>
-          <div class="poem-line">「 艺 海 无 涯 境 」</div>
-        </div>
-        
-        <!-- 古典导航符号 -->
-        <div class="classical-navigation">
-          <div class="nav-ornament"></div>
-          <button @click="scrollToSection('about')" class="classical-btn primary">
-            <span class="btn-text">观其志</span>
-            <div class="btn-decoration"></div>
-          </button>
-          <button @click="scrollToSection('music')" class="classical-btn secondary">
-            <span class="btn-text">听其音</span>
-            <div class="btn-decoration"></div>
-          </button>
-          <div class="nav-ornament"></div>
-        </div>
-        
-        <!-- 垂直滚动提示 -->
-        <div class="scroll-hint-chinese">
-          <div class="hint-text">下滑赏音</div>
-          <div class="scroll-symbol">
-            <div class="symbol-line"></div>
-            <div class="symbol-arrow">↓</div>
           </div>
         </div>
       </div>
@@ -183,18 +116,61 @@
     <section id="about" class="content-section about-section">
       <div class="section-container">
         <div class="about-content">
+          <!-- 主标题区域 -->
           <div class="about-header">
             <div class="name-display">
-              <span class="name-char">张</span>
-              <span class="name-char">艺</span>
-              <span class="name-char">兴</span>
+              <span class="name-char" style="animation-delay: 0s;">张</span>
+              <span class="name-char" style="animation-delay: 0.1s;">艺</span>
+              <span class="name-char" style="animation-delay: 0.2s;">兴</span>
+            </div>
+            <div class="title-stack">
+              <span class="role-tag primary">音乐制作人</span>
+              <span class="role-tag secondary">歌手</span>
+              <span class="role-tag tertiary">舞者</span>
             </div>
           </div>
           
+          <!-- 个人介绍区域 -->
           <div class="about-intro-section">
             <div class="intro-content">
               <p class="intro-line primary">湖南长沙人，中国音乐制作人、歌手、舞者</p>
               <p class="intro-line secondary">致力于音乐创作与中华文化传承</p>
+              <p class="intro-line tertiary">在国际舞台展现中国青年艺术家风采</p>
+            </div>
+                         <div class="intro-highlights">
+               <span class="intro-tag">音乐创作</span>
+               <span class="intro-tag">文化传承</span>
+               <span class="intro-tag">国际舞台</span>
+             </div>
+          </div>
+          
+          <!-- 核心数据展示 -->
+          <div class="about-metrics">
+            <div class="metric-card featured">
+              <div class="metric-number">{{ aboutStats.careerYears }}</div>
+              <div class="metric-label">年音乐生涯</div>
+              <div class="metric-accent"></div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-number">{{ aboutStats.totalTracks }}</div>
+              <div class="metric-label">首原创作品</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-number">{{ aboutStats.totalFans }}</div>
+              <div class="metric-label">全球粉丝</div>
+            </div>
+          </div>
+          
+          <!-- 理念表达区域 -->
+          <div class="about-philosophy">
+            <div class="philosophy-quote">
+              <span class="quote-mark">"</span>
+              <span class="quote-text">努力努力再努力</span>
+              <span class="quote-mark">"</span>
+            </div>
+            <div class="philosophy-description">
+              <p class="philosophy-line">以音乐为媒介，传承中华文化精神</p>
+              <p class="philosophy-line">在国际舞台上展现中国青年艺术家的风采与担当</p>
             </div>
           </div>
         </div>
@@ -204,42 +180,21 @@
     <!-- 音乐作品区域 -->
     <section id="music" class="content-section music-section">
       <div class="section-container">
-        <!-- 默认风格 -->
-        <div class="default-style">
-          <h2 class="section-title">音乐作品</h2>
-          <p class="section-description">探索张艺兴的音乐历程</p>
-          
-          <div class="works-grid">
-            <div class="work-card" v-for="album in musicWorks" :key="album.id">
-              <div class="work-image">
-                <img :src="album.cover" :alt="album.title" />
-              </div>
-              <div class="work-info">
-                <h3 class="work-title">{{ album.title }}</h3>
-                <p class="work-year">{{ album.year }}</p>
+        <h2 class="section-title">音乐作品</h2>
+        <p class="section-description">探索张艺兴的音乐历程，从每一首歌曲中感受他的成长与蜕变</p>
+        
+        <div class="works-grid">
+          <div class="work-card" v-for="album in musicWorks" :key="album.id">
+            <div class="work-image">
+              <img :src="album.cover" :alt="album.title" />
+              <div class="work-overlay">
+                <button class="play-btn">▶</button>
               </div>
             </div>
-          </div>
-        </div>
-        
-        <!-- LAY Zhang风格 - 古典音乐殿堂 -->
-        <div class="musical-palace lay-zhang-style">
-          <div class="palace-header">
-            <h2 class="palace-title">音乐殿堂</h2>
-            <div class="classical-subtitle">「 声声入耳 · 韵韵动心 」</div>
-          </div>
-          
-          <div class="classical-albums-container">
-            <div class="album-scroll-view">
-              <div class="album-classical-card" v-for="album in musicWorks" :key="album.id" @click="playAlbum(album)">
-                <div class="album-cover-container">
-                  <img :src="album.cover" :alt="album.title" class="classical-cover" />
-                </div>
-                <div class="album-classical-info">
-                  <div class="album-year-classical">{{ album.year }}</div>
-                  <h3 class="album-title-classical">{{ album.title }}</h3>
-                </div>
-              </div>
+            <div class="work-info">
+              <h3 class="work-title">{{ album.title }}</h3>
+              <p class="work-year">{{ album.year }}</p>
+              <p class="work-description">{{ album.description }}</p>
             </div>
           </div>
         </div>
@@ -249,46 +204,49 @@
     <!-- 视频作品区域 -->
     <section id="videos" class="content-section videos-section">
       <div class="section-container">
-        <!-- 默认风格 -->
-        <div class="default-style">
-          <h2 class="section-title">视频作品</h2>
-          <p class="section-description">精彩的MV、舞台表演和幕后花絮</p>
-          
-          <div class="videos-grid">
-            <div class="video-card" v-for="video in videoWorks" :key="video.id">
-              <div class="video-thumbnail">
-                <img :src="video.thumbnail" :alt="video.title" />
+        <h2 class="section-title">视频作品</h2>
+        <p class="section-description">精彩的MV、舞台表演和幕后花絮</p>
+        
+        <div class="videos-grid">
+          <div class="video-card" v-for="video in videoWorks" :key="video.id">
+            <div class="video-thumbnail">
+              <img :src="video.thumbnail" :alt="video.title" />
+              <div class="video-overlay">
+                <button class="play-btn large">▶</button>
               </div>
-              <div class="video-info">
-                <h3 class="video-title">{{ video.title }}</h3>
-              </div>
+              <div class="video-duration">{{ video.duration }}</div>
+            </div>
+            <div class="video-info">
+              <h3 class="video-title">{{ video.title }}</h3>
+              <p class="video-views">{{ video.views }} 次观看</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 时间轴区域 -->
+    <section id="timeline" class="content-section timeline-section">
+      <div class="section-container">
+        <h2 class="section-title">成长时间轴</h2>
+        <p class="section-description">记录每一个重要的音乐里程碑</p>
+        
+        <div class="timeline">
+          <div class="timeline-item" v-for="event in timelineEvents" :key="event.id">
+            <div class="timeline-marker"></div>
+            <div class="timeline-content">
+              <div class="timeline-year">{{ event.year }}</div>
+              <h3 class="timeline-title">{{ event.title }}</h3>
+              <p class="timeline-description">{{ event.description }}</p>
             </div>
           </div>
         </div>
         
-        <!-- LAY Zhang风格 - 影像画卷 -->
-        <div class="video-gallery lay-zhang-style">
-          <div class="gallery-header">
-            <h2 class="gallery-title">影像画卷</h2>
-            <div class="classical-subtitle">「 光影流转 · 情韵悠长 」</div>
-          </div>
-          
-          <div class="classical-videos-container">
-            <div class="video-scroll-container" v-for="(column, columnIndex) in videoColumns" :key="columnIndex">
-              <div class="video-classical-item" v-for="video in column" :key="video.id" @click="playVideo(video)">
-                <div class="scroll-frame">
-                  <div class="scroll-content">
-                    <div class="video-thumbnail-classical">
-                      <img :src="video.thumbnail" :alt="video.title" class="classical-video-img" />
-                    </div>
-                    <div class="video-info-classical">
-                      <h4 class="video-title-classical">{{ video.title }}</h4>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <!-- 进入3D时间轴按钮 -->
+        <div class="timeline-action">
+          <button @click="enterTimeline" class="timeline-btn">
+            进入3D时间轴体验
+          </button>
         </div>
       </div>
     </section>
@@ -369,6 +327,16 @@ const isScrolled = ref(false)
 const styleModalOpen = ref(false)
 const currentStyle = ref<'minimalism' | 'lay-zhang' | 'x-back'>('minimalism')
 
+// 风格名称映射
+const styleNames = {
+  'minimalism': 'Minimalism',
+  'lay-zhang': 'LAY Zhang',
+  'x-back': 'X-Back'
+} as const
+
+// 当前风格名称
+const currentStyleName = computed(() => styleNames[currentStyle.value])
+
 // 从数据库获取音乐作品数据
 const musicWorks = computed(() => {
   return musicData.slice(0, 4).map(album => ({
@@ -391,15 +359,57 @@ const videoWorks = computed(() => {
   }))
 })
 
-// 视频瀑布流布局 - 分成两列
-const videoColumns = computed(() => {
-  const videos = videoWorks.value
-  const columns: any[][] = [[], []]
-  videos.forEach((video: any, index: number) => {
-    columns[index % 2].push(video)
-  })
-  return columns
+// 计算个人简介统计数据
+const aboutStats = computed(() => {
+  const currentYear = new Date().getFullYear()
+  const careerYears = currentYear - 2012 // 从2012年出道开始计算
+  const totalTracks = musicData.reduce((total, album) => total + (album.stats?.tracks || 0), 0)
+  const totalViews = videoData.reduce((total, video) => {
+    const viewsStr = video.views.replace(/[^\d.]/g, '')
+    const viewsNum = parseFloat(viewsStr)
+    return total + (viewsNum * 1000000) // 假设单位是M
+  }, 0)
+  
+  return {
+    careerYears: `${careerYears}+`,
+    totalTracks: `${totalTracks}+`,
+    totalFans: `${Math.floor(totalViews / 1000000)}M+`
+  }
 })
+
+// 时间轴事件数据
+const timelineEvents = ref([
+  {
+    id: 1,
+    year: "2012",
+    title: "EXO 出道",
+    description: "作为EXO成员正式出道，开始音乐生涯"
+  },
+  {
+    id: 2,
+    year: "2015",
+    title: "回国发展",
+    description: "开始在中国发展个人音乐事业"
+  },
+  {
+    id: 3,
+    year: "2018",
+    title: "首张专辑",
+    description: "发布个人首张专辑《NAMANANA》"
+  },
+  {
+    id: 4,
+    year: "2020",
+    title: "音乐制作人",
+    description: "担任多部作品制作人，展现全能才华"
+  },
+  {
+    id: 5,
+    year: "2024",
+    title: "持续创新",
+    description: "不断探索音乐新领域，传承文化精神"
+  }
+])
 
 // 滚动监听
 const handleScroll = () => {
@@ -421,6 +431,7 @@ const scrollToSection = (sectionId: string) => {
 // 切换菜单
 const toggleMenu = () => {
   menuOpen.value = !menuOpen.value
+  // 阻止背景滚动并添加模糊效果
   if (menuOpen.value) {
     document.body.style.overflow = 'hidden'
     document.body.classList.add('menu-open')
@@ -434,6 +445,11 @@ const closeMenu = () => {
   menuOpen.value = false
   document.body.style.overflow = ''
   document.body.classList.remove('menu-open')
+}
+
+// 进入3D时间轴
+const enterTimeline = () => {
+  router.push('/timeline')
 }
 
 // 切换到PC版
@@ -457,250 +473,278 @@ const changeStyle = (style: 'minimalism' | 'lay-zhang' | 'x-back') => {
 }
 
 const applyStyle = () => {
-  document.documentElement.className = `style-${currentStyle.value}`
-  
-  if (currentStyle.value === 'lay-zhang') {
-    setTimeout(() => {
-      initChineseInkAnimation()
-    }, 200)
-  }
-  
+  // 应用风格变化的逻辑（稍后实现）
+  console.log('应用风格:', currentStyle.value)
   closeStyleModal()
 }
 
-// 音乐播放函数
-const playAlbum = (album: any) => {
-  console.log('播放专辑:', album.title)
-}
-
-// 视频播放函数
-const playVideo = (video: any) => {
-  console.log('播放视频:', video.title)
-}
-
-// 中国水墨画动画
-const initChineseInkAnimation = () => {
-  const canvas = document.getElementById('inkCanvas') as HTMLCanvasElement
-  if (!canvas) return
-  
-  const ctx = canvas.getContext('2d')
-  if (!ctx) return
-  
-  canvas.width = window.innerWidth
-  canvas.height = window.innerHeight
-  
-  const inkDrops: Array<{
-    x: number
-    y: number
-    size: number
-    opacity: number
-    speed: number
-  }> = []
-  
-  for (let i = 0; i < 10; i++) {
-    inkDrops.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      size: Math.random() * 20 + 10,
-      opacity: Math.random() * 0.3 + 0.1,
-      speed: Math.random() * 2 + 1
-    })
-  }
-  
-  const animateInk = () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    
-    inkDrops.forEach(drop => {
-      ctx.globalAlpha = drop.opacity
-      ctx.fillStyle = '#1a1a1a'
-      ctx.beginPath()
-      ctx.arc(drop.x, drop.y, drop.size, 0, Math.PI * 2)
-      ctx.fill()
-      
-      drop.y += drop.speed
-      if (drop.y > canvas.height + drop.size) {
-        drop.y = -drop.size
-        drop.x = Math.random() * canvas.width
-      }
-    })
-    
-    requestAnimationFrame(animateInk)
-  }
-  
-  animateInk()
-}
-
-// 组件挂载时的操作
+// 页面加载时的初始化
 onMounted(() => {
+  console.log('移动端页面已加载')
   window.addEventListener('scroll', handleScroll)
-  
-  // 检测设备类型
-  const userAgent = navigator.userAgent
-  const isMobile = /iPhone|iPad|iPod|Android|BlackBerry|IEMobile|Opera Mini/i.test(userAgent)
-  
-  if (isMobile) {
-    document.body.classList.add('mobile-device')
-  }
 })
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
-  // 清理样式
   document.body.style.overflow = ''
-  document.body.classList.remove('menu-open', 'mobile-device')
+  document.body.classList.remove('menu-open')
 })
 </script>
 
 <style scoped>
-/* 基础变量定义 */
-:root {
-  --primary-color: #000;
-  --secondary-color: #666;
-  --accent-color: #007AFF;
-  --bg-color: #fff;
-  --text-color: #000;
-  --border-color: #e5e5e7;
-  --transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-/* LAY Zhang 中国古典风格变量 */
-.style-lay-zhang {
-  --ink-black: #1a1a1a;
-  --gold-accent: #d4af37;
-  --ochre-color: #cc7722;
-  --mountain-grey: #4a4a4a;
-  --paper-white: #faf9f6;
-  --classical-transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-/* 基础样式重置 */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* 全局容器 */
+/* 移动端专用样式 */
 .mobile-artist-journey {
   min-height: 100vh;
-  width: 100%;
+  background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
   overflow-x: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  position: relative;
 }
 
-/* 移动端导航栏样式 */
+/* Apple 风格移动端导航栏 */
 .mobile-nav {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  transition: var(--transition);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid #e5e5e5;
+  transition: all 150ms ease-out;
+  height: 64px;
 }
 
-.nav-scrolled {
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+.mobile-nav.nav-scrolled {
+  height: 56px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.8);
 }
 
 .nav-container {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px;
-  max-width: 1200px;
+  height: 100%;
+  padding: 0 clamp(16px, 4vw, 32px);
+  gap: 24px;
+  max-width: 1440px;
   margin: 0 auto;
 }
 
+/* Logo 区域 */
 .brand-logo {
-  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 150ms ease-out;
+  min-width: 44px;
+  min-height: 44px;
+  justify-content: center;
+}
+
+.logo-link:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.logo-link:focus {
+  outline: 2px solid #007aff;
+  outline-offset: 2px;
 }
 
 .logo-image {
   height: 32px;
   width: auto;
+  max-width: 120px;
+  object-fit: contain;
 }
 
+/* 导航链接区域 - 桌面端显示 */
 .nav-links {
   display: none;
+  align-items: center;
+  gap: 24px;
+  justify-self: center;
 }
 
+.nav-link {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', 'Helvetica Neue', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: #4d4d4d;
+  text-decoration: none;
+  padding: 12px 16px;
+  border-radius: 8px;
+  transition: all 150ms ease-out;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-link:hover {
+  color: #000;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.nav-link:focus {
+  outline: 2px solid #007aff;
+  outline-offset: 2px;
+}
+
+/* 右侧操作区 */
 .nav-actions {
   display: flex;
   align-items: center;
   gap: 12px;
+  justify-self: end;
 }
 
-.secondary-btn, .primary-btn {
-  padding: 8px 16px;
-  border-radius: 20px;
+.primary-btn {
+  background: #000;
+  color: #fff;
   border: none;
-  font-size: 14px;
+  border-radius: 16px;
+  height: 36px;
+  padding: 0 24px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+  font-size: 15px;
   font-weight: 500;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 200ms ease-out;
+  min-width: 44px;
+  display: none;
+}
+
+.primary-btn:hover {
+  background: #1a1a1a;
+  transform: translateY(-1px);
+}
+
+.primary-btn:focus {
+  outline: 2px solid #007aff;
+  outline-offset: 2px;
 }
 
 .secondary-btn {
   background: transparent;
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
+  color: #4d4d4d;
+  border: 1px solid #d0d0d0;
+  border-radius: 16px;
+  height: 36px;
+  padding: 0 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 150ms ease-out;
+  display: none;
 }
 
-.primary-btn {
-  background: var(--accent-color);
-  color: white;
+.secondary-btn:hover {
+  color: #000;
+  border-color: #b0b0b0;
+  background: rgba(0, 0, 0, 0.02);
 }
 
+.secondary-btn:focus {
+  outline: 2px solid #007aff;
+  outline-offset: 2px;
+}
+
+.style-btn {
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 150ms ease-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.style-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  transform: scale(1.1);
+}
+
+.style-btn:focus {
+  outline: 2px solid #007aff;
+  outline-offset: 2px;
+}
+
+/* 汉堡菜单按钮 */
 .menu-toggle {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 8px;
+  border-radius: 8px;
+  transition: all 200ms ease-out;
+  gap: 4px;
+}
+
+.menu-toggle:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.menu-toggle:focus {
+  outline: 2px solid #007aff;
+  outline-offset: 2px;
 }
 
 .hamburger-line {
   width: 20px;
   height: 2px;
-  background: var(--text-color);
-  margin: 2px 0;
+  background: #4d4d4d;
   border-radius: 1px;
-  transition: var(--transition);
+  transition: all 250ms ease;
+  transform-origin: center;
 }
 
-.menu-active .hamburger-line:nth-child(1) {
-  transform: rotate(45deg) translate(5px, 5px);
+.menu-toggle.menu-active .hamburger-line:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 6px);
 }
 
-.menu-active .hamburger-line:nth-child(2) {
+.menu-toggle.menu-active .hamburger-line:nth-child(2) {
   opacity: 0;
+  transform: scaleX(0);
 }
 
-.menu-active .hamburger-line:nth-child(3) {
-  transform: rotate(-45deg) translate(7px, -6px);
+.menu-toggle.menu-active .hamburger-line:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
 }
 
-/* 移动端菜单 */
+/* 移动端全屏菜单 */
 .mobile-menu-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
-  z-index: 2000;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 999;
   opacity: 0;
   visibility: hidden;
-  transition: var(--transition);
+  transition: all 250ms ease;
 }
 
 .mobile-menu-overlay.menu-open {
@@ -710,15 +754,18 @@ onUnmounted(() => {
 
 .mobile-menu {
   position: absolute;
-  right: 0;
   top: 0;
-  bottom: 0;
-  width: 280px;
-  background: white;
+  right: 0;
+  width: min(400px, 85vw);
+  height: 100vh;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   transform: translateX(100%);
-  transition: var(--transition);
+  transition: transform 250ms ease;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
 .mobile-menu.menu-open {
@@ -727,104 +774,162 @@ onUnmounted(() => {
 
 .menu-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 20px;
-  border-bottom: 1px solid var(--border-color);
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e5e5;
 }
 
 .menu-logo {
-  height: 28px;
+  height: 24px;
   width: auto;
 }
 
 .close-btn {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border: none;
   background: none;
   cursor: pointer;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 20px;
-  transition: var(--transition);
+  transition: all 150ms ease-out;
+}
+
+.close-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .close-icon {
   font-size: 24px;
-  color: var(--text-color);
+  color: #4d4d4d;
+  line-height: 1;
 }
 
 .menu-nav {
   flex: 1;
-  padding: 20px 0;
+  padding: 24px 0;
 }
 
 .menu-item {
   display: block;
-  padding: 16px 20px;
-  color: var(--text-color);
+  color: #4d4d4d;
   text-decoration: none;
-  font-size: 16px;
+  padding: 16px 24px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+  font-size: 17px;
   font-weight: 500;
-  transition: var(--transition);
+  transition: all 150ms ease-out;
+  border-bottom: 1px solid rgba(229, 229, 229, 0.5);
+  min-height: 48px;
+  display: flex;
+  align-items: center;
 }
 
 .menu-item:hover {
-  background: rgba(0, 0, 0, 0.05);
+  color: #000;
+  background: rgba(0, 0, 0, 0.02);
 }
 
 .menu-actions {
-  padding: 20px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  border-top: 1px solid #e5e5e5;
 }
 
-.menu-style-btn, .menu-secondary-btn, .menu-primary-btn {
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
+.menu-primary-btn {
+  background: #000;
+  color: #fff;
   border: none;
-  font-size: 16px;
-  font-weight: 500;
+  border-radius: 16px;
+  height: 48px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+  font-size: 17px;
+  font-weight: 600;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 200ms ease-out;
 }
 
-.menu-style-btn {
-  background: rgba(116, 116, 128, 0.08);
-  color: var(--text-color);
+.menu-primary-btn:hover {
+  background: #1a1a1a;
 }
 
 .menu-secondary-btn {
   background: transparent;
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
+  color: #4d4d4d;
+  border: 1px solid #d0d0d0;
+  border-radius: 16px;
+  height: 48px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+  font-size: 17px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 150ms ease-out;
 }
 
-.menu-primary-btn {
-  background: var(--accent-color);
-  color: white;
+.menu-secondary-btn:hover {
+  color: #000;
+  border-color: #b0b0b0;
 }
 
-/* Hero Section 样式 */
+.menu-style-btn {
+  background: rgba(0, 0, 0, 0.05);
+  color: #4d4d4d;
+  border: none;
+  border-radius: 16px;
+  height: 48px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+  font-size: 17px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 150ms ease-out;
+}
+
+.menu-style-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #000;
+}
+
+/* 响应式设计 */
+@media (min-width: 768px) {
+  .nav-links {
+    display: flex;
+  }
+  
+  .secondary-btn {
+    display: block;
+  }
+}
+
+@media (min-width: 1024px) {
+  .primary-btn {
+    display: block;
+  }
+  
+  .menu-toggle {
+    display: none;
+  }
+}
+
+/* Hero Section */
 .hero-section {
   min-height: 100vh;
-  position: relative;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  padding: 100px 20px 50px;
+  align-items: center;
+  padding: 80px 20px 60px;
+  position: relative;
+  text-align: center;
 }
 
-/* 默认风格Hero内容 */
-.hero-content.default-style {
-  text-align: center;
-  max-width: 600px;
-  width: 100%;
+.hero-content {
+  position: relative;
+  z-index: 2;
 }
 
 .artist-avatar {
@@ -839,335 +944,504 @@ onUnmounted(() => {
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
+  border: 3px solid rgba(0, 0, 0, 0.1);
 }
 
 .avatar-ring {
   position: absolute;
-  top: -4px;
-  left: -4px;
-  right: -4px;
-  bottom: -4px;
-  border: 2px solid var(--accent-color);
+  inset: -10px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
   border-radius: 50%;
-  opacity: 0.6;
+  animation: rotate 10s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .hero-title {
-  margin-bottom: 20px;
+  font-size: 3rem;
+  font-weight: 900;
+  color: #1a1a1a;
+  margin: 0 0 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
 }
 
 .title-char {
   display: inline-block;
-  font-size: 48px;
-  font-weight: 700;
-  color: var(--text-color);
-  margin: 0 8px;
-  animation: fadeInUp 0.6s ease-out forwards;
+  animation: bounce 2s ease infinite;
 }
 
-.title-char:nth-child(1) { animation-delay: 0.1s; }
+.title-char:nth-child(1) { animation-delay: 0s; }
 .title-char:nth-child(2) { animation-delay: 0.2s; }
-.title-char:nth-child(3) { animation-delay: 0.3s; }
+.title-char:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-10px); }
+  60% { transform: translateY(-5px); }
+}
 
 .hero-subtitle {
+  font-size: 1.2rem;
+  color: #666;
   margin-bottom: 20px;
-  opacity: 0;
-  animation: fadeInUp 0.6s ease-out 0.5s forwards;
+  letter-spacing: 2px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
 }
 
 .subtitle-word {
-  font-size: 18px;
-  color: var(--secondary-color);
-  font-weight: 500;
+  display: inline-block;
 }
 
 .subtitle-dot {
-  margin: 0 10px;
-  color: var(--accent-color);
+  margin: 0 8px;
+  opacity: 0.7;
 }
 
 .hero-intro {
-  font-size: 16px;
-  color: var(--secondary-color);
+  font-size: 1rem;
+  color: #888;
   margin-bottom: 40px;
-  opacity: 0;
-  animation: fadeInUp 0.6s ease-out 0.7s forwards;
+  line-height: 1.6;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
 }
 
 .hero-buttons {
   display: flex;
   gap: 16px;
   justify-content: center;
-  margin-bottom: 60px;
-  opacity: 0;
-  animation: fadeInUp 0.6s ease-out 0.9s forwards;
-}
-
-.about-btn, .enter-btn {
-  padding: 12px 24px;
-  border-radius: 25px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition);
-  border: none;
+  margin-bottom: 40px;
 }
 
 .about-btn {
   background: transparent;
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
+  color: #666;
+  border: 1px solid #e5e5e5;
+  border-radius: 25px;
+  padding: 12px 24px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 300ms ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+}
+
+.about-btn:hover {
+  color: #1a1a1a;
+  border-color: #ccc;
+  background: rgba(0, 0, 0, 0.02);
+  transform: translateY(-1px);
 }
 
 .enter-btn {
-  background: var(--accent-color);
+  background: #1a1a1a;
   color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 24px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 300ms ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
 }
 
+.enter-btn:hover {
+  background: #000;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* 滑动提示 */
 .scroll-indicator {
-  opacity: 0;
-  animation: fadeInUp 0.6s ease-out 1.1s forwards;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: float 2s ease-in-out infinite;
 }
 
 .scroll-text {
   font-size: 14px;
-  color: var(--secondary-color);
-  margin-bottom: 10px;
+  color: #999;
+  margin-bottom: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
 }
 
 .scroll-arrow {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  position: relative;
+  width: 24px;
+  height: 24px;
 }
 
 .arrow-line {
-  width: 1px;
-  height: 20px;
-  background: var(--secondary-color);
-  margin-bottom: 5px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 12px;
+  background: #ccc;
+  transform: translate(-50%, -50%);
 }
 
 .arrow-point {
-  width: 8px;
-  height: 8px;
-  border-right: 1px solid var(--secondary-color);
-  border-bottom: 1px solid var(--secondary-color);
-  transform: rotate(45deg);
-  animation: bounce 2s infinite;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 6px solid #ccc;
+  transform: translateX(-50%);
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* 内容区域通用样式 */
+.content-section {
+  padding: 80px 0;
+  min-height: auto;
+}
+
+/* 个人简介区域 - 现代动感风格 */
+.about-section {
+  background: linear-gradient(135deg, #fafbfc 0%, #f8f9fa 50%, #ffffff 100%);
+  padding: 140px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.about-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 20%, rgba(0, 0, 0, 0.02) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.about-content {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+/* 主标题区域 */
+.about-header {
+  margin-bottom: 80px;
+}
+
+.name-display {
+  margin-bottom: 32px;
+}
+
+.name-char {
+  display: inline-block;
+  font-size: 4.2rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 8px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+  transform: translateY(20px);
+  opacity: 0;
+  animation: slideInUp 0.8s ease forwards;
+}
+
+@keyframes slideInUp {
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
+}
+
+.title-stack {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.role-tag {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+  transform: translateY(10px);
+  opacity: 0;
+  animation: tagFadeIn 0.6s ease forwards;
+}
+
+.role-tag.primary {
+  background: #000;
+  color: #fff;
+  animation-delay: 0.3s;
+}
+
+.role-tag.secondary {
+  background: rgba(0, 0, 0, 0.08);
+  color: #333;
+  animation-delay: 0.4s;
+}
+
+.role-tag.tertiary {
+  background: rgba(0, 0, 0, 0.05);
+  color: #666;
+  animation-delay: 0.5s;
+}
+
+@keyframes tagFadeIn {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* 个人介绍区域 */
+.about-intro-section {
+  margin-bottom: 100px;
+}
+
+.intro-content {
+  max-width: 600px;
+  margin: 0 auto 40px;
+}
+
+.intro-line {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  margin: 16px 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+  opacity: 0;
+  transform: translateY(15px);
+  animation: introFadeIn 0.6s ease forwards;
+}
+
+.intro-line.primary {
+  font-weight: 600;
+  color: #1a1a1a;
+  font-size: 1.3rem;
+  animation-delay: 0.6s;
+}
+
+.intro-line.secondary {
+  font-weight: 500;
+  color: #333;
+  animation-delay: 0.8s;
+}
+
+.intro-line.tertiary {
+  font-weight: 400;
+  color: #666;
+  animation-delay: 1.0s;
+}
+
+@keyframes introFadeIn {
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
-    transform: translateY(0) rotate(45deg);
-  }
-  40% {
-    transform: translateY(-10px) rotate(45deg);
-  }
-  60% {
-    transform: translateY(-5px) rotate(45deg);
-  }
+.intro-highlights {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 40px;
 }
 
-/* 内容区域通用样式 */
-.content-section {
-  padding: 80px 20px;
-}
-
-.section-container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.section-title {
-  font-size: 32px;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 16px;
-  color: var(--text-color);
-}
-
-.section-description {
-  font-size: 16px;
-  color: var(--secondary-color);
-  text-align: center;
-  margin-bottom: 50px;
-}
-
-/* 个人简介区域 */
-.about-section {
-  background: var(--bg-color);
-}
-
-.about-content {
-  text-align: center;
-}
-
-.about-header {
-  margin-bottom: 40px;
-}
-
-.name-display {
-  margin-bottom: 20px;
-}
-
-.name-char {
+.intro-tag {
   display: inline-block;
-  font-size: 40px;
-  font-weight: 700;
-  color: var(--text-color);
-  margin: 0 8px;
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+  background: rgba(0, 0, 0, 0.06);
+  color: #555;
+  transform: translateY(10px);
   opacity: 0;
-  animation: fadeInUp 0.6s ease-out forwards;
+  animation: introTagFadeIn 0.5s ease forwards;
+  transition: all 0.2s ease;
 }
 
-.name-char:nth-child(1) { animation-delay: 0.1s; }
-.name-char:nth-child(2) { animation-delay: 0.2s; }
-.name-char:nth-child(3) { animation-delay: 0.3s; }
+.intro-tag:nth-child(1) { animation-delay: 1.2s; }
+.intro-tag:nth-child(2) { animation-delay: 1.3s; }
+.intro-tag:nth-child(3) { animation-delay: 1.4s; }
 
-.about-intro-section {
+@keyframes introTagFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.intro-tag:hover {
+  background: rgba(0, 0, 0, 0.1);
+  color: #333;
+  transform: translateY(-1px);
+}
+
+/* 数据指标卡片 */
+.about-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-bottom: 100px;
   max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.metric-card {
+  background: #fff;
+  padding: 32px 24px;
+  border-radius: 16px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  transform: translateY(20px);
+  opacity: 0;
+  animation: cardFadeIn 0.6s ease forwards;
+}
+
+.metric-card:nth-child(1) { animation-delay: 1.2s; }
+.metric-card:nth-child(2) { animation-delay: 1.3s; }
+.metric-card:nth-child(3) { animation-delay: 1.4s; }
+
+@keyframes cardFadeIn {
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.metric-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.metric-card.featured {
+  background: #1a1a1a;
+  color: #fff;
+  transform: scale(1.05) translateY(20px);
+}
+
+.metric-card.featured:hover {
+  transform: scale(1.05) translateY(-4px);
+}
+
+.metric-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+}
+
+.metric-card.featured .metric-number {
+  color: #fff;
+}
+
+.metric-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #666;
+  letter-spacing: 0.02em;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+}
+
+.metric-card.featured .metric-label {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.metric-accent {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 3px;
+  background: #fff;
+  border-radius: 2px;
+}
+
+/* 理念表达区域 */
+.about-philosophy {
+  max-width: 700px;
   margin: 0 auto;
 }
 
-.intro-content {
-  text-align: center;
-}
-
-.intro-line {
-  margin-bottom: 12px;
+.philosophy-quote {
+  margin-bottom: 32px;
   opacity: 0;
-  animation: fadeInUp 0.6s ease-out forwards;
+  transform: translateY(20px);
+  animation: quoteFadeIn 0.6s ease forwards;
+  animation-delay: 1.6s;
 }
 
-.intro-line.primary {
-  font-size: 18px;
-  color: var(--text-color);
-  font-weight: 500;
-  animation-delay: 0.5s;
+@keyframes quoteFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.intro-line.secondary {
-  font-size: 16px;
-  color: var(--secondary-color);
-  animation-delay: 0.7s;
+.quote-mark {
+  font-size: 3rem;
+  color: #e0e0e0;
+  font-family: Georgia, serif;
+  line-height: 1;
+  vertical-align: top;
 }
 
-/* 音乐作品区域 */
-.music-section {
-  background: #f8f9fa;
-}
-
-.works-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 30px;
-  margin-top: 40px;
-}
-
-.work-card {
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  transition: var(--transition);
-}
-
-.work-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.work-image {
-  width: 100%;
-  height: 200px;
-  overflow: hidden;
-}
-
-.work-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.work-info {
-  padding: 20px;
-}
-
-.work-title {
-  font-size: 18px;
+.quote-text {
+  font-size: 1.8rem;
   font-weight: 600;
-  margin-bottom: 8px;
-  color: var(--text-color);
+  color: #1a1a1a;
+  margin: 0 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+  letter-spacing: 0.02em;
 }
 
-.work-year {
-  font-size: 14px;
-  color: var(--secondary-color);
-  margin-bottom: 8px;
+.philosophy-description {
+  opacity: 0;
+  transform: translateY(15px);
+  animation: descriptionFadeIn 0.6s ease forwards;
+  animation-delay: 1.8s;
 }
 
-/* 视频作品区域 */
-.videos-section {
-  background: var(--bg-color);
+@keyframes descriptionFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.videos-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
-  margin-top: 40px;
+.philosophy-line {
+  font-size: 1.1rem;
+  color: #666;
+  line-height: 1.8;
+  margin: 12px 0;
+  font-weight: 400;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
 }
 
-.video-card {
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  transition: var(--transition);
-}
-
-.video-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.video-thumbnail {
-  width: 100%;
-  height: 180px;
-  overflow: hidden;
-  position: relative;
-}
-
-.video-thumbnail img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.video-info {
-  padding: 20px;
-}
-
-.video-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: var(--text-color);
-}
-
-/* 风格切换弹窗 */
+/* 风格选择弹窗 */
 .style-modal-overlay {
   position: fixed;
   top: 0;
@@ -1175,13 +1449,14 @@ onUnmounted(() => {
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 3000;
+  z-index: 2000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 250ms ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  visibility: hidden;
-  transition: var(--transition);
+  padding: 20px;
 }
 
 .style-modal-overlay.modal-open {
@@ -1190,907 +1465,718 @@ onUnmounted(() => {
 }
 
 .style-modal {
-  background: white;
-  border-radius: 16px;
-  width: 90%;
-  max-width: 400px;
+  background: #fff;
+  border-radius: 20px;
+  max-width: 600px;
+  width: 100%;
   max-height: 80vh;
   overflow-y: auto;
-  transform: scale(0.9);
-  transition: var(--transition);
+  transform: scale(0.9) translateY(20px);
+  transition: all 250ms ease;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
 }
 
 .style-modal.modal-open {
-  transform: scale(1);
+  transform: scale(1) translateY(0);
 }
 
 .modal-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 20px;
-  border-bottom: 1px solid var(--border-color);
+  align-items: center;
+  padding: 24px 32px;
+  border-bottom: 1px solid #e5e5e5;
 }
 
 .modal-title {
-  font-size: 18px;
+  font-size: 1.4rem;
   font-weight: 600;
-  color: var(--text-color);
+  color: #1a1a1a;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
 }
 
 .modal-close-btn {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border: none;
   background: none;
   cursor: pointer;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 20px;
-  transition: var(--transition);
+  transition: background 150ms ease;
+}
+
+.modal-close-btn:hover {
+  background: #f0f0f0;
+}
+
+.modal-close-btn .close-icon {
+  font-size: 20px;
+  color: #666;
+  line-height: 1;
 }
 
 .style-options {
-  padding: 20px;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
 }
 
 .style-option {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  padding: 16px;
+  gap: 12px;
+  padding: 20px 16px;
+  border: 2px solid #e5e5e5;
   border-radius: 12px;
   cursor: pointer;
-  transition: var(--transition);
-  margin-bottom: 12px;
-  border: 2px solid transparent;
+  transition: all 200ms ease;
+  position: relative;
+  text-align: left;
 }
 
 .style-option:hover {
-  background: rgba(0, 0, 0, 0.05);
+  border-color: #ccc;
+  background: #f8f9fa;
+  transform: translateY(-2px);
 }
 
 .style-option.active {
-  border-color: var(--accent-color);
-  background: rgba(0, 122, 255, 0.1);
+  border-color: #000;
+  background: #f0f0f0;
 }
 
 .style-icon {
-  width: 40px;
-  height: 40px;
-  margin-right: 16px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 24px;
+  border-radius: 6px;
+  flex-shrink: 0;
 }
 
 .logo-icon {
   width: 32px;
   height: 32px;
   object-fit: contain;
+  flex-shrink: 0;
 }
 
 .style-option-name {
-  flex: 1;
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--text-color);
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
 }
 
 .style-check {
-  color: var(--accent-color);
-  font-size: 18px;
-  font-weight: 600;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 24px;
+  height: 24px;
+  background: #000;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
 }
 
 .modal-actions {
-  padding: 20px;
+  padding: 24px 32px;
+  border-top: 1px solid #e5e5e5;
   display: flex;
   gap: 12px;
-  border-top: 1px solid var(--border-color);
-}
-
-.modal-cancel-btn, .modal-apply-btn {
-  flex: 1;
-  padding: 12px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition);
-  border: none;
+  justify-content: flex-end;
 }
 
 .modal-cancel-btn {
-  background: rgba(116, 116, 128, 0.08);
-  color: var(--text-color);
+  background: transparent;
+  color: #666;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  padding: 12px 24px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 150ms ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+}
+
+.modal-cancel-btn:hover {
+  border-color: #999;
+  color: #333;
 }
 
 .modal-apply-btn {
-  background: var(--accent-color);
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 150ms ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+}
+
+.modal-apply-btn:hover {
+  background: #1a1a1a;
+}
+
+.section-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 4vw, 32px);
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  text-align: center;
+  margin-bottom: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+}
+
+.section-description {
+  font-size: 1.1rem;
+  color: #666;
+  text-align: center;
+  margin-bottom: 60px;
+  line-height: 1.6;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+}
+
+/* 音乐作品区域 */
+.music-section {
+  background: #ffffff;
+}
+
+.works-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 32px;
+}
+
+.work-card {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 300ms ease;
+}
+
+.work-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.work-image {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+
+.work-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 300ms ease;
+}
+
+.work-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.work-card:hover .work-overlay {
+  opacity: 1;
+}
+
+.work-card:hover .work-image img {
+  transform: scale(1.05);
+}
+
+.play-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  color: #000;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.play-btn:hover {
+  background: #fff;
+  transform: scale(1.1);
+}
+
+.work-info {
+  padding: 24px;
+}
+
+.work-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+}
+
+.work-year {
+  font-size: 0.9rem;
+  color: #999;
+  margin-bottom: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+}
+
+.work-description {
+  font-size: 0.95rem;
+  color: #666;
+  line-height: 1.5;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+}
+
+/* 视频作品区域 */
+.videos-section {
+  background: #f8f9fa;
+}
+
+.videos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 32px;
+}
+
+.video-card {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 300ms ease;
+}
+
+.video-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.video-thumbnail {
+  position: relative;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+}
+
+.video-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 300ms ease;
+}
+
+.video-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.video-card:hover .video-overlay {
+  opacity: 1;
+}
+
+.video-card:hover .video-thumbnail img {
+  transform: scale(1.05);
+}
+
+.play-btn.large {
+  width: 80px;
+  height: 80px;
+  font-size: 28px;
+}
+
+.video-duration {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.8);
   color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+}
+
+.video-info {
+  padding: 20px;
+}
+
+.video-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+}
+
+.video-views {
+  font-size: 0.9rem;
+  color: #999;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+}
+
+/* 时间轴区域 */
+.timeline-section {
+  background: #ffffff;
+}
+
+.timeline {
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto 60px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #e5e5e5;
+  transform: translateX(-50%);
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.timeline-item:nth-child(odd) {
+  justify-content: flex-start;
+}
+
+.timeline-item:nth-child(even) {
+  justify-content: flex-end;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  background: #000;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.timeline-content {
+  background: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  max-width: 350px;
+  margin: 0 40px;
+}
+
+.timeline-year {
+  font-size: 0.9rem;
+  color: #999;
+  font-weight: 500;
+  margin-bottom: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+}
+
+.timeline-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+}
+
+.timeline-description {
+  font-size: 0.95rem;
+  color: #666;
+  line-height: 1.5;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+}
+
+.timeline-action {
+  text-align: center;
+}
+
+.timeline-btn {
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  padding: 16px 32px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 300ms ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+}
+
+.timeline-btn:hover {
+  background: #1a1a1a;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }
 
 /* 页脚 */
 .page-footer {
-  background: var(--text-color);
-  color: white;
-  padding: 40px 20px;
+  background: #1a1a1a;
+  padding: 40px 0;
   text-align: center;
 }
 
 .footer-content {
   max-width: 1200px;
   margin: 0 auto;
-}
-
-.footer-logo {
-  margin-bottom: 20px;
+  padding: 0 clamp(16px, 4vw, 32px);
 }
 
 .footer-logo img {
-  height: 40px;
+  height: 32px;
   width: auto;
-  filter: brightness(0) invert(1);
-}
-
-.footer-text {
-  font-size: 14px;
+  margin-bottom: 16px;
   opacity: 0.8;
 }
 
-/* 响应式设计 */
-@media (min-width: 768px) {
-  .nav-links {
-    display: flex;
-    gap: 24px;
+.footer-text {
+  color: #ccc;
+  font-size: 0.9rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', sans-serif;
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
   }
   
-  .nav-link {
-    color: var(--text-color);
-    text-decoration: none;
-    font-size: 16px;
-    font-weight: 500;
-    transition: var(--transition);
+  .section-title {
+    font-size: 2rem;
   }
   
-  .nav-link:hover {
-    color: var(--accent-color);
+  .timeline::before {
+    left: 20px;
   }
   
-  .menu-toggle {
-    display: none;
+  .timeline-item {
+    justify-content: flex-start !important;
   }
   
-  .hero-buttons {
-    flex-direction: row;
+  .timeline-marker {
+    left: 20px;
   }
   
-  .title-char {
-    font-size: 64px;
-  }
-}
-
-/* LAY Zhang 中国古典风格样式 */
-.style-lay-zhang .default-style {
-  display: none !important;
-}
-
-.style-lay-zhang .lay-zhang-style {
-  display: block !important;
-}
-
-.lay-zhang-style {
-  display: none;
-}
-
-/* 中国古典音乐之旅 Hero */
-.chinese-musical-journey {
-  position: relative;
-  min-height: 100vh;
-  background: linear-gradient(135deg, var(--paper-white) 0%, #f0f0f0 100%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 100px 20px 50px;
-  overflow: hidden;
-}
-
-/* 水墨背景 */
-.ink-wash-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1;
-}
-
-.mountain-silhouette {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 200px;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200"><path d="M0,200 L0,100 Q300,20 600,80 Q900,140 1200,60 L1200,200 Z" fill="%23000" opacity="0.1"/></svg>') bottom center/cover no-repeat;
-}
-
-.floating-notes {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="10" y="30" font-family="serif" font-size="16" fill="%23000" opacity="0.1">♪</text><text x="70" y="60" font-family="serif" font-size="12" fill="%23000" opacity="0.08">♫</text><text x="30" y="80" font-family="serif" font-size="14" fill="%23000" opacity="0.06">♪</text></svg>') repeat;
-  animation: float 20s infinite linear;
-}
-
-.ink-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 2;
-  pointer-events: none;
-}
-
-/* 太极主视觉 */
-.taiji-main-visual {
-  position: relative;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 40px;
-}
-
-.taiji-container {
-  position: relative;
-  width: 200px;
-  height: 200px;
-  margin-bottom: 30px;
-}
-
-.taiji-symbol {
-  width: 120px;
-  height: 120px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  overflow: hidden;
-  animation: rotate 20s infinite linear;
-  box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
-}
-
-.taiji-half {
-  position: absolute;
-  width: 60px;
-  height: 120px;
-}
-
-.taiji-yin {
-  left: 0;
-  background: var(--ink-black);
-  border-radius: 60px 0 0 60px;
-}
-
-.taiji-yin::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: -30px;
-  width: 60px;
-  height: 60px;
-  background: var(--ink-black);
-  border-radius: 50%;
-}
-
-.taiji-yin::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  right: -30px;
-  width: 60px;
-  height: 60px;
-  background: var(--paper-white);
-  border-radius: 50%;
-}
-
-.taiji-yang {
-  right: 0;
-  background: var(--paper-white);
-  border-radius: 0 60px 60px 0;
-}
-
-.taiji-dot {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.taiji-yin-dot {
-  left: 20px;
-  background: var(--paper-white);
-}
-
-.taiji-yang-dot {
-  right: 20px;
-  background: var(--ink-black);
-}
-
-.taiji-rings {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.ring {
-  position: absolute;
-  border: 1px solid var(--gold-accent);
-  border-radius: 50%;
-  opacity: 0.6;
-}
-
-.ring-1 {
-  width: 140px;
-  height: 140px;
-  top: -70px;
-  left: -70px;
-  animation: pulse 4s infinite ease-in-out;
-}
-
-.ring-2 {
-  width: 160px;
-  height: 160px;
-  top: -80px;
-  left: -80px;
-  animation: pulse 4s infinite ease-in-out 1s;
-}
-
-.ring-3 {
-  width: 180px;
-  height: 180px;
-  top: -90px;
-  left: -90px;
-  animation: pulse 4s infinite ease-in-out 2s;
-}
-
-/* 艺术家肖像 */
-.artist-portrait-container {
-  position: relative;
-}
-
-.portrait-frame {
-  position: relative;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 3px solid var(--gold-accent);
-  box-shadow: 0 0 20px rgba(212, 175, 55, 0.4);
-}
-
-.dragon-ornament {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  background: var(--gold-accent);
-  border-radius: 50%;
-  z-index: 10;
-}
-
-.dragon-left {
-  top: 10px;
-  left: -10px;
-  animation: glow 3s infinite ease-in-out;
-}
-
-.dragon-right {
-  bottom: 10px;
-  right: -10px;
-  animation: glow 3s infinite ease-in-out 1.5s;
-}
-
-.artist-portrait {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.portrait-glow {
-  position: absolute;
-  top: -5px;
-  left: -5px;
-  right: -5px;
-  bottom: -5px;
-  border-radius: 50%;
-  background: conic-gradient(from 0deg, var(--gold-accent), transparent, var(--gold-accent));
-  animation: rotate 8s infinite linear;
-  z-index: -1;
-}
-
-/* 书法风格标题 */
-.calligraphy-title {
-  position: relative;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
-.name-calligraphy {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
-.name-calligraphy span {
-  font-family: 'Ma Shan Zheng', 'LXGW WenKai', 'PingFang SC', cursive;
-  font-size: 48px;
-  color: var(--ink-black);
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-  opacity: 0;
-  animation: brushStroke 0.8s ease-out forwards;
-}
-
-.char-张 { animation-delay: 0.2s; }
-.char-艺 { animation-delay: 0.6s; }
-.char-兴 { animation-delay: 1.0s; }
-
-.title-seal {
-  position: relative;
-  width: 60px;
-  height: 60px;
-  background: var(--ochre-color);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transform: rotate(5deg);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  opacity: 0;
-  animation: sealStamp 0.5s ease-out 1.5s forwards;
-}
-
-.seal-border {
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  right: 4px;
-  bottom: 4px;
-  border: 2px solid var(--paper-white);
-  border-radius: 4px;
-}
-
-.seal-text {
-  font-family: 'Times New Roman', serif;
-  font-size: 16px;
-  font-weight: bold;
-  color: var(--paper-white);
-  z-index: 1;
-}
-
-/* 诗意描述 */
-.poetic-description {
-  position: relative;
-  z-index: 10;
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.poem-line {
-  font-family: 'LXGW WenKai', 'PingFang SC', serif;
-  font-size: 16px;
-  color: var(--mountain-grey);
-  letter-spacing: 4px;
-  margin-bottom: 8px;
-  opacity: 0;
-  animation: fadeInUp 0.8s ease-out forwards;
-}
-
-.poem-line:nth-child(1) { animation-delay: 2.0s; }
-.poem-line:nth-child(2) { animation-delay: 2.3s; }
-.poem-line:nth-child(3) { animation-delay: 2.6s; }
-
-/* 古典导航 */
-.classical-navigation {
-  position: relative;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 50px;
-  opacity: 0;
-  animation: fadeInUp 0.8s ease-out 3.0s forwards;
-}
-
-.nav-ornament {
-  width: 30px;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--gold-accent), transparent);
-}
-
-.classical-btn {
-  position: relative;
-  padding: 12px 24px;
-  border: 2px solid var(--gold-accent);
-  background: transparent;
-  border-radius: 25px;
-  cursor: pointer;
-  overflow: hidden;
-  transition: var(--classical-transition);
-}
-
-.classical-btn.primary {
-  background: var(--gold-accent);
-  color: var(--ink-black);
-}
-
-.classical-btn.secondary {
-  color: var(--gold-accent);
-}
-
-.classical-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
-}
-
-.btn-text {
-  font-family: 'LXGW WenKai', 'PingFang SC', serif;
-  font-size: 14px;
-  font-weight: 500;
-  letter-spacing: 2px;
-  position: relative;
-  z-index: 2;
-}
-
-.btn-decoration {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  background: radial-gradient(circle, var(--gold-accent) 0%, transparent 70%);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  transition: var(--classical-transition);
-  z-index: 1;
-}
-
-.classical-btn:hover .btn-decoration {
-  width: 200px;
-  height: 200px;
-}
-
-/* 滚动提示 */
-.scroll-hint-chinese {
-  position: relative;
-  z-index: 10;
-  text-align: center;
-  opacity: 0;
-  animation: fadeInUp 0.8s ease-out 3.5s forwards;
-}
-
-.hint-text {
-  font-family: 'LXGW WenKai', 'PingFang SC', serif;
-  font-size: 14px;
-  color: var(--mountain-grey);
-  letter-spacing: 2px;
-  margin-bottom: 10px;
-}
-
-.scroll-symbol {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.symbol-line {
-  width: 1px;
-  height: 20px;
-  background: var(--gold-accent);
-  margin-bottom: 5px;
-}
-
-.symbol-arrow {
-  color: var(--gold-accent);
-  font-size: 16px;
-  animation: bounce 2s infinite;
-}
-
-/* 音乐殿堂样式 */
-.musical-palace {
-  padding: 60px 0;
-}
-
-.palace-header {
-  text-align: center;
-  margin-bottom: 50px;
-}
-
-.palace-title {
-  font-family: 'Ma Shan Zheng', 'LXGW WenKai', 'PingFang SC', cursive;
-  font-size: 36px;
-  color: var(--ink-black);
-  margin-bottom: 16px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.classical-subtitle {
-  font-family: 'LXGW WenKai', 'PingFang SC', serif;
-  font-size: 16px;
-  color: var(--mountain-grey);
-  letter-spacing: 4px;
-}
-
-.classical-albums-container {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.album-scroll-view {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 30px;
-}
-
-.album-classical-card {
-  background: var(--paper-white);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--gold-accent);
-  cursor: pointer;
-  transition: var(--classical-transition);
-  position: relative;
-  overflow: hidden;
-}
-
-.album-classical-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 16px 40px rgba(212, 175, 55, 0.2);
-}
-
-.album-cover-container {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 1;
-  margin-bottom: 16px;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.classical-cover {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: var(--classical-transition);
-}
-
-.album-classical-card:hover .classical-cover {
-  transform: scale(1.05);
-}
-
-.album-classical-info {
-  text-align: center;
-}
-
-.album-year-classical {
-  font-family: 'LXGW WenKai', 'PingFang SC', serif;
-  font-size: 12px;
-  color: var(--gold-accent);
-  margin-bottom: 8px;
-  letter-spacing: 2px;
-}
-
-.album-title-classical {
-  font-family: 'LXGW WenKai', 'PingFang SC', serif;
-  font-size: 16px;
-  color: var(--ink-black);
-  font-weight: 600;
-  letter-spacing: 1px;
-}
-
-/* 影像画卷样式 */
-.video-gallery {
-  padding: 60px 0;
-}
-
-.gallery-header {
-  text-align: center;
-  margin-bottom: 50px;
-}
-
-.gallery-title {
-  font-family: 'Ma Shan Zheng', 'LXGW WenKai', 'PingFang SC', cursive;
-  font-size: 36px;
-  color: var(--ink-black);
-  margin-bottom: 16px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.classical-videos-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.video-scroll-container {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.video-classical-item {
-  cursor: pointer;
-  transition: var(--classical-transition);
-}
-
-.video-classical-item:hover {
-  transform: translateY(-4px);
-}
-
-.scroll-frame {
-  background: var(--paper-white);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--gold-accent);
-}
-
-.scroll-content {
-  position: relative;
-}
-
-.video-thumbnail-classical {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16/9;
-  overflow: hidden;
-}
-
-.classical-video-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: var(--classical-transition);
-}
-
-.video-classical-item:hover .classical-video-img {
-  transform: scale(1.05);
-}
-
-.video-info-classical {
-  padding: 16px;
-  text-align: center;
-}
-
-.video-title-classical {
-  font-family: 'LXGW WenKai', 'PingFang SC', serif;
-  font-size: 14px;
-  color: var(--ink-black);
-  font-weight: 500;
-  letter-spacing: 1px;
-}
-
-/* 动画定义 */
-@keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes pulse {
-  0%, 100% { 
-    opacity: 0.6; 
-    transform: scale(1);
-  }
-  50% { 
-    opacity: 1; 
-    transform: scale(1.05);
-  }
-}
-
-@keyframes glow {
-  0%, 100% { 
-    box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
-  }
-  50% { 
-    box-shadow: 0 0 20px rgba(212, 175, 55, 0.8);
-  }
-}
-
-@keyframes brushStroke {
-  from {
-    opacity: 0;
-    transform: translateY(20px) rotate(-5deg);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) rotate(0deg);
-  }
-}
-
-@keyframes sealStamp {
-  from {
-    opacity: 0;
-    transform: scale(0.8) rotate(5deg);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) rotate(5deg);
-  }
-}
-
-@keyframes float {
-  from { transform: translateY(0); }
-  to { transform: translateY(-100vh); }
-}
-
-/* 移动端响应式调整 */
-@media (max-width: 767px) {
-  .taiji-container {
-    width: 150px;
-    height: 150px;
+  .timeline-content {
+    margin-left: 50px;
+    margin-right: 0;
   }
   
-  .taiji-symbol {
-    width: 100px;
-    height: 100px;
-  }
-  
-  .name-calligraphy span {
-    font-size: 36px;
-  }
-  
-  .classical-videos-container {
+  .works-grid,
+  .videos-grid {
     grid-template-columns: 1fr;
   }
   
-  .album-scroll-view {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 20px;
+  /* 个人简介移动端优化 */
+  .about-section {
+    padding: 100px 0;
   }
   
-  .classical-navigation {
+  .name-char {
+    font-size: 3.2rem;
+    margin: 0 4px;
+  }
+  
+  .title-stack {
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
   }
   
-  .nav-ornament {
-    width: 50px;
+  .role-tag {
+    font-size: 0.85rem;
+    padding: 6px 14px;
+  }
+  
+  .intro-content {
+    max-width: 100%;
+    padding: 0 20px;
+  }
+  
+  .intro-line {
+    font-size: 1.1rem;
+    margin: 12px 0;
+  }
+  
+  .intro-line.primary {
+    font-size: 1.2rem;
+  }
+  
+  .intro-highlights {
+    gap: 8px;
+    margin-top: 32px;
+  }
+  
+  .intro-tag {
+    padding: 5px 12px;
+    font-size: 0.75rem;
+  }
+  
+  .about-metrics {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    margin-bottom: 80px;
+  }
+  
+  .metric-card {
+    padding: 28px 20px;
+  }
+  
+  .metric-card.featured {
+    transform: scale(1) translateY(20px);
+  }
+  
+  .metric-card.featured:hover {
+    transform: scale(1) translateY(-4px);
+  }
+  
+  .metric-number {
+    font-size: 2.2rem;
+  }
+  
+  .quote-text {
+    font-size: 1.4rem;
+    margin: 0 12px;
+  }
+  
+  .quote-mark {
+    font-size: 2.5rem;
+  }
+  
+  .philosophy-line {
+    font-size: 1rem;
+  }
+  
+  .hero-buttons {
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+  
+  .about-btn,
+  .enter-btn {
+    width: 200px;
+  }
+  
+  .style-modal {
+    margin: 20px;
+    max-height: 90vh;
+  }
+  
+  .modal-header {
+    padding: 20px 24px;
+  }
+  
+  .style-options {
+    padding: 20px;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  
+  .style-option {
+    padding: 20px 16px;
+    gap: 10px;
+  }
+  
+  .modal-actions {
+    padding: 20px 24px;
+    flex-direction: column;
   }
 }
 
-/* 保证风格切换时的平滑过渡 */
-.mobile-artist-journey {
-  transition: var(--classical-transition);
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .mobile-nav {
+    background: rgba(28, 28, 28, 0.7);
+    border-bottom-color: #333;
+  }
+  
+  .nav-link,
+  .hamburger-line,
+  .close-icon,
+  .menu-item {
+    color: #f2f2f2;
+  }
+  
+  .mobile-menu {
+    background: rgba(28, 28, 28, 0.95);
+  }
+  
+  .secondary-btn,
+  .menu-secondary-btn {
+    color: #f2f2f2;
+    border-color: #555;
+  }
 }
 
-.style-lay-zhang .mobile-nav {
-  background: rgba(250, 249, 246, 0.9);
-  backdrop-filter: blur(20px);
+/* 菜单打开时的背景模糊效果 */
+body.menu-open .mobile-artist-journey::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 900;
+  pointer-events: none;
 }
 
-.style-lay-zhang .nav-scrolled {
-  background: rgba(250, 249, 246, 0.95);
-  border-bottom-color: var(--gold-accent);
+body.menu-open .mobile-artist-journey > * {
+  filter: blur(1px);
+  transition: filter 250ms ease;
 }
 
-.style-lay-zhang .music-section {
-  background: var(--paper-white);
+body.menu-open .mobile-nav {
+  filter: none;
 }
 
-.style-lay-zhang .videos-section {
-  background: #f8f8f6;
+body.menu-open .style-modal-overlay {
+  filter: none;
 }
 </style> 
