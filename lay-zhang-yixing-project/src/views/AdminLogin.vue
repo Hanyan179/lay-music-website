@@ -95,9 +95,9 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
 import { adminLogin } from '@/api/admin'
+import { onMounted, onUnmounted, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 export default {
   name: 'AdminLogin',
@@ -188,9 +188,24 @@ export default {
           
           showNotification('登录成功！正在跳转...', 'success')
           
-          // 延迟跳转，显示成功消息
+          // 设备检测和页面跳转
           setTimeout(() => {
-          router.push('/x-back/dashboard')
+            // 动态导入设备检测工具
+            import('@/utils/deviceDetector').then(({ isMobileDevice }) => {
+              const isMobile = isMobileDevice()
+              
+              if (isMobile) {
+                // 移动端跳转到移动端管理页面
+                router.push('/x-back/mobile-dashboard')
+              } else {
+                // PC端跳转到正常管理页面
+                router.push('/x-back/dashboard')
+              }
+            }).catch(error => {
+              console.error('设备检测失败:', error)
+              // 检测失败时默认跳转到PC端页面
+              router.push('/x-back/dashboard')
+            })
           }, 1500)
         } else {
           showNotification(response.message || '登录失败', 'error')
