@@ -14,13 +14,16 @@
             <div class="flex space-x-8">
               <a href="#home" class="nav-link">首页</a>
               <a href="#about" class="nav-link">简介</a>
-              <a href="#music" class="nav-link">音乐</a>
+              <router-link to="/music3d" class="nav-link">音乐</router-link>
               <a href="#videos" class="nav-link">视频</a>
               <a href="#timeline" class="nav-link">时间轴</a>
-              <a href="#kindredSpirit" class="nav-link">她们</a>
+              <router-link to="/kindred-spirit" class="nav-link">她们</router-link>
               <a href="#other" class="nav-link">风格</a>
               <button @click="switchToMobile" class="switch-mobile-btn" title="切换到移动版">
                 📱
+              </button>
+              <button @click="switchToXBackMobile" class="switch-mobile-btn" title="X-Back移动版">
+                ✨
               </button>
             </div>
             <button id="menu-toggle" class="md:hidden control-button" title="菜单">
@@ -597,7 +600,7 @@
           <nav class="space-y-6">
             <a href="#home" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">首页</a>
             <a href="#about" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">简介</a>
-            <a href="#music" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">音乐</a>
+            <router-link to="/music3d" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">音乐</router-link>
             <a href="#videos" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">视频</a>
             <a href="#timeline" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">时间轴</a>
           </nav>
@@ -713,6 +716,11 @@ import { useRouter } from 'vue-router'
   // 切换到移动端
   const switchToMobile = () => {
     router.push('/mobile')
+  }
+
+  // 切换到X-Back移动端
+  const switchToXBackMobile = () => {
+    router.push('/x-back-mobile')
   }
   
   // 转场开始事件
