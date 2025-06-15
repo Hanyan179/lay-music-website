@@ -6,10 +6,8 @@ const routes: RouteRecordRaw[] = [
   
   /* 移动端页面 */
   { path: '/mobile',           name: 'MobileArtistJourney', component: () => import('@/views/MobileArtistJourney.vue') },
-  { path: '/x-back-mobile',    name: 'XBackMobile',         component: () => import('@/views/XBackMobile.vue') },
 
-  /* 她们页面 */
-  { path: '/kindred-spirit',   name: 'KindredSpirit',       component: () => import('@/views/KindredSpirit.vue') },
+
 
   /* 音乐3D页面 */
   { path: '/music3d',          name: 'Music3D',             component: () => import('@/views/Music3D.vue') },

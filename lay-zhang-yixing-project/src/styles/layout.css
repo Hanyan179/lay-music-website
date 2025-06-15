@@ -23,10 +23,10 @@
 /* Hero左侧背景图片区域 */
 .hero-background-right {
   position: absolute;
-  top: 5%;
-  left: 2%;
-  width: 35%;
-  height: 90%;
+  top: 2%;
+  left: 1%;
+  width: 45%;
+  height: 96%;
   background-image: url('/artist-journey/assets/background.jpg');
   background-size: contain;
   background-position: center center;

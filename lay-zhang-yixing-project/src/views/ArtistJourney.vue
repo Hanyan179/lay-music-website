@@ -1,5 +1,39 @@
 <template>
     <div class="artist-journey">
+      <!-- 调试模式开关按钮 -->
+      <button @click="toggleDebugMode" class="debug-toggle" :title="debugMode ? '关闭调试模式' : '开启调试模式'">
+        {{ debugMode ? '关闭调试' : '开启调试' }}
+      </button>
+      
+      <!-- 调试信息面板 -->
+      <div v-if="debugMode" class="debug-info-panel">
+        <h4>🔧 布局调试器</h4>
+        <div class="debug-item">
+          <span class="debug-label">主页高度:</span>
+          <span class="debug-value">75vh (3/4视口)</span>
+        </div>
+        <div class="debug-item">
+          <span class="debug-label">轮播图高度:</span>
+          <span class="debug-value">100vh (全视口)</span>
+        </div>
+        <div class="debug-item">
+          <span class="debug-label">背景图片:</span>
+          <span class="debug-value">45% × 96%</span>
+        </div>
+        <div class="debug-item">
+          <span class="debug-label">内容区域:</span>
+          <span class="debug-value">max-w-4xl</span>
+        </div>
+        <div class="debug-item">
+          <span class="debug-label">标题尺寸:</span>
+          <span class="debug-value">4xl/6xl/7xl</span>
+        </div>
+        <div class="debug-item">
+          <span class="debug-label">当前轮播:</span>
+          <span class="debug-value">{{ currentSlideIndex + 1 }}/{{ carouselItems.length }}</span>
+        </div>
+      </div>
+      
       <!-- 音波粒子背景画布 -->
       <canvas id="particles-canvas"></canvas>
       
@@ -17,13 +51,9 @@
               <router-link to="/music3d" class="nav-link">音乐</router-link>
               <a href="#videos" class="nav-link">视频</a>
               <a href="#timeline" class="nav-link">时间轴</a>
-              <router-link to="/kindred-spirit" class="nav-link">她们</router-link>
               <a href="#other" class="nav-link">风格</a>
               <button @click="switchToMobile" class="switch-mobile-btn" title="切换到移动版">
                 📱
-              </button>
-              <button @click="switchToXBackMobile" class="switch-mobile-btn" title="X-Back移动版">
-                ✨
               </button>
             </div>
             <button id="menu-toggle" class="md:hidden control-button" title="菜单">
@@ -36,207 +66,38 @@
       </nav>
   
       <!-- 主页 Hero Section -->
-      <section id="home" class="min-h-screen flex items-center justify-center section-padding relative">
+      <section id="home" class="h-[75vh] flex items-center justify-center section-padding relative">
         <!-- 左侧背景图片区域 -->
         <div class="hero-background-right"></div>
         
-        <div class="container text-center relative z-10">
-          <!-- 主标题 -->
-          <div class="hero-title mb-16">
-            <h1 class="mb-8">
-              <span data-char="张">张</span>
-              <span data-char="艺">艺</span>
-              <span data-char="兴">兴</span>
-            </h1>
-            <div class="hero-subtitle">
-              <span class="word" data-word="音">音</span>
-              <span class="word" data-word="乐">乐</span>
-              <span class="word" data-word="·">·</span>
-              <span class="word" data-word="梦">梦</span>
-              <span class="word" data-word="想">想</span>
-              <span class="word" data-word="·">·</span>
-              <span class="word" data-word="永">永</span>
-              <span class="word" data-word="恒">恒</span>
-            </div>
-          </div>
-          
-          <!-- 介绍卡片 -->
-          <!-- 3D模型展示区域 -->
-          <div class="model-container max-w-4xl mx-auto p-8 mb-12 relative" ref="modelContainer">
-            <div class="flex gap-8">
-              <!-- 模型展示 -->
-              <div class="flex-1">
-                <canvas ref="modelCanvas" class="w-full h-[600px] rounded-lg"></canvas>
-              </div>
-              
-              <!-- 参数控制面板 -->
-              <div class="w-80 bg-white/80 backdrop-blur rounded-lg p-6 overflow-y-auto max-h-[400px] model-params-panel">
-                <h3 class="text-lg font-bold mb-4">模型参数控制</h3>
-                
-                <!-- 模型变换 -->
-                <div class="param-group mb-6">
-                  <h4 class="font-medium mb-2">模型变换</h4>
-                  <div class="space-y-2">
-                    <div class="flex items-center">
-                      <span class="w-20 text-sm">缩放:</span>
-                      <input type="range" v-model="modelParams.scale" min="0.1" max="5" step="0.1" class="flex-1" @input="updateModelParams">
-                      <span class="w-12 text-right text-sm">{{ modelParams.scale }}</span>
-                    </div>
-                    <div v-for="axis in ['X', 'Y', 'Z']" :key="axis" class="flex items-center">
-                      <span class="w-20 text-sm">旋转{{ axis }}:</span>
-                      <input type="range" v-model="modelParams['rotation'+axis]" min="-180" max="180" step="1" class="flex-1" @input="updateModelParams">
-                      <span class="w-12 text-right text-sm">{{ modelParams['rotation'+axis] }}°</span>
-                    </div>
-                    <div v-for="axis in ['X', 'Y', 'Z']" :key="axis" class="flex items-center">
-                      <span class="w-20 text-sm">位置{{ axis }}:</span>
-                      <input type="range" v-model="modelParams['position'+axis]" min="-5" max="5" step="0.1" class="flex-1" @input="updateModelParams">
-                      <span class="w-12 text-right text-sm">{{ modelParams['position'+axis] }}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <!-- 相机参数 -->
-                <div class="param-group mb-6">
-                  <h4 class="font-medium mb-2">相机参数</h4>
-                  <div class="space-y-2">
-                    <div v-for="axis in ['X', 'Y', 'Z']" :key="axis" class="flex items-center">
-                      <span class="w-20 text-sm">相机{{ axis }}:</span>
-                      <input type="range" v-model="modelParams['cameraPosition'+axis]" min="-10" max="10" step="0.1" class="flex-1" @input="updateModelParams">
-                      <span class="w-12 text-right text-sm">{{ modelParams['cameraPosition'+axis] }}</span>
-                    </div>
-                    <div class="flex items-center">
-                      <span class="w-20 text-sm">视角:</span>
-                      <input type="range" v-model="modelParams.cameraFov" min="20" max="90" step="1" class="flex-1" @input="updateModelParams">
-                      <span class="w-12 text-right text-sm">{{ modelParams.cameraFov }}°</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <!-- 灯光参数 -->
-                <div class="param-group mb-6">
-                  <h4 class="font-medium mb-2">灯光参数</h4>
-                  <div class="space-y-2">
-                    <div class="flex items-center">
-                      <span class="w-20 text-sm">环境光:</span>
-                      <input type="range" v-model="modelParams.ambientIntensity" min="0" max="2" step="0.1" class="flex-1" @input="updateModelParams">
-                      <span class="w-12 text-right text-sm">{{ modelParams.ambientIntensity }}</span>
-                    </div>
-                    <div class="flex items-center">
-                      <span class="w-20 text-sm">平行光:</span>
-                      <input type="range" v-model="modelParams.directionalIntensity" min="0" max="2" step="0.1" class="flex-1" @input="updateModelParams">
-                      <span class="w-12 text-right text-sm">{{ modelParams.directionalIntensity }}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <!-- 控制参数 -->
-                <div class="param-group mb-6">
-                  <h4 class="font-medium mb-2">控制参数</h4>
-                  <div class="space-y-2">
-                    <div class="flex items-center">
-                      <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" v-model="modelParams.autoRotate" class="mr-2">
-                        <span class="text-sm">自动旋转</span>
-                      </label>
-                    </div>
-                    <div class="flex items-center" v-if="modelParams.autoRotate">
-                      <span class="w-20 text-sm">旋转速度:</span>
-                      <input type="range" v-model="modelParams.autoRotateSpeed" min="0.001" max="0.02" step="0.001" class="flex-1">
-                      <span class="w-12 text-right text-sm">{{ modelParams.autoRotateSpeed }}</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <!-- 导入导出 -->
-                <div class="flex gap-4">
-                  <button @click="exportParams" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm">
-                    导出参数
-                  </button>
-                  <label class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 cursor-pointer text-sm">
-                    导入参数
-                    <input type="file" class="hidden" accept=".json" @change="e => {
-                      const file = e.target.files[0]
-                      if (file) {
-                        const reader = new FileReader()
-                        reader.onload = () => importParams(reader.result)
-                        reader.readAsText(file)
-                      }
-                    }">
-                  </label>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-      
-          
-          <!-- 音频可视化器 -->
-          <div class="audio-visualizer">
-            <div class="audio-bar"></div>
-            <div class="audio-bar"></div>
-            <div class="audio-bar"></div>
-            <div class="audio-bar"></div>
-            <div class="audio-bar"></div>
-          </div>
-          
-          <!-- 3D时间轴入口按钮 -->
-          <div class="mt-16 flex justify-center">
-            <EnterButton @click="enterTimeline" />
-          </div>
-
-        </div>
-      </section>
-  
-      <!-- 个人简介 -->
-      <section id="about" class="section-padding bg-gray-50 scroll-reveal min-h-screen flex items-center justify-center relative overflow-hidden">
-        <!-- 艺术背景效果 -->
-        <div class="artistic-bg absolute inset-0">
-          <div class="artistic-circle"></div>
-          <!-- 动态线条背景 -->
-          <div class="flowing-lines">
-            <div class="line-group diagonal">
-              <div class="line"></div>
-              <div class="line"></div>
-              <div class="line"></div>
-            </div>
-            <div class="line-group horizontal">
-              <div class="line"></div>
-              <div class="line"></div>
-            </div>
-            <div class="line-group vertical">
-              <div class="line"></div>
-              <div class="line"></div>
-            </div>
-          </div>
-          <div class="grain-overlay"></div>
-        </div>
-
-        <div class="container relative z-10">
-          <div class="text-center">
+        <div class="container flex items-center relative z-10">
+          <!-- 个人简介右侧展示，避免与背景重叠 -->
+          <div class="max-w-4xl text-center px-8 py-8 ml-auto mr-8 md:mr-16 lg:mr-20 backdrop-blur-sm bg-white/10 rounded-2xl">
             <!-- 装饰线条 -->
-            <div class="decorative-line mb-16">
+            <div class="decorative-line mb-8 flex justify-center">
               <span class="line"></span>
               <span class="dot"></span>
               <span class="line"></span>
             </div>
             
-            <!-- 主标题打字效果 -->
-            <div class="title-container mb-16 relative">
+            <!-- 主标题打字效果 - 适中尺寸 -->
+            <div class="title-container mb-8 relative">
               <div class="title-bg"></div>
-              <h2 class="typewriter-text text-6xl md:text-8xl font-black tracking-tighter" ref="typewriterText">
+              <h1 class="typewriter-text text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-tight" ref="typewriterText">
                 LAY ZHANG
-              </h2>
+              </h1>
             </div>
             
-            <!-- 简介文字 -->
-            <div class="max-w-2xl mx-auto px-6">
-              <p class="artist-intro text-xl md:text-2xl mb-12 text-gray-600 font-light tracking-wide opacity-0 transform translate-y-8" ref="artistIntro">
-              努力努力再努力！！！
+            <!-- 简介和标签内容 -->
+            <div class="max-w-2xl mx-auto space-y-6">
+              <!-- 简介文字 -->
+              <p class="artist-intro text-lg md:text-xl lg:text-2xl text-gray-700 font-light tracking-wide leading-relaxed opacity-0 transform translate-y-8" ref="artistIntro">
+                努力努力再努力！！！
               </p>
               
               <!-- 身份标签轮播 -->
               <div class="identity-showcase relative opacity-0 transform translate-y-8" ref="identityShowcase">
-                <div class="identity-carousel text-lg md:text-xl text-gray-500 font-light" ref="identityCarousel">
+                <div class="identity-carousel text-base md:text-lg lg:text-xl text-gray-500 font-light" ref="identityCarousel">
                   <span class="identity-text">全民制作人</span>
                   <span class="identity-text">舞者</span>
                   <span class="identity-text">歌手</span>
@@ -249,14 +110,63 @@
             </div>
           </div>
         </div>
-
-        <!-- 下滑提示 -->
-        <div class="scroll-hint absolute bottom-12 left-1/2 transform -translate-x-1/2 opacity-0" ref="scrollHint">
-          <div class="scroll-text mb-4 text-sm tracking-widest text-gray-400 uppercase">探索更多</div>
-          <div class="scroll-line">
-            <div class="scroll-dot"></div>
+      </section>
+  
+      <!-- 音乐轮播图 -->
+      <section id="about" class="relative overflow-hidden h-screen max-h-screen bg-gray-900">
+        <!-- 轮播图容器 - 完整视口高度 -->
+        <div class="music-carousel relative w-full h-full">
+            <div class="carousel-container relative overflow-hidden h-full">
+              <!-- 轮播项 -->
+              <div class="carousel-slides flex transition-transform duration-500 ease-in-out h-full" :style="{ transform: `translateX(-${currentSlideIndex * 100}%)` }">
+                <div v-for="(item, index) in carouselItems" :key="index" class="carousel-slide flex-shrink-0 w-full h-full">
+                  <div class="relative w-full h-full">
+                    <!-- 图片 -->
+                    <img v-if="item.type === 'image'" 
+                         :src="item.src" 
+                         :alt="item.title"
+                         class="w-full h-full object-contain bg-gray-900">
+                    
+                    <!-- 视频 -->
+                    <video v-if="item.type === 'video'" 
+                           :src="item.src" 
+                           class="w-full h-full object-contain bg-gray-900"
+                           controls
+                           :poster="item.poster">
+                    </video>
+                    
+                    <!-- 轻微覆盖层效果 -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 导航按钮 -->
+              <button @click="previousSlide" 
+                      class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm rounded-full p-3 hover:bg-white/30 transition-all duration-300">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+              </button>
+              
+              <button @click="nextSlide" 
+                      class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm rounded-full p-3 hover:bg-white/30 transition-all duration-300">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </button>
+            </div>
+            
+            <!-- 指示器 -->
+            <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3 z-20">
+              <button v-for="(item, index) in carouselItems" 
+                      :key="index"
+                      @click="goToSlide(index)"
+                      class="w-4 h-4 rounded-full transition-all duration-300 border-2"
+                      :class="index === currentSlideIndex ? 'bg-white border-white scale-125 shadow-lg' : 'bg-transparent border-white/60 hover:border-white'">
+              </button>
+            </div>
           </div>
-        </div>
       </section>
   
       <!-- 页面过渡遮罩 -->
@@ -559,7 +469,7 @@
       </section>
   
       <!-- 3D 交互时间轴 -->
-      <section id="timeline" class="section-padding min-h-screen bg-gray-50 scroll-reveal">
+      <section id="timeline" class="section-padding min-h-[67vh] bg-gray-50 scroll-reveal">
         <div class="container">
           <div class="text-center mb-16">
             <h2 class="section-title animate-title" data-animate="fadeInDown">音乐时间轴</h2>
@@ -607,13 +517,7 @@
         </div>
       </div>
       <!-- 页面底部插入按钮 -->
-      <button
-        class="mt-10 px-6 py-3 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 text-white
-               hover:scale-105 transition-transform"
-        @click="router.push({ name: 'Timeline' })"
-      >
-        进入 3D 时间轴
-      </button>
+            
     </div>
     
   
@@ -621,14 +525,11 @@
 </template>
   
   <script setup lang="ts">
-import EnterButton from '@/components/EnterButton.vue'
 import VideoTransition from '@/components/VideoTransition.vue'
-import { defaultModelParams, douyinData, musicData, videoData } from '@/database/index.js'
+import { douyinData, musicData, videoData } from '@/database/index.js'
+import '@/styles/debug.css'
 import '@/styles/index.css'
-import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { nextTick, onBeforeUnmount, onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
   
   const router = useRouter()
@@ -654,6 +555,53 @@ import { useRouter } from 'vue-router'
   const progressPercent = ref(0)
   const currentTime = ref('0:00')
   const totalTime = ref('3:45')
+  
+  // 轮播图相关状态
+  const currentSlideIndex = ref(0)
+  let carouselTimer: number | null = null
+  
+  // 调试模式相关状态
+  const debugMode = ref(false)
+  const carouselItems = ref([
+    {
+      type: 'image',
+      src: '/img/music/NANANA.png',
+      title: 'NANANA',
+      description: 'LAY张艺兴全新单曲作品'
+    },
+    {
+      type: 'image', 
+      src: '/img/music/STEP.png',
+      title: 'STEP',
+      description: '节拍律动，舞蹈人生'
+    },
+    {
+      type: 'image',
+      src: '/img/music/LIT.png', 
+      title: 'LIT',
+      description: '点燃音乐激情'
+    },
+    {
+      type: 'image',
+      src: '/img/music/PRODUCER.png',
+      title: 'PRODUCER',
+      description: '制作人的音乐态度'
+    },
+    {
+      type: 'video',
+      src: '/img/music/WeChat_20250609212625.mp4',
+      poster: '/img/music/微信图片_20250610234658.png',
+      title: '音乐现场',
+      description: '精彩演出现场记录'
+    },
+    {
+      type: 'video', 
+      src: '/img/music/WeChat_20250609212630.mp4',
+      poster: '/img/music/微信图片_20250610234658.png',
+      title: '幕后花絮',
+      description: '音乐制作幕后故事'
+    }
+  ])
   
   // 静态资源
   const artistImage = '/artist-journey/assets/background.jpg'
@@ -694,34 +642,53 @@ import { useRouter } from 'vue-router'
     currentAlbum.value = musicData[index]
     updateAlbumBackground()
   }
-
-  // 进入3D时间轴首页
-  const enterTimeline = () => {
-    console.log('🎬 启动视频转场到 3D 时间轴')
-    
-    // 显示视频转场组件
-    showVideoTransition.value = true
-    
-    // 等待下一个渲染周期，然后启动转场
-    nextTick(() => {
-      if (videoTransitionRef.value) {
-        videoTransitionRef.value.startTransition()
-      } else {
-        console.warn('⚠️ 视频转场组件未找到，使用直接跳转')
-        router.push('/landing-3d')
-      }
-    })
+  
+  // 轮播图控制方法
+  const nextSlide = () => {
+    currentSlideIndex.value = (currentSlideIndex.value + 1) % carouselItems.value.length
+    resetCarouselTimer()
   }
+  
+  const previousSlide = () => {
+    currentSlideIndex.value = currentSlideIndex.value === 0 
+      ? carouselItems.value.length - 1 
+      : currentSlideIndex.value - 1
+    resetCarouselTimer()
+  }
+  
+  const goToSlide = (index) => {
+    currentSlideIndex.value = index
+    resetCarouselTimer()
+  }
+  
+  // 自动播放轮播图
+  const startCarouselAutoPlay = () => {
+    carouselTimer = setInterval(() => {
+      nextSlide()
+    }, 4000) // 每4秒自动切换
+  }
+  
+  const resetCarouselTimer = () => {
+    if (carouselTimer) {
+      clearInterval(carouselTimer)
+    }
+    startCarouselAutoPlay()
+  }
+  
+  // 调试模式切换
+  const toggleDebugMode = () => {
+    debugMode.value = !debugMode.value
+    document.body.classList.toggle('debug-mode', debugMode.value)
+  }
+
+
   
   // 切换到移动端
   const switchToMobile = () => {
     router.push('/mobile')
   }
 
-  // 切换到X-Back移动端
-  const switchToXBackMobile = () => {
-    router.push('/x-back-mobile')
-  }
+
   
   // 转场开始事件
   const onTransitionStarted = () => {
@@ -1267,13 +1234,7 @@ import { useRouter } from 'vue-router'
         addScrollDynamics()
       }, 1200)
       
-      // 初始化音频可视化器动画
-      setTimeout(() => {
-        const audioVisualizerBars = document.querySelectorAll('.audio-bar')
-        audioVisualizerBars.forEach((bar, index) => {
-          bar.style.animationDelay = `${index * 0.1}s`
-        })
-      }, 1000)
+
       
       // 初始化节拍点动画
       setTimeout(() => {
@@ -1314,6 +1275,11 @@ import { useRouter } from 'vue-router'
       setTimeout(() => {
         updateAlbumBackground()
       }, 100)
+      
+      // 启动轮播图自动播放
+      setTimeout(() => {
+        startCarouselAutoPlay()
+      }, 2000)
     }).catch(error => {
       console.error('设备检测失败:', error)
       // 检测失败时默认继续PC端逻辑
@@ -1343,6 +1309,11 @@ import { useRouter } from 'vue-router'
       clearInterval(progressInterval)
     }
     
+    // 清理轮播图定时器
+    if (carouselTimer) {
+      clearInterval(carouselTimer)
+    }
+    
     // 清理粒子系统
     if (particlesInterface && particlesInterface.cleanup) {
       particlesInterface.cleanup()
@@ -1368,363 +1339,58 @@ import { useRouter } from 'vue-router'
     canvas.height = window.innerHeight
     
     const particles = []
-    const maxParticles = 800 // 降低粒子上限以提升性能
-    const baseParticleCount = 60 // 减少基础粒子数量
-    const rightAreaBonus = 30 // 减少右侧区域额外粒子数量
-    let mouseParticles = [] // 鼠标交互生成的粒子
-    let particlesPerClick = 15 // 减少每次点击生成的粒子数量
+    const baseParticleCount = 80 // 增加基础粒子数量，补偿移除的交互粒子
     
     // 创建基础粒子
     for (let i = 0; i < baseParticleCount; i++) {
       particles.push(createParticle())
     }
     
-    // 在右侧区域创建更多粒子
-    for (let i = 0; i < rightAreaBonus; i++) {
-      particles.push(createParticle(canvas.width * 0.5, canvas.width)) // 右半部分
-    }
-    
     // 创建粒子的函数
-    function createParticle(minX = 0, maxX = null) {
-      const actualMaxX = maxX || canvas.width
+    function createParticle() {
       return {
-        x: Math.random() * (actualMaxX - minX) + minX,
+        x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         vx: (Math.random() - 0.5) * 0.8,
         vy: (Math.random() - 0.5) * 0.8,
         radius: Math.random() * 2.5 + 1,
         alpha: Math.random() * 0.6 + 0.3,
-        hue: Math.random() * 60 + 180, // 蓝色系
-        life: 1, // 生命值，用于临时粒子
-        maxLife: 1,
-        isTemporary: false
+        hue: Math.random() * 60 + 180 // 蓝色系
       }
     }
     
-    // 创建临时交互粒子
-    function createInteractiveParticle(x, y, vx = 0, vy = 0) {
-      const particle = {
-        x: x,
-        y: y,
-        vx: vx || (Math.random() - 0.5) * 3,
-        vy: vy || (Math.random() - 0.5) * 3,
-        radius: Math.random() * 1.5 + 1, // 进一步缩小粒子大小
-        alpha: 0.8,
-        hue: Math.random() * 60 + 180,
-        life: 1,
-        maxLife: 1,
-        isTemporary: true,
-        decay: 0, // 不自动衰减，持续存在
-        isPersistent: true // 标记为持久粒子
-      }
-      return particle
-    }
     
-    // 鼠标交互状态
-    let mouseX = 0
-    let mouseY = 0
-    let isMouseInRightArea = false
-    let isMousePressed = false
-    let isDragging = false
-    let dragStartX = 0
-    let dragStartY = 0
-    let longPressTimer = null
-    let isLongPress = false
-    let isInHeroSection = true // 是否在hero区域
     
-    const handleMouseMove = (event) => {
-      const rect = canvas.getBoundingClientRect()
-      const newMouseX = event.clientX - rect.left
-      const newMouseY = event.clientY - rect.top
-      
-              // 检查是否在右侧区域（虚线左侧就开始，实际是右侧50%）
-        const wasInRightArea = isMouseInRightArea
-        isMouseInRightArea = newMouseX > canvas.width * 0.5
-      
-
-      
-      // 检测拖动（在右侧区域内且在hero区域）
-      if (isMousePressed && !isLongPress && isMouseInRightArea && isInHeroSection) {
-        const dragDistance = Math.sqrt(
-          Math.pow(newMouseX - dragStartX, 2) + Math.pow(newMouseY - dragStartY, 2)
-        )
+          const animate = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
         
-        if (dragDistance > 5) { // 降低拖动阈值，更容易触发
-          isDragging = true
-          // 清除长按定时器
-          if (longPressTimer) {
-            clearTimeout(longPressTimer)
-            longPressTimer = null
-          }
-        }
-      }
-      
-      mouseX = newMouseX
-      mouseY = newMouseY
-    }
-    
-    // 鼠标按下事件
-    const handleMouseDown = (event) => {
-      if (event.button !== 0 || !isInHeroSection) return // 只响应左键且只在hero区域
-      
-      const rect = canvas.getBoundingClientRect()
-      const clickX = event.clientX - rect.left
-      const clickY = event.clientY - rect.top
-      
-
-      
-      isMousePressed = true
-      isDragging = false
-      isLongPress = false
-      dragStartX = clickX
-      dragStartY = clickY
-      
-              // 设置长按定时器（500ms后视为长按）
-        longPressTimer = setTimeout(() => {
-          if (isMousePressed && !isDragging && clickX > canvas.width * 0.5) {
-            isLongPress = true
-          }
-        }, 500)
-    }
-    
-        // 鼠标抬起事件
-    const handleMouseUp = (event) => {
-      if (!isInHeroSection) return // 只在hero区域响应
-      
-      const rect = canvas.getBoundingClientRect()
-      const clickX = event.clientX - rect.left
-      const clickY = event.clientY - rect.top
-      
-
-      
-      // 清除长按定时器
-      if (longPressTimer) {
-        clearTimeout(longPressTimer)
-        longPressTimer = null
-      }
-      
-              // 只在右侧区域响应
-        if (clickX > canvas.width * 0.5) {
-          // 如果是普通点击（非拖动，非长按）
-          if (!isDragging && !isLongPress && particles.length + mouseParticles.length + particlesPerClick <= maxParticles) {
-            // 生成粒子向四周扩散（小范围）
-            for (let i = 0; i < particlesPerClick; i++) {
-              const angle = Math.random() * Math.PI * 2 // 360度全方向
-              const speed = Math.random() * 3 + 2 // 减小扩散速度，类似lottie动画范围
-              const vx = Math.cos(angle) * speed
-              const vy = Math.sin(angle) * speed
-              
-              mouseParticles.push(createInteractiveParticle(clickX, clickY, vx, vy))
-            }
-            // 粒子生成成功
-          } else {
-            // 无法生成粒子 - 已达上限或状态不符
-          }
-        } else {
-          // 点击位置不在右侧区域
-        }
-      
-      isMousePressed = false
-      isDragging = false
-      isLongPress = false
-
-    }
-    
-    // 添加事件监听器
-    canvas.addEventListener('mousemove', handleMouseMove, { passive: false })
-    canvas.addEventListener('mousedown', handleMouseDown, { passive: false })
-    canvas.addEventListener('mouseup', handleMouseUp, { passive: false })
-    canvas.addEventListener('click', (event) => {
-      // 直接调用mouseUp处理
-      handleMouseUp(event)
-    }, { passive: false })
-    
-    // 防止右键菜单和事件冒泡
-    canvas.addEventListener('contextmenu', (e) => {
-      e.preventDefault()
-      e.stopPropagation()
-    })
-    
-    // 确保canvas能够获得焦点
-    canvas.setAttribute('tabindex', '0')
-    canvas.style.outline = 'none'
-    
-    // 性能监控
-    let frameCount = 0
-    let lastTime = performance.now()
-    let fps = 60
-    
-    const animate = () => {
-      // 性能监控
-      const currentTime = performance.now()
-      frameCount++
-      if (currentTime - lastTime >= 1000) {
-        fps = frameCount
-        frameCount = 0
-        lastTime = currentTime
-        
-        // 如果FPS过低，自动清理部分粒子
-        if (fps < 30 && mouseParticles.length > 200) {
-          const removeCount = Math.floor(mouseParticles.length * 0.3)
-          mouseParticles.splice(0, removeCount)
-          // 性能优化: 自动清理部分粒子
-        }
-      }
-      
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      
-      // 绘制基础粒子
-      particles.forEach((particle, index) => {
-        // 更新位置
-        particle.x += particle.vx
-        particle.y += particle.vy
-        
-        // 边界检测
-        if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1
-        if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1
-        
-        // 长按吸引效果 - 只对右侧区域的粒子且在hero区域
-        if (isLongPress && isMouseInRightArea && isInHeroSection && particle.x > canvas.width * 0.5) {
-          const dx = mouseX - particle.x
-          const dy = mouseY - particle.y
-          const distance = Math.sqrt(dx * dx + dy * dy)
+        // 绘制基础粒子
+        particles.forEach((particle) => {
+          // 更新位置
+          particle.x += particle.vx
+          particle.y += particle.vy
           
-          if (distance < 400) { // 增大吸引范围
-            // 如果距离很近，直接跟随鼠标移动
-            if (distance < 50) {
-              particle.vx = dx * 0.3 // 强力跟随
-              particle.vy = dy * 0.3
-            } else {
-              const force = (400 - distance) / 400 * 0.2 // 增强吸引力
-              particle.vx += (dx / distance) * force
-              particle.vy += (dy / distance) * force
-            }
-            
-            // 限制速度
-            const speed = Math.sqrt(particle.vx * particle.vx + particle.vy * particle.vy)
-            if (speed > 12) {
-              particle.vx = (particle.vx / speed) * 12
-              particle.vy = (particle.vy / speed) * 12
-            }
-          }
-        }
-        
-        // 拖动冲散效果 - 只对右侧区域的粒子且在hero区域
-        if (isDragging && isMouseInRightArea && isInHeroSection && particle.x > canvas.width * 0.5) {
-          const dx = particle.x - mouseX
-          const dy = particle.y - mouseY
-          const distance = Math.sqrt(dx * dx + dy * dy)
+          // 边界检测
+          if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1
+          if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1
           
-          if (distance < 250) { // 增大冲散范围
-            const force = (250 - distance) / 250 * 0.2 // 增强冲散力
-            particle.vx += (dx / distance) * force
-            particle.vy += (dy / distance) * force
-            
-            // 限制速度
-            const speed = Math.sqrt(particle.vx * particle.vx + particle.vy * particle.vy)
-            if (speed > 10) {
-              particle.vx = (particle.vx / speed) * 10
-              particle.vy = (particle.vy / speed) * 10
-            }
-          }
-        }
-        
-        // 绘制粒子
-        ctx.beginPath()
-        ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2)
-        ctx.fillStyle = `hsla(${particle.hue}, 70%, 60%, ${particle.alpha})`
-        ctx.fill()
-      })
-      
-      // 绘制和更新鼠标交互粒子
-      for (let i = mouseParticles.length - 1; i >= 0; i--) {
-        const particle = mouseParticles[i]
-        
-        // 更新位置
-        particle.x += particle.vx
-        particle.y += particle.vy
-        
-        // 应用摩擦力
-        particle.vx *= 0.995
-        particle.vy *= 0.995
-        
-        // 边界反弹
-        if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -0.8
-        if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -0.8
-        
-        // 长按吸引效果 - 只对右侧区域的交互粒子且在hero区域
-        if (isLongPress && isMouseInRightArea && isInHeroSection && particle.x > canvas.width * 0.5) {
-          const dx = mouseX - particle.x
-          const dy = mouseY - particle.y
-          const distance = Math.sqrt(dx * dx + dy * dy)
-          
-          if (distance < 400) { // 增大吸引范围
-            // 如果距离很近，直接跟随鼠标移动
-            if (distance < 50) {
-              particle.vx = dx * 0.4 // 交互粒子更强的跟随
-              particle.vy = dy * 0.4
-            } else {
-              const force = (400 - distance) / 400 * 0.25 // 更强吸引力
-              particle.vx += (dx / distance) * force
-              particle.vy += (dy / distance) * force
-            }
-          }
-        }
-        
-        // 拖动冲散效果 - 只对右侧区域的交互粒子且在hero区域
-        if (isDragging && isMouseInRightArea && isInHeroSection && particle.x > canvas.width * 0.5) {
-          const dx = particle.x - mouseX
-          const dy = particle.y - mouseY
-          const distance = Math.sqrt(dx * dx + dy * dy)
-          
-          if (distance < 250) { // 增大冲散范围
-            const force = (250 - distance) / 250 * 0.25 // 增强冲散力
-            particle.vx += (dx / distance) * force
-            particle.vy += (dy / distance) * force
-          }
-        }
-        
-        // 限制交互粒子在右侧区域
-        if (particle.x < canvas.width * 0.5) {
-          particle.x = canvas.width * 0.5
-          particle.vx = Math.abs(particle.vx) * 0.5
-        }
-        
-        // 更新生命值（只有非持久粒子才衰减）
-        if (!particle.isPersistent) {
-          particle.life -= particle.decay
-          particle.alpha = particle.life * 0.9
-        }
-        
-        // 绘制粒子
-        if (particle.life > 0) {
+          // 绘制粒子
           ctx.beginPath()
           ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2)
-          ctx.fillStyle = `hsla(${particle.hue}, 80%, 70%, ${particle.alpha})`
+          ctx.fillStyle = `hsla(${particle.hue}, 70%, 60%, ${particle.alpha})`
           ctx.fill()
-          
-          // 添加发光效果
-          ctx.shadowColor = `hsla(${particle.hue}, 80%, 70%, ${particle.alpha * 0.6})`
-          ctx.shadowBlur = particle.radius * 1.5
-          ctx.fill()
-          ctx.shadowBlur = 0
-        } else if (!particle.isPersistent) {
-          // 只移除非持久的死亡粒子
-          mouseParticles.splice(i, 1)
-        }
-      }
-      
-      // 绘制连接线（性能优化：只渲染部分连接线）
-      if (fps > 40) { // 只在性能良好时绘制连接线
-        for (let i = 0; i < particles.length; i += 2) { // 每隔一个粒子才处理连接线
+        })
+        
+        // 绘制连接线
+        for (let i = 0; i < particles.length; i += 2) {
           const particle = particles[i]
-          for (let j = i + 2; j < particles.length && j < i + 10; j += 2) { // 限制连接数量
+          for (let j = i + 2; j < particles.length && j < i + 8; j += 2) {
             const otherParticle = particles[j]
             const dx = particle.x - otherParticle.x
             const dy = particle.y - otherParticle.y
             const distance = Math.sqrt(dx * dx + dy * dy)
             
-            if (distance < 80) { // 减小连接距离
+            if (distance < 80) {
               ctx.beginPath()
               ctx.moveTo(particle.x, particle.y)
               ctx.lineTo(otherParticle.x, otherParticle.y)
@@ -1734,10 +1400,9 @@ import { useRouter } from 'vue-router'
             }
           }
         }
+        
+        animationId = requestAnimationFrame(animate)
       }
-      
-      animationId = requestAnimationFrame(animate)
-    }
     
     animate()
     
@@ -1755,41 +1420,9 @@ import { useRouter } from 'vue-router'
     
     window.addEventListener('resize', handleResize)
     
-    // 滚动监听器 - 检测hero区域和清理粒子
-    let lastScrollY = window.scrollY
+    // 滚动监听器
     const handleScroll = () => {
-      const currentScrollY = window.scrollY
-      const isScrollingDown = currentScrollY > lastScrollY
-      
-      // 检测是否在hero区域（首屏高度内）
-      const heroHeight = window.innerHeight
-      isInHeroSection = currentScrollY < heroHeight * 0.8 // 滚动超过80%视口高度时禁用交互
-      
-      // 当离开hero区域时，清理所有交互状态
-      if (!isInHeroSection) {
-        isMousePressed = false
-        isDragging = false
-        isLongPress = false
-        if (longPressTimer) {
-          clearTimeout(longPressTimer)
-          longPressTimer = null
-        }
-      }
-      
-      if (isScrollingDown) {
-        const aboutSection = document.getElementById('about')
-        if (aboutSection) {
-          const rect = aboutSection.getBoundingClientRect()
-          // 当向下滑动且艺术家简介页面进入视口时清理粒子
-          if (rect.top <= window.innerHeight && rect.bottom >= 0) {
-            if (mouseParticles.length > 0) {
-              mouseParticles.length = 0 // 清空数组
-            }
-          }
-        }
-      }
-      
-      lastScrollY = currentScrollY
+      // 简化的滚动处理，如果需要的话可以在这里添加其他滚动相关逻辑
     }
     
     window.addEventListener('scroll', handleScroll)
@@ -1799,18 +1432,11 @@ import { useRouter } from 'vue-router'
     // 清理函数和接口
     return {
       cleanup: () => {
-        canvas.removeEventListener('mousemove', handleMouseMove)
-        canvas.removeEventListener('mousedown', handleMouseDown)
-        canvas.removeEventListener('mouseup', handleMouseUp)
-        canvas.removeEventListener('click', handleMouseUp)
-        canvas.removeEventListener('contextmenu', (e) => e.preventDefault())
         window.removeEventListener('resize', handleResize)
         window.removeEventListener('scroll', handleScroll)
         
-        // 清理定时器
-        if (longPressTimer) {
-          clearTimeout(longPressTimer)
-          longPressTimer = null
+        if (animationId) {
+          cancelAnimationFrame(animationId)
         }
         
         // 粒子系统已清理
@@ -1819,9 +1445,7 @@ import { useRouter } from 'vue-router'
       getStatus: () => {
         return {
           baseParticles: particles.length,
-          interactiveParticles: mouseParticles.length,
-          total: particles.length + mouseParticles.length,
-          maxParticles: maxParticles
+          total: particles.length
         }
       }
     }
@@ -1951,183 +1575,6 @@ import { useRouter } from 'vue-router'
     window.removeEventListener('scroll', handleScroll)
   })
 
-  const modelContainer = ref(null)
-const modelCanvas = ref(null)
-let scene, camera, renderer, controls, model
-let animationFrameId = null
 
-// 模型参数从外部文件导入
-const modelParams = ref(defaultModelParams)
-
-// 更新模型参数
-const updateModelParams = () => {
-  if (!model) return
-  
-  // 更新模型变换
-  model.scale.set(modelParams.value.scale, modelParams.value.scale, modelParams.value.scale)
-  model.rotation.set(
-    modelParams.value.rotationX * Math.PI / 180,
-    modelParams.value.rotationY * Math.PI / 180,
-    modelParams.value.rotationZ * Math.PI / 180
-  )
-  model.position.set(modelParams.value.positionX, modelParams.value.positionY, modelParams.value.positionZ)
-  
-  // 更新相机
-  camera.position.set(
-    modelParams.value.cameraPositionX,
-    modelParams.value.cameraPositionY,
-    modelParams.value.cameraPositionZ
-  )
-  camera.fov = modelParams.value.cameraFov
-  camera.updateProjectionMatrix()
-  
-  // 更新灯光
-  if (scene.children.length > 0) {
-    const ambientLight = scene.children.find(child => child instanceof THREE.AmbientLight)
-    const directionalLight = scene.children.find(child => child instanceof THREE.DirectionalLight)
-    
-    if (ambientLight) {
-      ambientLight.intensity = modelParams.value.ambientIntensity
-    }
-    if (directionalLight) {
-      directionalLight.intensity = modelParams.value.directionalIntensity
-      directionalLight.position.set(
-        modelParams.value.directionalPositionX,
-        modelParams.value.directionalPositionY,
-        modelParams.value.directionalPositionZ
-      )
-    }
-  }
-  
-  // 更新控制器
-  if (controls) {
-    controls.enableDamping = modelParams.value.enableDamping
-    controls.dampingFactor = modelParams.value.dampingFactor
-  }
-}
-
-// 导出参数为JSON
-const exportParams = () => {
-  const json = JSON.stringify(modelParams.value, null, 2)
-  const blob = new Blob([json], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'model-params.json'
-  a.click()
-  URL.revokeObjectURL(url)
-}
-
-// 导入参数
-const importParams = (json) => {
-  try {
-    const params = JSON.parse(json)
-    modelParams.value = { ...modelParams.value, ...params }
-    updateModelParams()
-  } catch (error) {
-    console.error('导入参数失败:', error)
-  }
-}
-
-  // 初始化3D场景
-  const initScene = () => {
-    scene = new THREE.Scene()
-    
-    // 设置相机
-    camera = new THREE.PerspectiveCamera(
-      45,
-      modelCanvas.value.clientWidth / modelCanvas.value.clientHeight,
-      0.1,
-      1000
-    )
-    camera.position.set(0, 0, 5)
-
-      // 设置渲染器
-  renderer = new THREE.WebGLRenderer({
-    canvas: modelCanvas.value,
-    antialias: true,
-    alpha: true
-  })
-  renderer.setSize(modelCanvas.value.clientWidth, modelCanvas.value.clientHeight)
-  renderer.setPixelRatio(window.devicePixelRatio)
-  renderer.outputEncoding = THREE.sRGBEncoding
-  renderer.setClearColor(0x000000, 0) // 设置透明背景
-    
-    // 添加环境光和平行光
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
-    scene.add(ambientLight)
-    
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1)
-    directionalLight.position.set(5, 5, 5)
-    scene.add(directionalLight)
-
-    // 添加轨道控制器
-    controls = new OrbitControls(camera, modelCanvas.value)
-    controls.enableDamping = true
-    controls.dampingFactor = 0.05
-    
-      // 加载模型
-  const loader = new GLTFLoader()
-  loader.load(
-    './models/model.glb',
-      (gltf) => {
-        model = gltf.scene
-        scene.add(model)
-        
-              // 应用初始参数
-      updateModelParams()
-      
-      // 动画循环
-      const animate = () => {
-        if (model && modelParams.value.autoRotate) {
-          model.rotation.y += modelParams.value.autoRotateSpeed
-          modelParams.value.rotationY = (model.rotation.y * 180 / Math.PI) % 360
-        }
-        controls.update()
-        renderer.render(scene, camera)
-        animationFrameId = requestAnimationFrame(animate)
-      }
-      animate()
-      },
-      (progress) => {
-        console.log('Loading model...', (progress.loaded / progress.total * 100) + '%')
-      },
-      (error) => {
-        console.error('Error loading model:', error)
-      }
-    )
-  }
-
-  // 处理窗口大小变化
-  const handleResize = () => {
-    if (camera && renderer && modelCanvas.value) {
-      camera.aspect = modelCanvas.value.clientWidth / modelCanvas.value.clientHeight
-      camera.updateProjectionMatrix()
-      renderer.setSize(modelCanvas.value.clientWidth, modelCanvas.value.clientHeight)
-    }
-  }
-
-  onMounted(() => {
-    initScene()
-    window.addEventListener('resize', handleResize)
-  })
-
-  onBeforeUnmount(() => {
-  window.removeEventListener('resize', handleResize)
-  if (animationFrameId !== null) {
-    cancelAnimationFrame(animationFrameId)
-  }
-  if (controls) {
-    controls.dispose()
-  }
-  if (renderer) {
-    renderer.dispose()
-  }
-  if (scene) {
-    while(scene.children.length > 0) { 
-      scene.remove(scene.children[0])
-    }
-  }
-})
 </script>
  
