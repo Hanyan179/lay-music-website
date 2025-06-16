@@ -11,6 +11,7 @@ const routes: RouteRecordRaw[] = [
 
   /* 音乐3D页面 */
   { path: '/music3d',          name: 'Music3D',             component: () => import('@/views/Music3D.vue') },
+  { path: '/test-music',       name: 'testMusic',           component: () => import('@/views/TestMusic.vue') },
 
   { path: '/landing-3d',       name: 'Landing3D',           component: () => import('@/views/Landing3D.vue') },
 

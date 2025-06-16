@@ -7,30 +7,130 @@
       
       <!-- 调试信息面板 -->
       <div v-if="debugMode" class="debug-info-panel">
-        <h4>🔧 布局调试器</h4>
-        <div class="debug-item">
-          <span class="debug-label">主页高度:</span>
-          <span class="debug-value">75vh (3/4视口)</span>
+        <div class="debug-header">
+          <h4>🔧 布局调试器</h4>
+          <button @click="copyAllParams" class="copy-all-btn" title="复制所有参数">
+            📋 复制全部
+          </button>
         </div>
-        <div class="debug-item">
-          <span class="debug-label">轮播图高度:</span>
-          <span class="debug-value">100vh (全视口)</span>
+        
+        <!-- 基础信息 -->
+        <div class="debug-section">
+          <h5>📐 基础布局</h5>
+          <div class="debug-item">
+            <span class="debug-label">主页高度:</span>
+            <span class="debug-value">75vh (3/4视口)</span>
+            <button @click="copyParam('主页高度', '75vh')" class="copy-btn-small">📋</button>
+          </div>
+          <div class="debug-item">
+            <span class="debug-label">轮播图高度:</span>
+            <span class="debug-value">100vh (全视口)</span>
+            <button @click="copyParam('轮播图高度', '100vh')" class="copy-btn-small">📋</button>
+          </div>
+          <div class="debug-item">
+            <span class="debug-label">背景图片:</span>
+            <span class="debug-value">45% × 96%</span>
+            <button @click="copyParam('背景图片', '45% × 96%')" class="copy-btn-small">📋</button>
+          </div>
+          <div class="debug-item">
+            <span class="debug-label">内容区域:</span>
+            <span class="debug-value">max-w-4xl</span>
+            <button @click="copyParam('内容区域', 'max-w-4xl')" class="copy-btn-small">📋</button>
+          </div>
+          <div class="debug-item">
+            <span class="debug-label">标题尺寸:</span>
+            <span class="debug-value">4xl/6xl/7xl</span>
+            <button @click="copyParam('标题尺寸', '4xl/6xl/7xl')" class="copy-btn-small">📋</button>
+          </div>
+          <div class="debug-item">
+            <span class="debug-label">当前轮播:</span>
+            <span class="debug-value">{{ currentSlideIndex + 1 }}/{{ carouselItems.length }}</span>
+          </div>
+          <div class="debug-item">
+            <span class="debug-label">视频状态:</span>
+            <span class="debug-value" :class="isVideoPlaying ? 'text-green-400' : 'text-gray-400'">
+              {{ isVideoPlaying ? '▶️ 播放中' : '⏸️ 未播放' }}
+            </span>
+          </div>
+          <div class="debug-item">
+            <span class="debug-label">自动轮播:</span>
+            <span class="debug-value" :class="carouselTimer ? 'text-green-400' : 'text-red-400'">
+              {{ carouselTimer ? '🔄 运行中' : '⏹️ 已暂停' }}
+            </span>
+          </div>
         </div>
-        <div class="debug-item">
-          <span class="debug-label">背景图片:</span>
-          <span class="debug-value">45% × 96%</span>
+
+        <!-- 可拖拽元素控制 -->
+        <div class="debug-section">
+          <h5>🎯 可拖拽元素</h5>
+          <div class="draggable-controls">
+            <button 
+              @click="toggleDraggable('hero-content')" 
+              :class="['drag-control-btn', { active: draggableElements.includes('hero-content') }]"
+            >
+              🏠 首页内容区
+            </button>
+            <button 
+              @click="toggleDraggable('hero-background')" 
+              :class="['drag-control-btn', { active: draggableElements.includes('hero-background') }]"
+            >
+              🖼️ 背景图片
+            </button>
+            <button 
+              @click="toggleDraggable('title-container')" 
+              :class="['drag-control-btn', { active: draggableElements.includes('title-container') }]"
+            >
+              📝 标题容器
+            </button>
+            <button 
+              @click="toggleDraggable('album-showcase')" 
+              :class="['drag-control-btn', { active: draggableElements.includes('album-showcase') }]"
+            >
+              💿 专辑展示
+            </button>
+          </div>
+          
+          <!-- 快速操作按钮 -->
+          <div class="quick-actions mt-3">
+            <button @click="locateContent" class="locate-btn">
+              📍 定位内容
+            </button>
+            <button @click="resetAllPositions" class="reset-all-btn">
+              🔄 重置全部
+            </button>
+          </div>
+          
+          <!-- 轮播控制按钮 -->
+          <div class="carousel-controls mt-3">
+            <button @click="toggleCarouselAutoPlay" :class="['carousel-control-btn', carouselTimer ? 'active' : 'paused']">
+              {{ carouselTimer ? '⏸️ 暂停轮播' : '▶️ 启动轮播' }}
+            </button>
+            <button @click="testCurrentVideo" class="video-test-btn">
+              🎥 测试当前视频
+            </button>
+            <button @click="checkVideoFiles" class="video-debug-btn">
+              📁 检查视频文件
+            </button>
+          </div>
         </div>
-        <div class="debug-item">
-          <span class="debug-label">内容区域:</span>
-          <span class="debug-value">max-w-4xl</span>
+
+        <!-- 实时位置参数 -->
+        <div class="debug-section">
+          <h5>📍 实时位置参数</h5>
+          <div v-for="(position, elementId) in elementPositions" :key="elementId" class="position-item">
+            <div class="element-name">{{ getElementDisplayName(elementId) }}</div>
+            <div class="position-values">
+              <span class="pos-value">X: {{ position.x }}px</span>
+              <span class="pos-value">Y: {{ position.y }}px</span>
+              <button @click="copyElementPosition(elementId, position)" class="copy-btn-small">📋</button>
+              <button @click="resetElementPosition(elementId)" class="reset-btn-small">🔄</button>
+            </div>
+          </div>
         </div>
-        <div class="debug-item">
-          <span class="debug-label">标题尺寸:</span>
-          <span class="debug-value">4xl/6xl/7xl</span>
-        </div>
-        <div class="debug-item">
-          <span class="debug-label">当前轮播:</span>
-          <span class="debug-value">{{ currentSlideIndex + 1 }}/{{ carouselItems.length }}</span>
+
+        <!-- 复制状态提示 -->
+        <div v-if="copyStatus" class="copy-status" :class="copyStatus.type">
+          {{ copyStatus.message }}
         </div>
       </div>
       
@@ -68,11 +168,31 @@
       <!-- 主页 Hero Section -->
       <section id="home" class="h-[75vh] flex items-center justify-center section-padding relative">
         <!-- 左侧背景图片区域 -->
-        <div class="hero-background-right"></div>
+        <div class="hero-background-right" 
+             :class="{ 'draggable-element': draggableElements.includes('hero-background') }"
+             data-element-id="hero-background">
+          <!-- 拖拽句柄 -->
+          <div v-if="debugMode && draggableElements.includes('hero-background')" 
+               class="drag-handle"
+               @mousedown="startDrag($event, 'hero-background')"
+               title="拖拽移动背景图片">
+            ⋮⋮
+          </div>
+        </div>
         
         <div class="container flex items-center relative z-10">
           <!-- 个人简介右侧展示，避免与背景重叠 -->
-          <div class="max-w-4xl text-center px-8 py-8 ml-auto mr-8 md:mr-16 lg:mr-20 backdrop-blur-sm bg-white/10 rounded-2xl">
+          <div class="max-w-4xl text-center px-8 py-8 ml-auto mr-8 md:mr-16 lg:mr-20 backdrop-blur-sm bg-white/10 rounded-2xl"
+               :class="{ 'draggable-element': draggableElements.includes('hero-content') }"
+               data-element-id="hero-content"
+               :style="getElementStyle('hero-content')">
+            <!-- 拖拽句柄 -->
+            <div v-if="debugMode && draggableElements.includes('hero-content')" 
+                 class="drag-handle"
+                 @mousedown="startDrag($event, 'hero-content')"
+                 title="拖拽移动内容区域">
+              ⋮⋮
+            </div>
             <!-- 装饰线条 -->
             <div class="decorative-line mb-8 flex justify-center">
               <span class="line"></span>
@@ -81,7 +201,16 @@
             </div>
             
             <!-- 主标题打字效果 - 适中尺寸 -->
-            <div class="title-container mb-8 relative">
+            <div class="title-container mb-8 relative"
+                 :class="{ 'draggable-element': draggableElements.includes('title-container') }"
+                 data-element-id="title-container">
+              <!-- 拖拽句柄 -->
+              <div v-if="debugMode && draggableElements.includes('title-container')" 
+                   class="drag-handle"
+                   @mousedown="startDrag($event, 'title-container')"
+                   title="拖拽移动标题容器">
+                ⋮⋮
+              </div>
               <div class="title-bg"></div>
               <h1 class="typewriter-text text-4xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-tight" ref="typewriterText">
                 LAY ZHANG
@@ -120,7 +249,7 @@
               <!-- 轮播项 -->
               <div class="carousel-slides flex transition-transform duration-500 ease-in-out h-full" :style="{ transform: `translateX(-${currentSlideIndex * 100}%)` }">
                 <div v-for="(item, index) in carouselItems" :key="index" class="carousel-slide flex-shrink-0 w-full h-full">
-                  <div class="relative w-full h-full">
+                  <div class="relative w-full h-full cursor-pointer" @click="handleSlideClick($event, item)">
                     <!-- 图片 -->
                     <img v-if="item.type === 'image'" 
                          :src="item.src" 
@@ -132,25 +261,63 @@
                            :src="item.src" 
                            class="w-full h-full object-contain bg-gray-900"
                            controls
-                           :poster="item.poster">
+                           playsinline
+                           muted
+                           :poster="item.poster"
+                           @play="handleVideoPlay"
+                           @pause="handleVideoPause"
+                           @ended="handleVideoEnded"
+                           @loadstart="handleVideoLoadStart"
+                           @error="handleVideoError"
+                           @canplay="handleVideoCanPlay"
+                           @loadeddata="handleVideoLoaded"
+                           preload="metadata"
+                           controlsList="nodownload"
+                           :key="`video-${item.id}`"
+                           :title="item.title">
+                      您的浏览器不支持视频播放。
                     </video>
                     
-                    <!-- 轻微覆盖层效果 -->
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+                    <!-- 信息覆盖层 -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300">
+                      <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+                        <!-- 来源标签 -->
+                        <div class="inline-flex items-center mb-2 px-3 py-1 bg-blue-500 rounded-full text-sm font-medium">
+                          <span class="mr-1">📱</span>
+                          {{ item.source }}
+                        </div>
+                        
+                        <!-- 标题 -->
+                        <h3 class="text-xl font-bold mb-2 text-shadow">{{ item.title }}</h3>
+                        
+                        <!-- 描述 -->
+                        <p class="text-sm opacity-90 mb-3 text-shadow">{{ item.description }}</p>
+                        
+                        <!-- 发布时间 -->
+                        <div class="text-xs opacity-75">
+                          发布时间: {{ formatDate(item.publishTime) }}
+                        </div>
+                        
+                        <!-- 跳转提示 -->
+                        <div class="absolute top-4 right-4 bg-blue-500 text-white px-3 py-1 rounded-full text-xs opacity-90">
+                          点击查看原文
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
               
               <!-- 导航按钮 -->
-              <button @click="previousSlide" 
-                      class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm rounded-full p-3 hover:bg-white/30 transition-all duration-300">
+              <button @click.stop="previousSlide" 
+                      class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm rounded-full p-3 hover:bg-white/30 transition-all duration-300 z-20">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                 </svg>
               </button>
               
-              <button @click="nextSlide" 
-                      class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm rounded-full p-3 hover:bg-white/30 transition-all duration-300">
+              <button @click.stop="nextSlide" 
+                      class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm rounded-full p-3 hover:bg-white/30 transition-all duration-300 z-20">
                 <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                 </svg>
@@ -161,9 +328,10 @@
             <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3 z-20">
               <button v-for="(item, index) in carouselItems" 
                       :key="index"
-                      @click="goToSlide(index)"
-                      class="w-4 h-4 rounded-full transition-all duration-300 border-2"
-                      :class="index === currentSlideIndex ? 'bg-white border-white scale-125 shadow-lg' : 'bg-transparent border-white/60 hover:border-white'">
+                      @click.stop="goToSlide(index)"
+                      class="w-4 h-4 rounded-full transition-all duration-300 border-2 cursor-pointer"
+                      :class="index === currentSlideIndex ? 'bg-white border-white scale-125 shadow-lg' : 'bg-transparent border-white/60 hover:border-white'"
+                      :title="`跳转到第${index + 1}个内容`">
               </button>
             </div>
           </div>
@@ -219,7 +387,16 @@
           
           <!-- 专辑展示区域 -->
           <div class="album-showcase-container relative" 
-               :style="{ '--album-bg': `url(${currentAlbum.albumBackground})` }">
+               :style="{ '--album-bg': `url(${currentAlbum.albumBackground})` }"
+               :class="{ 'draggable-element': draggableElements.includes('album-showcase') }"
+               data-element-id="album-showcase">
+            <!-- 拖拽句柄 -->
+            <div v-if="debugMode && draggableElements.includes('album-showcase')" 
+                 class="drag-handle"
+                 @mousedown="startDrag($event, 'album-showcase')"
+                 title="拖拽移动专辑展示区域">
+              ⋮⋮
+            </div>
             <div class="album-showcase flex items-center justify-center min-h-[600px] px-8">
               <!-- 左侧：圆形专辑封面 -->
               <div class="album-visual flex-shrink-0 mr-16">
@@ -527,6 +704,7 @@
   <script setup lang="ts">
 import VideoTransition from '@/components/VideoTransition.vue'
 import { douyinData, musicData, videoData } from '@/database/index.js'
+import { getLatestCarouselItems } from '@/database/Carousel.js'
 import '@/styles/debug.css'
 import '@/styles/index.css'
 import { onMounted, onUnmounted, ref } from 'vue'
@@ -558,50 +736,22 @@ import { useRouter } from 'vue-router'
   
   // 轮播图相关状态
   const currentSlideIndex = ref(0)
+  const isVideoPlaying = ref(false)
   let carouselTimer: number | null = null
   
   // 调试模式相关状态
   const debugMode = ref(false)
-  const carouselItems = ref([
-    {
-      type: 'image',
-      src: '/img/music/NANANA.png',
-      title: 'NANANA',
-      description: 'LAY张艺兴全新单曲作品'
-    },
-    {
-      type: 'image', 
-      src: '/img/music/STEP.png',
-      title: 'STEP',
-      description: '节拍律动，舞蹈人生'
-    },
-    {
-      type: 'image',
-      src: '/img/music/LIT.png', 
-      title: 'LIT',
-      description: '点燃音乐激情'
-    },
-    {
-      type: 'image',
-      src: '/img/music/PRODUCER.png',
-      title: 'PRODUCER',
-      description: '制作人的音乐态度'
-    },
-    {
-      type: 'video',
-      src: '/img/music/WeChat_20250609212625.mp4',
-      poster: '/img/music/微信图片_20250610234658.png',
-      title: '音乐现场',
-      description: '精彩演出现场记录'
-    },
-    {
-      type: 'video', 
-      src: '/img/music/WeChat_20250609212630.mp4',
-      poster: '/img/music/微信图片_20250610234658.png',
-      title: '幕后花絮',
-      description: '音乐制作幕后故事'
-    }
-  ])
+  
+  // 拖拽和调试功能相关状态
+  const draggableElements = ref([])
+  const elementPositions = ref({})
+  const copyStatus = ref(null)
+  const isDragging = ref(false)
+  const dragStartPos = ref({ x: 0, y: 0 })
+  const elementStartPos = ref({ x: 0, y: 0 })
+  const currentDragElement = ref(null)
+  
+  const carouselItems = ref(getLatestCarouselItems(6))
   
   // 静态资源
   const artistImage = '/artist-journey/assets/background.jpg'
@@ -643,42 +793,531 @@ import { useRouter } from 'vue-router'
     updateAlbumBackground()
   }
   
-  // 轮播图控制方法
+    // 轮播图控制方法
   const nextSlide = () => {
+    // 暂停当前播放的视频
+    pauseAllVideos()
     currentSlideIndex.value = (currentSlideIndex.value + 1) % carouselItems.value.length
     resetCarouselTimer()
   }
-  
+
   const previousSlide = () => {
+    // 暂停当前播放的视频
+    pauseAllVideos()
     currentSlideIndex.value = currentSlideIndex.value === 0 
       ? carouselItems.value.length - 1 
       : currentSlideIndex.value - 1
     resetCarouselTimer()
   }
-  
+
   const goToSlide = (index) => {
+    // 暂停当前播放的视频
+    pauseAllVideos()
     currentSlideIndex.value = index
     resetCarouselTimer()
+  }
+
+  // 暂停所有视频
+  const pauseAllVideos = () => {
+    const videos = document.querySelectorAll('.carousel-slide video')
+    videos.forEach(video => {
+      if (!video.paused) {
+        video.pause()
+      }
+    })
   }
   
   // 自动播放轮播图
   const startCarouselAutoPlay = () => {
+    // 如果有视频在播放，不启动自动轮播
+    if (isVideoPlaying.value) {
+      console.log('有视频在播放，不启动自动轮播')
+      return
+    }
+    
     carouselTimer = setInterval(() => {
+      // 如果有视频在播放，跳过这次切换
+      if (isVideoPlaying.value) {
+        console.log('有视频在播放，跳过自动切换')
+        return
+      }
       nextSlide()
-    }, 4000) // 每4秒自动切换
+    }, 8000) // 每8秒自动切换（慢一倍速度）
   }
   
   const resetCarouselTimer = () => {
     if (carouselTimer) {
       clearInterval(carouselTimer)
+      carouselTimer = null
     }
-    startCarouselAutoPlay()
+    // 只有在没有视频播放时才重新启动
+    if (!isVideoPlaying.value) {
+      startCarouselAutoPlay()
+    }
   }
   
   // 调试模式切换
   const toggleDebugMode = () => {
     debugMode.value = !debugMode.value
     document.body.classList.toggle('debug-mode', debugMode.value)
+    
+    // 如果关闭调试模式，清除所有拖拽状态
+    if (!debugMode.value) {
+      draggableElements.value = []
+      elementPositions.value = {}
+      cleanupDragStyles()
+    }
+  }
+
+  // 切换元素拖拽状态
+  const toggleDraggable = (elementId) => {
+    const index = draggableElements.value.indexOf(elementId)
+    if (index > -1) {
+      draggableElements.value.splice(index, 1)
+      delete elementPositions.value[elementId]
+      resetElementPosition(elementId)
+    } else {
+      draggableElements.value.push(elementId)
+      initializeElementPosition(elementId)
+    }
+  }
+
+  // 初始化元素位置
+  const initializeElementPosition = (elementId) => {
+    const element = document.querySelector(`[data-element-id="${elementId}"]`)
+    if (element) {
+      const rect = element.getBoundingClientRect()
+      elementPositions.value[elementId] = {
+        x: Math.round(rect.left),
+        y: Math.round(rect.top),
+        originalX: Math.round(rect.left),
+        originalY: Math.round(rect.top)
+      }
+    }
+  }
+
+  // 开始拖拽
+  const startDrag = (event, elementId) => {
+    event.preventDefault()
+    event.stopPropagation()
+    
+    isDragging.value = true
+    currentDragElement.value = elementId
+    
+    dragStartPos.value = {
+      x: event.clientX,
+      y: event.clientY
+    }
+    
+    const position = elementPositions.value[elementId]
+    if (position) {
+      elementStartPos.value = {
+        x: position.x,
+        y: position.y
+      }
+    }
+    
+    document.addEventListener('mousemove', handleDrag)
+    document.addEventListener('mouseup', stopDrag)
+    
+    // 添加拖拽样式
+    const element = document.querySelector(`[data-element-id="${elementId}"]`)
+    if (element) {
+      element.classList.add('dragging')
+    }
+  }
+
+  // 处理拖拽移动
+  const handleDrag = (event) => {
+    if (!isDragging.value || !currentDragElement.value) return
+    
+    const deltaX = event.clientX - dragStartPos.value.x
+    const deltaY = event.clientY - dragStartPos.value.y
+    
+    const newX = elementStartPos.value.x + deltaX
+    const newY = elementStartPos.value.y + deltaY
+    
+    // 更新位置
+    elementPositions.value[currentDragElement.value] = {
+      ...elementPositions.value[currentDragElement.value],
+      x: Math.round(newX),
+      y: Math.round(newY)
+    }
+    
+    // 应用位置变换
+    const element = document.querySelector(`[data-element-id="${currentDragElement.value}"]`)
+    if (element) {
+      element.style.transform = `translate(${deltaX}px, ${deltaY}px)`
+      element.style.position = 'relative'
+      element.style.zIndex = '9999'
+    }
+  }
+
+  // 停止拖拽
+  const stopDrag = () => {
+    if (currentDragElement.value) {
+      const element = document.querySelector(`[data-element-id="${currentDragElement.value}"]`)
+      if (element) {
+        element.classList.remove('dragging')
+      }
+    }
+    
+    isDragging.value = false
+    currentDragElement.value = null
+    
+    document.removeEventListener('mousemove', handleDrag)
+    document.removeEventListener('mouseup', stopDrag)
+  }
+
+  // 重置元素位置
+  const resetElementPosition = (elementId) => {
+    const element = document.querySelector(`[data-element-id="${elementId}"]`)
+    if (element) {
+      element.style.transform = ''
+      element.style.position = ''
+      element.style.zIndex = ''
+    }
+    
+    // 重新初始化位置
+    if (draggableElements.value.includes(elementId)) {
+      initializeElementPosition(elementId)
+    }
+  }
+
+  // 清理拖拽样式
+  const cleanupDragStyles = () => {
+    const draggableElements = document.querySelectorAll('[data-element-id]')
+    draggableElements.forEach(element => {
+      element.style.transform = ''
+      element.style.position = ''
+      element.style.zIndex = ''
+      element.classList.remove('dragging')
+    })
+  }
+
+  // 获取元素显示名称
+  const getElementDisplayName = (elementId) => {
+    const names = {
+      'hero-content': '🏠 首页内容区',
+      'hero-background': '🖼️ 背景图片',
+      'title-container': '📝 标题容器',
+      'album-showcase': '💿 专辑展示'
+    }
+    return names[elementId] || elementId
+  }
+
+  // 复制单个参数
+  const copyParam = async (label, value) => {
+    try {
+      await navigator.clipboard.writeText(`${label}: ${value}`)
+      showCopyStatus('success', `已复制: ${label}`)
+    } catch (err) {
+      showCopyStatus('error', '复制失败')
+      console.error('复制失败:', err)
+    }
+  }
+
+  // 复制元素位置
+  const copyElementPosition = async (elementId, position) => {
+    const displayName = getElementDisplayName(elementId)
+    const positionText = `${displayName}\nX: ${position.x}px\nY: ${position.y}px\ntransform: translate(${position.x - position.originalX}px, ${position.y - position.originalY}px)`
+    
+    try {
+      await navigator.clipboard.writeText(positionText)
+      showCopyStatus('success', `已复制 ${displayName} 位置参数`)
+    } catch (err) {
+      showCopyStatus('error', '复制失败')
+      console.error('复制失败:', err)
+    }
+  }
+
+  // 复制所有参数
+  const copyAllParams = async () => {
+    const allParams = [
+      '=== LAY张艺兴首页布局参数 ===',
+      '',
+      '📐 基础布局:',
+      '主页高度: 75vh (3/4视口)',
+      '轮播图高度: 100vh (全视口)',
+      '背景图片: 45% × 96%',
+      '内容区域: max-w-4xl',
+      '标题尺寸: 4xl/6xl/7xl',
+      '',
+      '📍 元素位置参数:',
+      ...Object.entries(elementPositions.value).map(([elementId, position]) => {
+        const displayName = getElementDisplayName(elementId)
+        return `${displayName}: X=${position.x}px, Y=${position.y}px, 偏移=(${position.x - position.originalX}, ${position.y - position.originalY})`
+      }),
+      '',
+      `轮播状态: ${currentSlideIndex.value + 1}/${carouselItems.value.length}`,
+      `当前专辑: ${currentAlbum.value.albumTitle}`,
+      '',
+      '=========================='
+    ].join('\n')
+    
+    try {
+      await navigator.clipboard.writeText(allParams)
+      showCopyStatus('success', '已复制所有参数到剪贴板')
+    } catch (err) {
+      showCopyStatus('error', '复制失败')
+      console.error('复制失败:', err)
+    }
+  }
+
+  // 显示复制状态
+  const showCopyStatus = (type, message) => {
+    copyStatus.value = { type, message }
+    setTimeout(() => {
+      copyStatus.value = null
+    }, 3000)
+  }
+
+  // 打开微博链接
+  const openWeiboLink = (link) => {
+    if (link) {
+      window.open(link, '_blank')
+      showNotification('🔗 正在跳转到微博查看原文')
+    }
+  }
+
+  // 格式化日期
+  const formatDate = (dateString) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('zh-CN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+  }
+
+  // 处理视频播放事件
+  const handleVideoPlay = () => {
+    console.log('🎥 视频开始播放，暂停轮播')
+    isVideoPlaying.value = true
+    // 暂停自动轮播
+    if (carouselTimer) {
+      clearInterval(carouselTimer)
+      carouselTimer = null
+    }
+    showNotification('📺 视频播放中，轮播已暂停')
+  }
+
+  // 处理视频暂停事件
+  const handleVideoPause = () => {
+    console.log('⏸️ 视频暂停，恢复轮播')
+    isVideoPlaying.value = false
+    // 恢复自动轮播
+    if (!carouselTimer) {
+      startCarouselAutoPlay()
+    }
+    showNotification('⏸️ 视频暂停，轮播已恢复')
+  }
+
+  // 处理视频结束事件
+  const handleVideoEnded = () => {
+    console.log('✅ 视频播放结束，恢复轮播')
+    isVideoPlaying.value = false
+    // 恢复自动轮播
+    if (!carouselTimer) {
+      startCarouselAutoPlay()
+    }
+    showNotification('✅ 视频播放完毕，轮播已恢复')
+  }
+
+  // 处理视频加载开始事件
+  const handleVideoLoadStart = () => {
+    console.log('🔄 视频开始加载')
+  }
+
+  // 处理视频错误事件
+  const handleVideoError = (event) => {
+    console.error('❌ 视频加载错误:', event)
+    const video = event.target
+    const errorMessage = video.error ? 
+      `错误代码: ${video.error.code}, 信息: ${video.error.message}` : 
+      '未知视频错误'
+    console.error('详细错误信息:', errorMessage)
+    showNotification(`❌ 视频加载失败: ${errorMessage}`)
+    isVideoPlaying.value = false
+    // 确保轮播恢复
+    if (!carouselTimer) {
+      startCarouselAutoPlay()
+    }
+  }
+
+  // 处理视频可以播放事件
+  const handleVideoCanPlay = (event) => {
+    console.log('✅ 视频已准备好播放')
+    showNotification('✅ 视频已加载完成，可以播放')
+  }
+
+  // 处理视频数据加载完成事件
+  const handleVideoLoaded = (event) => {
+    const video = event.target
+    console.log('📊 视频元数据已加载:', {
+      duration: video.duration,
+      videoWidth: video.videoWidth,
+      videoHeight: video.videoHeight,
+      src: video.src
+    })
+  }
+
+  // 处理轮播项点击事件
+  const handleSlideClick = (event, item) => {
+    // 如果点击的是视频控制栏区域，不处理微博跳转
+    if (event.target.tagName === 'VIDEO' || event.target.closest('video')) {
+      console.log('点击了视频区域，不跳转微博')
+      return
+    }
+    
+    // 如果是图片或其他区域，跳转到微博
+    if (item.type === 'image') {
+      openWeiboLink(item.link)
+    }
+  }
+
+  // 获取元素样式（支持调试模式下的位置调整）
+  const getElementStyle = (elementId) => {
+    if (!debugMode.value || !draggableElements.value.includes(elementId)) {
+      return {}
+    }
+    
+    const position = elementPositions.value[elementId]
+    if (!position) {
+      return {}
+    }
+    
+    // 计算相对于原始位置的偏移
+    const offsetX = position.x - position.originalX
+    const offsetY = position.y - position.originalY
+    
+    return {
+      transform: `translate(${offsetX}px, ${offsetY}px)`,
+      position: 'relative',
+      zIndex: isDragging.value && currentDragElement.value === elementId ? '9999' : 'auto'
+    }
+  }
+
+  // 定位内容 - 滚动到首页并高亮显示内容
+  const locateContent = () => {
+    // 首先滚动到首页顶部
+    document.getElementById('home')?.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'start' 
+    })
+    
+    // 高亮显示所有可拖拽元素
+    setTimeout(() => {
+      const elements = document.querySelectorAll('[data-element-id]')
+      elements.forEach(element => {
+        element.style.outline = '3px solid #ff0066'
+        element.style.outlineOffset = '5px'
+        element.style.animation = 'pulse 2s infinite'
+      })
+      
+      // 3秒后移除高亮
+      setTimeout(() => {
+        elements.forEach(element => {
+          element.style.outline = ''
+          element.style.outlineOffset = ''
+          element.style.animation = ''
+        })
+      }, 3000)
+      
+      showCopyStatus('success', '📍 已定位到内容区域')
+    }, 500)
+  }
+
+  // 重置所有位置
+  const resetAllPositions = () => {
+    // 重置所有拖拽元素
+    draggableElements.value.forEach(elementId => {
+      resetElementPosition(elementId)
+    })
+    
+    // 清空拖拽元素列表和位置记录
+    draggableElements.value = []
+    elementPositions.value = {}
+    
+    showCopyStatus('success', '🔄 已重置所有元素位置')
+  }
+
+  // 切换轮播自动播放
+  const toggleCarouselAutoPlay = () => {
+    if (carouselTimer) {
+      // 停止自动轮播
+      clearInterval(carouselTimer)
+      carouselTimer = null
+      showCopyStatus('success', '⏸️ 轮播已暂停')
+    } else {
+      // 启动自动轮播
+      startCarouselAutoPlay()
+      showCopyStatus('success', '▶️ 轮播已启动')
+    }
+  }
+
+  // 测试当前视频
+  const testCurrentVideo = () => {
+    const currentItem = carouselItems.value[currentSlideIndex.value]
+    if (currentItem.type !== 'video') {
+      showCopyStatus('error', '❌ 当前项不是视频')
+      return
+    }
+    
+    const currentSlide = document.querySelector('.carousel-slide:nth-child(' + (currentSlideIndex.value + 1) + ')')
+    const video = currentSlide?.querySelector('video')
+    
+    if (video) {
+      console.log('🎥 视频元素信息:', {
+        src: video.src,
+        currentSrc: video.currentSrc,
+        readyState: video.readyState,
+        networkState: video.networkState,
+        error: video.error
+      })
+      
+      if (video.paused) {
+        video.play().then(() => {
+          showCopyStatus('success', '🎥 视频开始播放')
+        }).catch(error => {
+          console.error('视频播放失败:', error)
+          showCopyStatus('error', '❌ 视频播放失败: ' + error.message)
+        })
+      } else {
+        video.pause()
+        showCopyStatus('success', '⏸️ 视频已暂停')
+      }
+    } else {
+      showCopyStatus('error', '❌ 未找到视频元素')
+    }
+  }
+
+  // 检查视频文件
+  const checkVideoFiles = () => {
+    console.log('🔍 开始检查视频文件...')
+    
+    carouselItems.value.forEach((item, index) => {
+      if (item.type === 'video') {
+        const testVideo = document.createElement('video')
+        testVideo.src = item.src
+        
+        testVideo.addEventListener('loadeddata', () => {
+          console.log(`✅ 视频 ${index + 1} 加载成功:`, item.src)
+        })
+        
+        testVideo.addEventListener('error', (e) => {
+          console.error(`❌ 视频 ${index + 1} 加载失败:`, item.src, e)
+        })
+        
+        // 清理
+        setTimeout(() => {
+          testVideo.removeEventListener('loadeddata', () => {})
+          testVideo.removeEventListener('error', () => {})
+        }, 5000)
+      }
+    })
+    
+    showCopyStatus('success', '🔍 已开始检查视频文件，请查看控制台')
   }
 
 

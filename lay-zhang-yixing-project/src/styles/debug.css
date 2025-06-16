@@ -219,47 +219,346 @@
   position: fixed;
   bottom: 20px;
   left: 20px;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(0, 0, 0, 0.95);
   color: white;
-  padding: 15px;
-  border-radius: 8px;
-  font-family: monospace;
+  padding: 0;
+  border-radius: 12px;
+  font-family: 'Fira Code', 'Courier New', monospace;
   font-size: 12px;
   line-height: 1.4;
-  max-width: 300px;
+  max-width: 400px;
+  max-height: 80vh;
+  overflow-y: auto;
   z-index: 9998;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+/* 调试面板头部 */
+.debug-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px 12px 0 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .debug-info-panel h4 {
+  margin: 0;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* 复制所有参数按钮 */
+.copy-all-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.copy-all-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.copy-all-btn:active {
+  transform: scale(0.95);
+}
+
+/* 调试面板区块 */
+.debug-section {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.debug-section:last-child {
+  border-bottom: none;
+}
+
+.debug-section h5 {
   margin: 0 0 10px 0;
   color: #00ff88;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 0.5px;
 }
 
 .debug-info-panel .debug-item {
-  margin: 5px 0;
+  margin: 6px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
 }
 
 .debug-info-panel .debug-label {
   color: #ff8800;
   font-weight: bold;
+  flex: 1;
 }
 
 .debug-info-panel .debug-value {
   color: #ffffff;
+  flex: 1;
+  text-align: right;
+}
+
+/* 小型复制按钮 */
+.copy-btn-small {
+  background: rgba(0, 255, 136, 0.2);
+  border: 1px solid rgba(0, 255, 136, 0.4);
+  color: #00ff88;
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 10px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.copy-btn-small:hover {
+  background: rgba(0, 255, 136, 0.3);
+  border-color: rgba(0, 255, 136, 0.6);
+  transform: scale(1.05);
+}
+
+/* 可拖拽元素控制按钮 */
+.draggable-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.drag-control-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 8px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 10px;
+  transition: all 0.2s ease;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.drag-control-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.drag-control-btn.active {
+  background: rgba(0, 123, 255, 0.3);
+  border-color: rgba(0, 123, 255, 0.6);
+  color: #007bff;
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+}
+
+/* 位置参数显示 */
+.position-item {
+  margin: 8px 0;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.element-name {
+  color: #00ff88;
+  font-weight: bold;
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.position-values {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pos-value {
+  color: #ffffff;
+  font-size: 10px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.reset-btn-small {
+  background: rgba(255, 136, 0, 0.2);
+  border: 1px solid rgba(255, 136, 0, 0.4);
+  color: #ff8800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 10px;
+  transition: all 0.2s ease;
+}
+
+.reset-btn-small:hover {
+  background: rgba(255, 136, 0, 0.3);
+  border-color: rgba(255, 136, 0, 0.6);
+  transform: scale(1.05);
+}
+
+/* 复制状态提示 */
+.copy-status {
+  padding: 8px 12px;
+  margin: 8px 0 0 0;
+  border-radius: 6px;
+  font-size: 11px;
+  text-align: center;
+  font-weight: bold;
+  animation: slideInUp 0.3s ease;
+}
+
+.copy-status.success {
+  background: rgba(40, 167, 69, 0.2);
+  border: 1px solid rgba(40, 167, 69, 0.4);
+  color: #28a745;
+}
+
+.copy-status.error {
+  background: rgba(220, 53, 69, 0.2);
+  border: 1px solid rgba(220, 53, 69, 0.4);
+  color: #dc3545;
+}
+
+/* 拖拽句柄样式 */
+.drag-handle {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  font-size: 12px;
+  font-weight: bold;
+  z-index: 10000;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease;
+  backdrop-filter: blur(5px);
+}
+
+.drag-handle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.6);
+  background: linear-gradient(135deg, #0056b3, #004085);
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+  transform: scale(0.95);
+}
+
+/* 可拖拽元素样式 */
+.draggable-element {
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.draggable-element.dragging {
+  cursor: grabbing;
+  z-index: 9999 !important;
+  opacity: 0.9;
+  transform-origin: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.draggable-element:not(.dragging) {
+  transition: transform 0.3s ease;
+}
+
+/* 拖拽时的视觉反馈 */
+.debug-mode .draggable-element {
+  outline: 2px dashed rgba(0, 123, 255, 0.3);
+  outline-offset: 4px;
+}
+
+.debug-mode .draggable-element.dragging {
+  outline-color: rgba(0, 123, 255, 0.8);
+  outline-width: 3px;
+}
+
+/* 动画 */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 滚动条样式 */
+.debug-info-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.debug-info-panel::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.debug-info-panel::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.debug-info-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
 }
 
 /* 响应式调试信息 */
 @media (max-width: 768px) {
-  .debug-mode .hero-background-right::before {
-    content: "hero-background-right\A HIDDEN ON MOBILE";
-    background: rgba(255, 68, 0, 0.9);
+  .debug-info-panel {
+    max-width: 350px;
+    font-size: 11px;
+    bottom: 10px;
+    left: 10px;
   }
   
-  .debug-info-panel {
+  .draggable-controls {
+    grid-template-columns: 1fr;
+  }
+  
+  .drag-control-btn {
+    font-size: 9px;
+    padding: 6px 4px;
+  }
+  
+  .drag-handle {
+    width: 25px;
+    height: 25px;
     font-size: 10px;
-    max-width: 250px;
   }
 }
 
@@ -325,4 +624,206 @@
   padding: 2px 4px;
   font-size: 9px;
   font-family: monospace;
+}
+
+/* 轮播覆盖层文字阴影 */
+.text-shadow {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* 轮播信息覆盖层动画 */
+.carousel-slide:hover .bg-gradient-to-t {
+  animation: slideInFromBottom 0.3s ease-out;
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 快速操作按钮 */
+.quick-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.locate-btn {
+  background: rgba(255, 0, 102, 0.2);
+  border: 1px solid rgba(255, 0, 102, 0.4);
+  color: #ff0066;
+  padding: 8px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 10px;
+  transition: all 0.2s ease;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-weight: bold;
+}
+
+.locate-btn:hover {
+  background: rgba(255, 0, 102, 0.3);
+  border-color: rgba(255, 0, 102, 0.6);
+  transform: scale(1.05);
+}
+
+.reset-all-btn {
+  background: rgba(255, 136, 0, 0.2);
+  border: 1px solid rgba(255, 136, 0, 0.4);
+  color: #ff8800;
+  padding: 8px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 10px;
+  transition: all 0.2s ease;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-weight: bold;
+}
+
+.reset-all-btn:hover {
+  background: rgba(255, 136, 0, 0.3);
+  border-color: rgba(255, 136, 0, 0.6);
+  transform: scale(1.05);
+}
+
+/* 轮播控制按钮 */
+.carousel-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 4px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.carousel-controls button {
+  font-size: 8px;
+  padding: 6px 3px;
+}
+
+.carousel-control-btn {
+  background: rgba(0, 123, 255, 0.2);
+  border: 1px solid rgba(0, 123, 255, 0.4);
+  color: #007bff;
+  padding: 8px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 10px;
+  transition: all 0.2s ease;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-weight: bold;
+}
+
+.carousel-control-btn:hover {
+  background: rgba(0, 123, 255, 0.3);
+  border-color: rgba(0, 123, 255, 0.6);
+  transform: scale(1.05);
+}
+
+.carousel-control-btn.active {
+  background: rgba(40, 167, 69, 0.2);
+  border-color: rgba(40, 167, 69, 0.4);
+  color: #28a745;
+}
+
+.carousel-control-btn.paused {
+  background: rgba(220, 53, 69, 0.2);
+  border-color: rgba(220, 53, 69, 0.4);
+  color: #dc3545;
+}
+
+.video-test-btn {
+  background: rgba(138, 43, 226, 0.2);
+  border: 1px solid rgba(138, 43, 226, 0.4);
+  color: #8a2be2;
+  padding: 8px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 10px;
+  transition: all 0.2s ease;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-weight: bold;
+}
+
+.video-test-btn:hover {
+  background: rgba(138, 43, 226, 0.3);
+  border-color: rgba(138, 43, 226, 0.6);
+  transform: scale(1.05);
+}
+
+.video-debug-btn {
+  background: rgba(255, 193, 7, 0.2);
+  border: 1px solid rgba(255, 193, 7, 0.4);
+  color: #ffc107;
+  padding: 8px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 10px;
+  transition: all 0.2s ease;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-weight: bold;
+}
+
+.video-debug-btn:hover {
+  background: rgba(255, 193, 7, 0.3);
+  border-color: rgba(255, 193, 7, 0.6);
+  transform: scale(1.05);
+}
+
+/* 调试器状态颜色 */
+.text-green-400 {
+  color: #4ade80 !important;
+}
+
+.text-gray-400 {
+  color: #9ca3af !important;
+}
+
+.text-red-400 {
+  color: #f87171 !important;
+}
+
+/* 定位高亮动画 */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 } 
