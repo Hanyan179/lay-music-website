@@ -1,0 +1,57 @@
+{
+  "mcpServers": {
+    "browser-tools": {
+      "command": "npx",
+      "args": ["-y", "@agentdeskai/browser-tools-mcp@latest"],
+      "env": {
+        "NODE_ENV": "production"
+      }
+    },
+    "browser-tools-server": {
+      "command": "npx", 
+      "args": ["-y", "@agentdeskai/browser-tools-server@latest"],
+      "env": {
+        "PORT": "3025",
+        "NODE_ENV": "production"
+      }
+    },
+    "mcp-inspector": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/inspector@latest"],
+      "env": {
+        "CLIENT_PORT": "6274",
+        "SERVER_PORT": "6277"
+      }
+    },
+    "playwright-visual-test": {
+      "command": "npx",
+      "args": ["-y", "@anguske/mcp-playwright-visual-test@latest"],
+      "env": {
+        "AUTO_LOGIN_USERNAME": "",
+        "AUTO_LOGIN_PASSWORD": "",
+        "AUTO_LOGIN_USERNAME_SELECTOR": "#username",
+        "AUTO_LOGIN_PASSWORD_SELECTOR": "#password", 
+        "AUTO_LOGIN_SUBMIT_SELECTOR": "button[type=\"submit\"]",
+        "TEST_VIEWPORT_WIDTH": "1440",
+        "TEST_VIEWPORT_HEIGHT": "800",
+        "TEST_THRESHOLD": "20",
+        "TEST_WAIT_TIMEOUT": "10000",
+        "PROJECT_ROOT": "E:/Fate Echoes/fate-echoes/lay-zhang-yixing-project"
+      }
+    },
+    "web-search": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-web-search@latest"],
+      "env": {
+        "SEARXNG_BASE_URL": "https://searx.be"
+      }
+    },
+    "file-system": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem@latest"],
+      "env": {
+        "ALLOWED_DIRECTORIES": "E:/Fate Echoes/fate-echoes/lay-zhang-yixing-project"
+      }
+    }
+  }
+} 
