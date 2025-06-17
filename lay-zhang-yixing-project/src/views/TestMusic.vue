@@ -1,196 +1,401 @@
 <template>
-  <div class="shader-container">
-    <canvas ref="canvas" class="shader-canvas"></canvas>
-    <div class="info-panel">
-      <h2>自定义着色器测试</h2>
-      <p>移动鼠标查看效果</p>
-    </div>
+  <div class="portfolio-container">
+    <!-- Header -->
+    <header class="header">
+      <h1 class="main-title">LAY ZHANG YIXING</h1>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="main-navigation">
+      <ul class="nav-list">
+        <li class="nav-item">
+          <a href="#" class="nav-link" @click="setActiveCategory('music')">音乐</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" @click="setActiveCategory('album')">专辑</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" @click="setActiveCategory('mv')">MV</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" @click="setActiveCategory('live')">演唱会</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" @click="setActiveCategory('behind')">幕后</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link" @click="setActiveCategory('about')">关于</a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <div class="content-section">
+        <h2 class="section-title">{{ getSectionTitle() }}</h2>
+        
+        <!-- Content Grid -->
+        <div class="content-grid" v-if="activeCategory !== 'about'">
+          <div 
+            v-for="item in getCurrentContent()" 
+            :key="item.id"
+            class="content-item"
+            @click="selectItem(item)"
+          >
+            <div class="item-image">
+              <img :src="item.image" :alt="item.title" />
+            </div>
+            <div class="item-info">
+              <h3 class="item-title">{{ item.title }}</h3>
+              <p class="item-description">{{ item.description }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- About Section -->
+        <div class="about-section" v-if="activeCategory === 'about'">
+          <div class="about-content">
+            <p class="about-text">
+              张艺兴（LAY），中国内地男歌手、演员、音乐制作人。<br>
+              以其独特的音乐风格和卓越的创作才华，在华语乐坛占有重要地位。<br>
+              致力于将中国传统文化与现代音乐完美融合。
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <footer class="bottom-navigation">
+      <div class="page-numbers">
+        <span 
+          v-for="page in totalPages" 
+          :key="page"
+          class="page-number"
+          :class="{ active: page === currentPage }"
+          @click="setCurrentPage(page)"
+        >
+          {{ page }}
+        </span>
+        <span class="page-number chinese" @click="setCurrentPage('about')">关</span>
+      </div>
+    </footer>
   </div>
 </template>
 
-<script>
-import * as THREE from 'three'
+<script setup>
+import { onMounted, ref } from 'vue'
 
-export default {
-  name: 'TestMusic',
-  data() {
-    return {
-      scene: null,
-      camera: null,
-      renderer: null,
-      uniforms: null,
-      animationId: null
-    }
-  },
-  mounted() {
-    this.initShader()
-    // 绑定 this 给 animate，避免 requestAnimationFrame 丢失上下文
-    this.animate = this.animate.bind(this)
-    this.animate()
-  },
-  beforeUnmount() {
-    cancelAnimationFrame(this.animationId)
-    this.renderer && this.renderer.dispose()
-    window.removeEventListener('mousemove', this.onMouseMove)
-    window.removeEventListener('resize', this.onWindowResize)
-  },
-  methods: {
-    initShader() {
-      const canvas = this.$refs.canvas
+// 响应式数据
+const activeCategory = ref('music')
+const currentPage = ref(1)
+const totalPages = ref(5)
 
-      // 场景、相机、渲染器
-      this.scene = new THREE.Scene()
-      this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
-      this.camera.position.z = 1
+// 模拟数据
+const contentData = {
+  music: [
+    { id: 1, title: '莲', description: '2021年专辑主打曲', image: '/api/placeholder/300/200' },
+    { id: 2, title: '飞天', description: '传统与现代的完美融合', image: '/api/placeholder/300/200' },
+    { id: 3, title: '祖国', description: '爱国主题作品', image: '/api/placeholder/300/200' },
+    { id: 4, title: 'Honey', description: '国际化音乐作品', image: '/api/placeholder/300/200' }
+  ],
+  album: [
+    { id: 1, title: 'LIT', description: '2020年个人专辑', image: '/api/placeholder/300/200' },
+    { id: 2, title: 'NAMANANA', description: '2018年迷你专辑', image: '/api/placeholder/300/200' },
+    { id: 3, title: 'LOSE CONTROL', description: '首张个人专辑', image: '/api/placeholder/300/200' }
+  ],
+  mv: [
+    { id: 1, title: '莲 MV', description: '东方美学视觉盛宴', image: '/api/placeholder/300/200' },
+    { id: 2, title: '飞天 MV', description: '敦煌文化致敬之作', image: '/api/placeholder/300/200' }
+  ],
+  live: [
+    { id: 1, title: '2023世界巡回演唱会', description: '全球巡演精彩瞬间', image: '/api/placeholder/300/200' },
+    { id: 2, title: '《莲》专辑发布会', description: '专辑发布现场', image: '/api/placeholder/300/200' }
+  ],
+  behind: [
+    { id: 1, title: '录音室纪录', description: '创作过程幕后花絮', image: '/api/placeholder/300/200' },
+    { id: 2, title: 'MV拍摄花絮', description: 'MV制作过程记录', image: '/api/placeholder/300/200' }
+  ]
+}
 
-      this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true })
-      this.renderer.setSize(window.innerWidth, window.innerHeight)
-      this.renderer.setPixelRatio(window.devicePixelRatio)
+// 计算属性
+const getCurrentContent = () => {
+  return contentData[activeCategory.value] || []
+}
 
-      // 使用真实图片路径
-      const textureLoader = new THREE.TextureLoader()
-      const texture = textureLoader.load('/img/music/LIT.png')
-      texture.wrapS = THREE.RepeatWrapping
-      texture.wrapT = THREE.RepeatWrapping
+const getSectionTitle = () => {
+  const titles = {
+    music: '音乐作品',
+    album: '专辑',
+    mv: '音乐视频',
+    live: '演唱会',
+    behind: '幕后记录',
+    about: '关于艺兴'
+  }
+  return titles[activeCategory.value] || ''
+}
 
-      // 只定义自定义 uniforms，让Three.js自动处理内置uniforms
-      this.uniforms = {
-        resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-        time: { value: 0.0 },
-        mouse: { value: new THREE.Vector2(0.5, 0.5) },
-        ratio: { value: 1.0 },
-        waveLength: { value: 0.1 },
-        texture: { value: texture },
-        modelMatrix: { value: new THREE.Matrix4() } // 添加传递模型矩阵的 uniform
-      }
+// 方法
+const setActiveCategory = (category) => {
+  activeCategory.value = category
+  currentPage.value = 1
+}
 
-      const vertexShader = `
-        varying vec2 vUv;
-        varying vec4 vPosition;
-        
-        uniform vec2 mouse;
-        uniform float time;
-        uniform float waveLength;
-        uniform mat4 modelMatrix; // 接收模型矩阵
-
-        void main() {
-          vUv = uv;
-
-          // 简化的鼠标偏移和波动效果
-          vec2 m = mouse * -0.025;
-          float vWave = sin(time + (position.x + position.y) * waveLength) * 0.1;
-
-          // 更新顶点位置
-          vec3 newPosition = position + vec3(m.x, m.y, vWave);
-
-          // 使用传入的模型矩阵进行变换
-          gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(newPosition, 1.0);
-        }
-      `;
-
-      const fragmentShader = `
-        precision highp float;
-        
-        uniform vec2 resolution;
-        uniform vec2 mouse;
-        uniform float time;
-        uniform float ratio;
-        uniform sampler2D texture;
-        
-        varying vec2 vUv;
-        varying vec4 vPosition;
-
-        #define WAVE_RATIO 8
-        #define LIGHT_RATIO float(WAVE_RATIO * 15)
-
-        void main() {
-          vec2 p = 7.68 * (gl_FragCoord.xy / resolution.xy - vec2(0.5, 1.0)) - vec2(mouse.x, -15.0);
-          vec2 i = p;
-          float c = 1.0;
-
-          for(int n = 0; n < WAVE_RATIO; n++) {
-            float t = (1.0 - (10.0 / float(n + 10))) * time;
-            i = vec2(
-              cos(t - (i.x + mouse.x)) + sin(t + (i.y + mouse.y)),
-              sin(t - (i.y + mouse.y)) + cos(t + (i.x + mouse.x))
-            ) + p;
-            c += float(n) / length(vec2(
-              p.x / (sin(t + i.x) / 1.1),
-              p.y / (cos(t + i.y) / 1.1)
-            )) * 20.0;
-          }
-          c = 1.8 - sqrt(c / LIGHT_RATIO);
-
-          vec4 tx1 = texture2D(texture, vUv + 0.015);
-          vec4 tx2 = texture2D(texture, vUv + cos(c) * mouse * 0.75);
-          vec4 tx = (tx1 * tx2) * 0.75;
-
-          float alpha = tx.a * ratio;
-          vec4 color = vec4(c * c * c * tx.rgb, alpha);
-          gl_FragColor = color;
-        }
-      `;
-
-      const material = new THREE.ShaderMaterial({
-        uniforms: this.uniforms,
-        vertexShader,
-        fragmentShader,
-        transparent: true,
-      });
-
-      const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
-      this.scene.add(quad);
-
-      window.addEventListener('mousemove', this.onMouseMove);
-      window.addEventListener('resize', this.onWindowResize);
-    },
-
-    onMouseMove(event) {
-      if (!this.uniforms) return;
-      this.uniforms.mouse.value.x = event.clientX / window.innerWidth;
-      this.uniforms.mouse.value.y = 1.0 - (event.clientY / window.innerHeight);
-    },
-
-    onWindowResize() {
-      if (!this.camera || !this.renderer) return;
-      this.camera.aspect = window.innerWidth / window.innerHeight;
-      this.camera.updateProjectionMatrix();
-      this.renderer.setSize(window.innerWidth, window.innerHeight);
-      this.uniforms.resolution.value.set(window.innerWidth, window.innerHeight);
-    },
-
-    animate() {
-      this.animationId = requestAnimationFrame(this.animate);
-      this.renderer.clear();
-      this.uniforms.time.value += 0.01;
-
-      // 将模型矩阵传递给着色器
-      this.uniforms.modelMatrix.value = this.scene.children[0].matrixWorld;
-
-      this.renderer.render(this.scene, this.camera);
-    }
+const setCurrentPage = (page) => {
+  if (page === 'about') {
+    activeCategory.value = 'about'
+    currentPage.value = 'about'
+  } else {
+    currentPage.value = page
   }
 }
+
+const selectItem = (item) => {
+  console.log('Selected item:', item)
+  // 这里可以添加跳转到详情页的逻辑
+}
+
+onMounted(() => {
+  console.log('Portfolio page loaded')
+})
 </script>
 
 <style scoped>
-.shader-container {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  background: #000;
+.portfolio-container {
+  min-height: 100vh;
+  background-color: #ffffff;
+  color: #000000;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
 }
 
-.shader-canvas {
-  display: block;
+/* Header Styles */
+.header {
+  padding: 60px 0 40px;
+  text-align: center;
+}
+
+.main-title {
+  font-size: 2.5rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin: 0;
+  color: #000000;
+}
+
+/* Navigation Styles */
+.main-navigation {
+  padding: 0 60px;
+  border-top: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.nav-list {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 60px;
+}
+
+.nav-item {
+  padding: 20px 0;
+}
+
+.nav-link {
+  color: #000000;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+}
+
+.nav-link:hover {
+  opacity: 0.6;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 80px 60px;
+}
+
+.content-section {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-title {
+  font-size: 1.8rem;
+  font-weight: 300;
+  text-align: center;
+  margin-bottom: 60px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Content Grid */
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 40px;
+  margin-bottom: 80px;
+}
+
+.content-item {
+  cursor: pointer;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.content-item:hover {
+  transform: translateY(-5px);
+  opacity: 0.9;
+}
+
+.item-image {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background-color: #f5f5f5;
+  margin-bottom: 20px;
+}
+
+.item-image img {
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
 }
 
-.info-panel {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  color: #fff;
-  backgrou
+.content-item:hover .item-image img {
+  transform: scale(1.05);
+}
+
+.item-info {
+  text-align: center;
+}
+
+.item-title {
+  font-size: 1.1rem;
+  font-weight: 400;
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+}
+
+.item-description {
+  font-size: 0.85rem;
+  color: #666666;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+
+/* About Section */
+.about-section {
+  text-align: center;
+  padding: 40px 0;
+}
+
+.about-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.about-text {
+  font-size: 1.1rem;
+  line-height: 2;
+  color: #333333;
+  letter-spacing: 0.05em;
+}
+
+/* Bottom Navigation */
+.bottom-navigation {
+  padding: 40px 60px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.page-numbers {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  align-items: center;
+}
+
+.page-number {
+  font-size: 0.9rem;
+  color: #999999;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  padding: 5px 10px;
+}
+
+.page-number:hover,
+.page-number.active {
+  color: #000000;
+}
+
+.page-number.chinese {
+  font-weight: 500;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .header {
+    padding: 40px 0 30px;
+  }
+  
+  .main-title {
+    font-size: 2rem;
+  }
+  
+  .main-navigation {
+    padding: 0 30px;
+  }
+  
+  .nav-list {
+    gap: 30px;
+    flex-wrap: wrap;
+  }
+  
+  .main-content {
+    padding: 60px 30px;
+  }
+  
+  .content-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+  }
+  
+  .bottom-navigation {
+    padding: 30px;
+  }
+  
+  .page-numbers {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-title {
+    font-size: 1.5rem;
+    letter-spacing: 0.1em;
+  }
+  
+  .nav-list {
+    gap: 20px;
+  }
+  
+  .nav-link {
+    font-size: 0.8rem;
+  }
+  
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

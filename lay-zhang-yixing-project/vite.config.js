@@ -3,7 +3,13 @@ import { resolve } from 'path'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    vue({
+      compilerOptions: {
+        isCustomElement: tag => tag.startsWith('three-')
+      }
+    })
+  ],
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src')
@@ -22,6 +28,19 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    assetsDir: 'assets'
+    assetsDir: 'assets',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'three': ['three']
+        }
+      }
+    }
+  },
+  optimizeDeps: {
+    include: ['three']
+  },
+  define: {
+    __THREE_DEVTOOLS__: false
   }
 }) 

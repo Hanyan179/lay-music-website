@@ -9,7 +9,7 @@ const routes: RouteRecordRaw[] = [
 
 
 
-  /* 音乐3D页面 */
+  /* 音乐3D页面 */  
   { path: '/music3d',          name: 'Music3D',             component: () => import('@/views/Music3D.vue') },
   { path: '/test-music',       name: 'testMusic',           component: () => import('@/views/TestMusic.vue') },
 
@@ -27,7 +27,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/AdminDashboard.vue') },
 
 
-  /* 404 → 首页 */
+  /* 404 → 首页 */  
   { path: '/:pathMatch(.*)*',  redirect: '/' }
 ]
 

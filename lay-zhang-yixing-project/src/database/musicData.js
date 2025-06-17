@@ -10,7 +10,7 @@ export const musicData = [
     neteaseId: "未提及",
     achievements: [
       "实体专辑畅销榜前三（2024年中盘点）"
-    ],
+    ],  
     stats: {
       tracks: 12,
       duration: "45:30",

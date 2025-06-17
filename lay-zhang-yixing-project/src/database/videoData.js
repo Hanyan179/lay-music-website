@@ -6,27 +6,27 @@ export const videoData = [
     duration: "04:32",
     views: "2.1M",
     thumbnail: "/artist-journey/assets/background.jpg",
-    description: "中式古典美学与现代音乐的完美融合",
+    description: "中式古典美学与现代音乐的完美融合",    
     platform: "bilibili"
   },
   {
     id: 2,
     title: "飞天 MV",
-    duration: "04:15",
+    duration: "04:15",    
     views: "1.8M",
-    thumbnail: "/artist-journey/assets/background.jpg",
+    thumbnail: "/artist-journey/assets/background.jpg", 
     description: "敦煌文化的音乐视觉表达",
-    platform: "bilibili"
+    platform: "bilibili"  
   },
   {
-    id: 3,
+    id: 3,  
     title: "HONEY MV",
     duration: "03:28",
     views: "5.2M",
     thumbnail: "/artist-journey/assets/background.jpg",
     description: "甜蜜律动的都市风情",
     platform: "douyin"
-  },
+  },      
   {
     id: 4,
     title: "NAMANANA MV",

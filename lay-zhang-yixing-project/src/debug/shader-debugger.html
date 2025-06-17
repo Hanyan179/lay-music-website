@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>着色器调试器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            overflow: hidden;
+        }
+        
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        .canvas-area {
+            flex: 1;
+            position: relative;
+        }
+        
+        #shaderCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        .debug-panel {
+            width: 350px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            overflow-y: auto;
+            border-left: 1px solid #333;
+        }
+        
+        .debug-group {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        
+        .debug-group h3 {
+            color: #4CAF50;
+            margin-bottom: 15px;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .control-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            gap: 10px;
+        }
+        
+        .control-row label {
+            min-width: 80px;
+            font-size: 12px;
+            color: #ccc;
+        }
+        
+        .control-row input[type="range"] {
+            flex: 1;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+        }
+        
+        .control-row input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #4CAF50;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .control-row span {
+            min-width: 60px;
+            font-size: 11px;
+            color: #4CAF50;
+            text-align: right;
+        }
+        
+        .color-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .copy-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background: #45a049;
+        }
+        
+        .param-output {
+            width: 100%;
+            height: 150px;
+            background: #222;
+            color: #0f0;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            resize: vertical;
+        }
+        
+        .reset-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+        
+        .reset-btn:hover {
+            background: #da190b;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #4CAF50;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="canvas-area">
+            <canvas id="shaderCanvas"></canvas>
+        </div>
+        
+        <div class="debug-panel">
+            <h1>🎨 着色器调试器</h1>
+            
+            <!-- 主管道控制 -->
+            <div class="debug-group">
+                <h3>主管道 (Tube1)</h3>
+                <div class="color-group">
+                    <div class="control-row">
+                        <label>R:</label>
+                        <input type="range" id="tube1_r" min="0" max="1" step="0.01" value="0.4">
+                        <span id="tube1_r_val">0.4</span>
+                    </div>
+                    <div class="control-row">
+                        <label>G:</label>
+                        <input type="range" id="tube1_g" min="0" max="1" step="0.01" value="0.6">
+                        <span id="tube1_g_val">0.6</span>
+                    </div>
+                    <div class="control-row">
+                        <label>B:</label>
+                        <input type="range" id="tube1_b" min="0" max="1" step="0.01" value="0.8">
+                        <span id="tube1_b_val">0.8</span>
+                    </div>
+                </div>
+                <div class="control-row">
+                    <label>亮度:</label>
+                    <input type="range" id="tube1_intensity" min="0" max="0.1" step="0.001" value="0.015">
+                    <span id="tube1_intensity_val">0.015</span>
+                </div>
+                <div class="control-row">
+                    <label>衰减:</label>
+                    <input type="range" id="tube1_falloff" min="1" max="20" step="0.1" value="8.0">
+                    <span id="tube1_falloff_val">8.0</span>
+                </div>
+            </div>
+
+            <!-- 辅助管道控制 -->
+            <div class="debug-group">
+                <h3>辅助管道 (Tube2)</h3>
+                <div class="color-group">
+                    <div class="control-row">
+                        <label>R:</label>
+                        <input type="range" id="tube2_r" min="0" max="1" step="0.01" value="0.8">
+                        <span id="tube2_r_val">0.8</span>
+                    </div>
+                    <div class="control-row">
+                        <label>G:</label>
+                        <input type="range" id="tube2_g" min="0" max="1" step="0.01" value="0.5">
+                        <span id="tube2_g_val">0.5</span>
+                    </div>
+                    <div class="control-row">
+                        <label>B:</label>
+                        <input type="range" id="tube2_b" min="0" max="1" step="0.01" value="0.3">
+                        <span id="tube2_b_val">0.3</span>
+                    </div>
+                </div>
+                <div class="control-row">
+                    <label>亮度:</label>
+                    <input type="range" id="tube2_intensity" min="0" max="0.1" step="0.001" value="0.01">
+                    <span id="tube2_intensity_val">0.01</span>
+                </div>
+                <div class="control-row">
+                    <label>衰减:</label>
+                    <input type="range" id="tube2_falloff" min="1" max="20" step="0.1" value="10.0">
+                    <span id="tube2_falloff_val">10.0</span>
+                </div>
+            </div>
+
+            <!-- 环面控制 -->
+            <div class="debug-group">
+                <h3>环面 (Torus)</h3>
+                <div class="color-group">
+                    <div class="control-row">
+                        <label>R:</label>
+                        <input type="range" id="torus_r" min="0" max="1" step="0.01" value="0.6">
+                        <span id="torus_r_val">0.6</span>
+                    </div>
+                    <div class="control-row">
+                        <label>G:</label>
+                        <input type="range" id="torus_g" min="0" max="1" step="0.01" value="0.3">
+                        <span id="torus_g_val">0.3</span>
+                    </div>
+                    <div class="control-row">
+                        <label>B:</label>
+                        <input type="range" id="torus_b" min="0" max="1" step="0.01" value="0.9">
+                        <span id="torus_b_val">0.9</span>
+                    </div>
+                </div>
+                <div class="control-row">
+                    <label>亮度:</label>
+                    <input type="range" id="torus_intensity" min="0" max="0.1" step="0.001" value="0.008">
+                    <span id="torus_intensity_val">0.008</span>
+                </div>
+                <div class="control-row">
+                    <label>衰减:</label>
+                    <input type="range" id="torus_falloff" min="1" max="20" step="0.1" value="12.0">
+                    <span id="torus_falloff_val">12.0</span>
+                </div>
+            </div>
+
+            <!-- 环境控制 -->
+            <div class="debug-group">
+                <h3>环境设置</h3>
+                <div class="color-group">
+                    <div class="control-row">
+                        <label>环境R:</label>
+                        <input type="range" id="ambient_r" min="0" max="0.1" step="0.001" value="0.008">
+                        <span id="ambient_r_val">0.008</span>
+                    </div>
+                    <div class="control-row">
+                        <label>环境G:</label>
+                        <input type="range" id="ambient_g" min="0" max="0.1" step="0.001" value="0.01">
+                        <span id="ambient_g_val">0.01</span>
+                    </div>
+                    <div class="control-row">
+                        <label>环境B:</label>
+                        <input type="range" id="ambient_b" min="0" max="0.1" step="0.001" value="0.012">
+                        <span id="ambient_b_val">0.012</span>
+                    </div>
+                </div>
+                <div class="control-row">
+                    <label>雾化:</label>
+                    <input type="range" id="fog_intensity" min="0" max="0.05" step="0.001" value="0.002">
+                    <span id="fog_intensity_val">0.002</span>
+                </div>
+                <div class="control-row">
+                    <label>色调:</label>
+                    <input type="range" id="tone_mapping" min="0" max="0.2" step="0.001" value="0.02">
+                    <span id="tone_mapping_val">0.02</span>
+                </div>
+            </div>
+
+            <!-- 复制区域 -->
+            <div class="debug-group">
+                <h3>参数导出</h3>
+                <button class="reset-btn" onclick="resetToDefaults()">重置默认值</button>
+                <button class="copy-btn" onclick="copyParameters()">复制参数</button>
+                <textarea id="paramOutput" class="param-output" readonly placeholder="调整参数后点击复制按钮获取代码..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 基础着色器代码
+        const vertexShaderSource = `
+            attribute vec4 position;
+            void main() {
+                gl_Position = position;
+            }
+        `;
+
+        const fragmentShaderSource = `
+            precision mediump float;
+            uniform float iTime;
+            uniform vec2 iResolution;
+            
+            // 调试参数
+            uniform vec3 tube1Color;
+            uniform float tube1Intensity;
+            uniform float tube1Falloff;
+            uniform vec3 tube2Color;
+            uniform float tube2Intensity;
+            uniform float tube2Falloff;
+            uniform vec3 torusColor;
+            uniform float torusIntensity;
+            uniform float torusFalloff;
+            uniform vec3 ambientColor;
+            uniform float fogIntensity;
+            uniform toneMapping;
+            
+            #define MAXSTEPS 256
+            #define MAXDIST 30.0
+            #define PI 3.1415926535898
+            #define TWOPI 6.28318530718
+            #define FUZZ 0.7
+            #define PHASELENGTH 60.0
+            #define PHASE mod(iTime/PHASELENGTH,1.0)
+            #define CUBENUM 50.0
+            #define DISTANCEPERPHASE 150.0
+            #define EPSILON 0.005
+
+            vec3 glow = vec3(0);
+            vec3 lastglow = vec3(0);
+            vec3 cubeColor = vec3(0);
+            float ringOffset = +0.6;
+            bool isMainCube = false;
+
+            mat4 rotationX( in float angle ) {
+                return mat4(1.0,0,0,0, 0,cos(angle),-sin(angle),0, 0,sin(angle),cos(angle),0, 0,0,0,1);
+            }
+
+            mat4 rotationZ( in float angle ) {
+                return mat4(cos(angle),-sin(angle),0,0, sin(angle),cos(angle),0,0, 0,0,1,0, 0,0,0,1);
+            }
+
+            vec3 displacement(float p) {
+                p *= 8.0*TWOPI/DISTANCEPERPHASE;
+                return vec3(sin(p),cos(p*0.5+PI+PHASE*TWOPI*3.0)*0.37,0)*1.7;
+            }
+
+            float opSmoothUnion( float d1, float d2, float k ) {
+                float h = clamp( 0.5 + 0.5*(d2-d1)/k, 0.0, 1.0 );
+                return mix( d2, d1, h ) - k*h*(1.0-h); 
+            }
+
+            float sdBox( vec3 p, vec3 b ) {    
+                float interval = DISTANCEPERPHASE/CUBENUM;
+                vec3 offset = displacement(floor(p.z / interval + 1.0)*interval - ringOffset);
+                vec3 originalP = p;
+                p -= offset;
+
+                float num = mod(floor(p.z/interval)+1.0,DISTANCEPERPHASE/interval)*4.0;
+                
+                vec3 worldPos = originalP;
+                float distFromCenter = length(worldPos.xy);
+                isMainCube = (distFromCenter < 2.0 && abs(worldPos.z - PHASE*DISTANCEPERPHASE) < interval * 2.0);
+                
+                if (isMainCube) {
+                    cubeColor = vec3(1.0);
+                } else {
+                    cubeColor = vec3(0.5 + 0.5 * sin(num), 0.3 + 0.3 * cos(num * 1.3), 0.7 + 0.3 * sin(num * 0.7));
+                }
+                
+                p.z = mod(p.z,interval) - interval*0.5;
+                p = mat3(rotationX(PHASE*TWOPI*5.0) * rotationZ(PHASE*TWOPI*18.0))*p;
+
+                vec3 d = abs(p) - b * 2.4;
+                float res = length(max(d,0.0)) + min(max(d.x,max(d.y,d.z)),0.0);
+
+                if (!isMainCube) {
+                    lastglow = pow(max(0.0,(1.0-(res/2.0))),4.0) * cubeColor * 0.1;
+                    glow += lastglow;
+                } else {
+                    lastglow = vec3(0.0);
+                }
+
+                return res;
+            }
+
+            float sdTube(vec3 p, float r) {
+                p.y += 0.8;
+                p -= displacement(p.z);
+                float dist = length(p.xy)-r;
+                
+                float glowFactor = exp(-abs(dist) * tube1Falloff) * tube1Intensity;
+                vec3 tubeGlow = tube1Color * glowFactor;
+                glow += tubeGlow;
+                
+                return dist;
+            }
+
+            float sdTube2(vec3 p, float r) {
+                p -= displacement(p.z+1.5 - ringOffset);
+                float dist = min(length(p.xy - vec2(0,0.9)),min(length(p.xy + vec2(0.9,0)),length(p.xy- vec2(0.9,0))))-r;
+                
+                float glowFactor = exp(-abs(dist) * tube2Falloff) * tube2Intensity;
+                vec3 tubeGlow = tube2Color * glowFactor;
+                glow += tubeGlow;
+                
+                return dist;
+            }
+
+            float sdTorus( vec3 p, float r1, float r2 ) {
+                float interval = DISTANCEPERPHASE/CUBENUM;
+                vec3 offset = displacement(floor(p.z / interval + 1.0)*interval - ringOffset);
+                p -= offset;
+                p.z = mod(p.z,interval) - interval*0.5;
+                float dist = length( vec2(length(p.xy)-r1,p.z) )-r2;
+                
+                float glowFactor = exp(-abs(dist) * torusFalloff) * torusIntensity;
+                vec3 torusGlow = torusColor * glowFactor;
+                glow += torusGlow;
+                
+                return dist;
+            }
+
+            float map(vec3 pos) {
+                vec3 p=pos;
+                float d0 = sdTube(pos, 0.501);
+                float d1 = sdTorus(pos, 0.9, 0.05);
+                float d2 = sdTube2(pos,0.05);
+                d0 = opSmoothUnion(d0,d1,0.5);
+                d0 = opSmoothUnion(d0,d2,0.1);
+                d1 = sdBox(pos, vec3(0.05));
+                return min(d0,d1);
+            }
+
+            void intersect(vec3 ro, vec3 rd) {
+                float res;
+                float d = 0.01;
+                for(int i = 0; i < MAXSTEPS; i++) {
+                    vec3 p = ro + rd * d;
+                    res = map(p);
+                    if(res < EPSILON * d || res > MAXDIST) {
+                        break;
+                    }
+                    d += res*FUZZ;
+                }
+                glow += lastglow*6.0;
+            }
+
+            void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
+                vec2 uv = (fragCoord.xy - iResolution.xy * 0.5)/ iResolution.xy;
+                uv.x *= iResolution.x / iResolution.y;
+
+                float fov = 0.25 * PI;
+                vec3 origin = vec3(0,0, PHASE*DISTANCEPERPHASE);
+                vec3 target = origin -vec3(0.0, 0.001, -0.05);
+
+                target += displacement(target.z*1.0);
+                origin += displacement(origin.z*1.0);
+
+                vec3 forward = normalize(target - origin);
+                vec3 right = normalize(cross(forward, vec3(0.0, 1.0, 0.0)));   
+                vec3 up = cross(right, forward);
+                vec3 dir = normalize(uv.x * right + uv.y * up + fov * forward);
+
+                intersect(origin, dir);
+                
+                vec3 ambient = ambientColor;
+                float depth = length(origin);
+                vec3 fog = vec3(fogIntensity) * (1.0 - exp(-depth * 0.001));
+                
+                vec3 finalColor = glow + ambient + fog;
+                finalColor = finalColor / (1.0 + finalColor * toneMapping);
+                
+                fragColor = vec4(finalColor, 1.0);
+            }
+
+            void main() {
+                mainImage(gl_FragColor, gl_FragCoord.xy);
+            }
+        `;
+
+        // WebGL 设置
+        let canvas, gl, program;
+        let startTime = Date.now();
+
+        function createShader(type, source) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                console.error('Shader compile error:', gl.getShaderInfoLog(shader));
+                gl.deleteShader(shader);
+                return null;
+            }
+            return shader;
+        }
+
+        function initShaders() {
+            const vertexShader = createShader(gl.VERTEX_SHADER, vertexShaderSource);
+            const fragmentShader = createShader(gl.FRAGMENT_SHADER, fragmentShaderSource);
+            
+            program = gl.createProgram();
+            gl.attachShader(program, vertexShader);
+            gl.attachShader(program, fragmentShader);
+            gl.linkProgram(program);
+            
+            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+                console.error('Program link error:', gl.getProgramInfoLog(program));
+                return false;
+            }
+            return true;
+        }
+
+        function setupGeometry() {
+            const vertices = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
+            const buffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+            gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+            
+            const positionLocation = gl.getAttribLocation(program, 'position');
+            gl.enableVertexAttribArray(positionLocation);
+            gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+        }
+
+        function updateUniforms() {
+            gl.useProgram(program);
+            
+            const time = (Date.now() - startTime) * 0.001;
+            gl.uniform1f(gl.getUniformLocation(program, 'iTime'), time);
+            gl.uniform2f(gl.getUniformLocation(program, 'iResolution'), canvas.width, canvas.height);
+            
+            // 更新调试参数
+            gl.uniform3f(gl.getUniformLocation(program, 'tube1Color'), 
+                parseFloat(document.getElementById('tube1_r').value),
+                parseFloat(document.getElementById('tube1_g').value),
+                parseFloat(document.getElementById('tube1_b').value)
+            );
+            gl.uniform1f(gl.getUniformLocation(program, 'tube1Intensity'), 
+                parseFloat(document.getElementById('tube1_intensity').value)
+            );
+            gl.uniform1f(gl.getUniformLocation(program, 'tube1Falloff'), 
+                parseFloat(document.getElementById('tube1_falloff').value)
+            );
+            
+            gl.uniform3f(gl.getUniformLocation(program, 'tube2Color'), 
+                parseFloat(document.getElementById('tube2_r').value),
+                parseFloat(document.getElementById('tube2_g').value),
+                parseFloat(document.getElementById('tube2_b').value)
+            );
+            gl.uniform1f(gl.getUniformLocation(program, 'tube2Intensity'), 
+                parseFloat(document.getElementById('tube2_intensity').value)
+            );
+            gl.uniform1f(gl.getUniformLocation(program, 'tube2Falloff'), 
+                parseFloat(document.getElementById('tube2_falloff').value)
+            );
+            
+            gl.uniform3f(gl.getUniformLocation(program, 'torusColor'), 
+                parseFloat(document.getElementById('torus_r').value),
+                parseFloat(document.getElementById('torus_g').value),
+                parseFloat(document.getElementById('torus_b').value)
+            );
+            gl.uniform1f(gl.getUniformLocation(program, 'torusIntensity'), 
+                parseFloat(document.getElementById('torus_intensity').value)
+            );
+            gl.uniform1f(gl.getUniformLocation(program, 'torusFalloff'), 
+                parseFloat(document.getElementById('torus_falloff').value)
+            );
+            
+            gl.uniform3f(gl.getUniformLocation(program, 'ambientColor'), 
+                parseFloat(document.getElementById('ambient_r').value),
+                parseFloat(document.getElementById('ambient_g').value),
+                parseFloat(document.getElementById('ambient_b').value)
+            );
+            gl.uniform1f(gl.getUniformLocation(program, 'fogIntensity'), 
+                parseFloat(document.getElementById('fog_intensity').value)
+            );
+            gl.uniform1f(gl.getUniformLocation(program, 'toneMapping'), 
+                parseFloat(document.getElementById('tone_mapping').value)
+            );
+        }
+
+        function render() {
+            gl.viewport(0, 0, canvas.width, canvas.height);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            
+            updateUniforms();
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            
+            requestAnimationFrame(render);
+        }
+
+        function setupControls() {
+            const inputs = document.querySelectorAll('input[type="range"]');
+            inputs.forEach(input => {
+                const valueSpan = document.getElementById(input.id + '_val');
+                input.addEventListener('input', () => {
+                    valueSpan.textContent = input.value;
+                    updateParameterString();
+                });
+            });
+        }
+
+        function updateParameterString() {
+            const params = {
+                tube1Color: {
+                    r: parseFloat(document.getElementById('tube1_r').value),
+                    g: parseFloat(document.getElementById('tube1_g').value),
+                    b: parseFloat(document.getElementById('tube1_b').value)
+                },
+                tube1Intensity: parseFloat(document.getElementById('tube1_intensity').value),
+                tube1Falloff: parseFloat(document.getElementById('tube1_falloff').value),
+                tube2Color: {
+                    r: parseFloat(document.getElementById('tube2_r').value),
+                    g: parseFloat(document.getElementById('tube2_g').value),
+                    b: parseFloat(document.getElementById('tube2_b').value)
+                },
+                tube2Intensity: parseFloat(document.getElementById('tube2_intensity').value),
+                tube2Falloff: parseFloat(document.getElementById('tube2_falloff').value),
+                torusColor: {
+                    r: parseFloat(document.getElementById('torus_r').value),
+                    g: parseFloat(document.getElementById('torus_g').value),
+                    b: parseFloat(document.getElementById('torus_b').value)
+                },
+                torusIntensity: parseFloat(document.getElementById('torus_intensity').value),
+                torusFalloff: parseFloat(document.getElementById('torus_falloff').value),
+                ambientColor: {
+                    r: parseFloat(document.getElementById('ambient_r').value),
+                    g: parseFloat(document.getElementById('ambient_g').value),
+                    b: parseFloat(document.getElementById('ambient_b').value)
+                },
+                fogIntensity: parseFloat(document.getElementById('fog_intensity').value),
+                toneMapping: parseFloat(document.getElementById('tone_mapping').value)
+            };
+            
+            document.getElementById('paramOutput').value = JSON.stringify(params, null, 2);
+        }
+
+        function copyParameters() {
+            const textarea = document.getElementById('paramOutput');
+            textarea.select();
+            document.execCommand('copy');
+            
+            const btn = document.querySelector('.copy-btn');
+            const originalText = btn.textContent;
+            btn.textContent = '已复制到剪贴板!';
+            btn.style.background = '#4CAF50';
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '#4CAF50';
+            }, 2000);
+        }
+
+        function resetToDefaults() {
+            const defaults = {
+                'tube1_r': '0.4', 'tube1_g': '0.6', 'tube1_b': '0.8',
+                'tube1_intensity': '0.015', 'tube1_falloff': '8.0',
+                'tube2_r': '0.8', 'tube2_g': '0.5', 'tube2_b': '0.3',
+                'tube2_intensity': '0.01', 'tube2_falloff': '10.0',
+                'torus_r': '0.6', 'torus_g': '0.3', 'torus_b': '0.9',
+                'torus_intensity': '0.008', 'torus_falloff': '12.0',
+                'ambient_r': '0.008', 'ambient_g': '0.01', 'ambient_b': '0.012',
+                'fog_intensity': '0.002', 'tone_mapping': '0.02'
+            };
+            
+            Object.entries(defaults).forEach(([id, value]) => {
+                const input = document.getElementById(id);
+                const span = document.getElementById(id + '_val');
+                if (input && span) {
+                    input.value = value;
+                    span.textContent = value;
+                }
+            });
+            
+            updateParameterString();
+        }
+
+        function resizeCanvas() {
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+        }
+
+        // 初始化
+        window.addEventListener('load', () => {
+            canvas = document.getElementById('shaderCanvas');
+            gl = canvas.getContext('webgl');
+            
+            if (!gl) {
+                alert('WebGL not supported');
+                return;
+            }
+            
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            if (initShaders()) {
+                setupGeometry();
+                setupControls();
+                updateParameterString();
+                render();
+            }
+        });
+    </script>
+</body>
+</html> 
