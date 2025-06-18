@@ -1,141 +1,7 @@
 <template>
     <div class="artist-journey">
-      <!-- 调试模式开关按钮 -->
-      <button @click="toggleDebugMode" class="debug-toggle" :title="debugMode ? '关闭调试模式' : '开启调试模式'">
-        {{ debugMode ? '关闭调试' : '开启调试' }}
-      </button>
-      
-      <!-- 调试信息面板 -->
-      <div v-if="debugMode" class="debug-info-panel">
-        <div class="debug-header">
-          <h4>🔧 布局调试器</h4>
-          <button @click="copyAllParams" class="copy-all-btn" title="复制所有参数">
-            📋 复制全部
-          </button>
-        </div>
-        
-        <!-- 基础信息 -->
-        <div class="debug-section">
-          <h5>📐 基础布局</h5>
-          <div class="debug-item">
-            <span class="debug-label">主页高度:</span>
-            <span class="debug-value">75vh (3/4视口)</span>
-            <button @click="copyParam('主页高度', '75vh')" class="copy-btn-small">📋</button>
-          </div>
-          <div class="debug-item">
-            <span class="debug-label">轮播图高度:</span>
-            <span class="debug-value">100vh (全视口)</span>
-            <button @click="copyParam('轮播图高度', '100vh')" class="copy-btn-small">📋</button>
-          </div>
-          <div class="debug-item">
-            <span class="debug-label">背景图片:</span>
-            <span class="debug-value">45% × 96%</span>
-            <button @click="copyParam('背景图片', '45% × 96%')" class="copy-btn-small">📋</button>
-          </div>
-          <div class="debug-item">
-            <span class="debug-label">内容区域:</span>
-            <span class="debug-value">max-w-4xl</span>
-            <button @click="copyParam('内容区域', 'max-w-4xl')" class="copy-btn-small">📋</button>
-          </div>
-          <div class="debug-item">
-            <span class="debug-label">标题尺寸:</span>
-            <span class="debug-value">4xl/6xl/7xl</span>
-            <button @click="copyParam('标题尺寸', '4xl/6xl/7xl')" class="copy-btn-small">📋</button>
-          </div>
-          <div class="debug-item">
-            <span class="debug-label">当前轮播:</span>
-            <span class="debug-value">{{ currentSlideIndex + 1 }}/{{ carouselItems.length }}</span>
-          </div>
-          <div class="debug-item">
-            <span class="debug-label">视频状态:</span>
-            <span class="debug-value" :class="isVideoPlaying ? 'text-green-400' : 'text-gray-400'">
-              {{ isVideoPlaying ? '▶️ 播放中' : '⏸️ 未播放' }}
-            </span>
-          </div>
-          <div class="debug-item">
-            <span class="debug-label">自动轮播:</span>
-            <span class="debug-value" :class="carouselTimer ? 'text-green-400' : 'text-red-400'">
-              {{ carouselTimer ? '🔄 运行中' : '⏹️ 已暂停' }}
-            </span>
-          </div>
-        </div>
-
-        <!-- 可拖拽元素控制 -->
-        <div class="debug-section">
-          <h5>🎯 可拖拽元素</h5>
-          <div class="draggable-controls">
-            <button 
-              @click="toggleDraggable('hero-content')" 
-              :class="['drag-control-btn', { active: draggableElements.includes('hero-content') }]"
-            >
-              🏠 首页内容区
-            </button>
-            <button 
-              @click="toggleDraggable('hero-background')" 
-              :class="['drag-control-btn', { active: draggableElements.includes('hero-background') }]"
-            >
-              🖼️ 背景图片
-            </button>
-            <button 
-              @click="toggleDraggable('title-container')" 
-              :class="['drag-control-btn', { active: draggableElements.includes('title-container') }]"
-            >
-              📝 标题容器
-            </button>
-            <button 
-              @click="toggleDraggable('album-showcase')" 
-              :class="['drag-control-btn', { active: draggableElements.includes('album-showcase') }]"
-            >
-              💿 专辑展示
-            </button>
-          </div>
-          
-          <!-- 快速操作按钮 -->
-          <div class="quick-actions mt-3">
-            <button @click="locateContent" class="locate-btn">
-              📍 定位内容
-            </button>
-            <button @click="resetAllPositions" class="reset-all-btn">
-              🔄 重置全部
-            </button>
-          </div>
-          
-          <!-- 轮播控制按钮 -->
-          <div class="carousel-controls mt-3">
-            <button @click="toggleCarouselAutoPlay" :class="['carousel-control-btn', carouselTimer ? 'active' : 'paused']">
-              {{ carouselTimer ? '⏸️ 暂停轮播' : '▶️ 启动轮播' }}
-            </button>
-            <button @click="testCurrentVideo" class="video-test-btn">
-              🎥 测试当前视频
-            </button>
-            <button @click="checkVideoFiles" class="video-debug-btn">
-              📁 检查视频文件
-            </button>
-          </div>
-        </div>
-
-        <!-- 实时位置参数 -->
-        <div class="debug-section">
-          <h5>📍 实时位置参数</h5>
-          <div v-for="(position, elementId) in elementPositions" :key="elementId" class="position-item">
-            <div class="element-name">{{ getElementDisplayName(elementId) }}</div>
-            <div class="position-values">
-              <span class="pos-value">X: {{ position.x }}px</span>
-              <span class="pos-value">Y: {{ position.y }}px</span>
-              <button @click="copyElementPosition(elementId, position)" class="copy-btn-small">📋</button>
-              <button @click="resetElementPosition(elementId)" class="reset-btn-small">🔄</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- 复制状态提示 -->
-        <div v-if="copyStatus" class="copy-status" :class="copyStatus.type">
-          {{ copyStatus.message }}
-        </div>
-      </div>
-      
-      <!-- 音波粒子背景画布 -->
-      <canvas id="particles-canvas"></canvas>
+       <!-- 音波粒子背景画布 -->
+       <canvas id="particles-canvas"></canvas>
       
     
       <!-- 导航栏 -->
@@ -342,186 +208,11 @@
   
       <!-- 音乐作品 -->
       <section id="music" class="section-padding relative scroll-reveal music-album-section">
-
-        
-        <div class="container">
-          <!-- 音乐装饰背景 -->
-          <div class="music-decorations absolute inset-0 pointer-events-none overflow-hidden">     
-            <div class="music-note absolute bottom-16 right-1/3 text-purple-300/20 text-4xl animate-bounce delay-500">♫</div>
-            <div class="music-note absolute top-32 right-1/4 text-cyan-400/15 text-2xl animate-pulse delay-700">♪</div>
-            
-   
-      
-        
-            <!-- 流动的音乐线条 -->
-            <div class="music-lines absolute top-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-400/20 to-transparent animate-pulse"></div>
-            <div class="music-lines absolute bottom-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-purple-400/15 to-transparent animate-pulse delay-500"></div>
-          </div>
-          
-          <div class="text-center mb-16 relative z-10">
-            <h2 class="section-title animate-title" data-animate="fadeInDown">音乐作品</h2>
-            <p class="section-subtitle animate-subtitle" data-animate="fadeInUp" data-delay="0.2">
-              探索每一首歌曲背后的故事与情感
-            </p>
-            <div class="current-album-info mt-4 text-sm text-gray-600">
-              当前展示：<span class="font-semibold text-blue-600">{{ currentAlbum.albumTitle }}</span> ({{ currentAlbum.year }})
-            </div>
-    
-            
-     
-            
-            <!-- 跳转网易云按钮 -->
-            <div class="absolute top-0 right-0">
-              <a href="https://music.163.com/#/search/m/?s=%E5%BC%A0%E8%89%BA%E5%85%B4&type=1" 
-                 target="_blank" 
-                 class="netease-btn animate-card" 
-                 data-animate="fadeInRight" 
-                 data-delay="0.6">
-                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.568 17.568c-.146.146-.338.22-.531.22s-.385-.074-.531-.22L12 13.061l-4.506 4.507c-.146.146-.338.22-.531.22s-.385-.074-.531-.22c-.293-.293-.293-.768 0-1.061L10.939 12 6.432 7.494c-.293-.293-.293-.768 0-1.061s.768-.293 1.061 0L12 10.939l4.507-4.506c.293-.293.768-.293 1.061 0s.293.768 0 1.061L13.061 12l4.507 4.507c.293.293.293.768 0 1.061z"/>
-                </svg>
-                <span>网易云音乐</span>
-              </a>
-            </div>
-          </div>
-          
-          <!-- 专辑展示区域 -->
-          <div class="album-showcase-container relative" 
-               :style="{ '--album-bg': `url(${currentAlbum.albumBackground})` }"
-               :class="{ 'draggable-element': draggableElements.includes('album-showcase') }"
-               data-element-id="album-showcase">
-            <!-- 拖拽句柄 -->
-            <div v-if="debugMode && draggableElements.includes('album-showcase')" 
-                 class="drag-handle"
-                 @mousedown="startDrag($event, 'album-showcase')"
-                 title="拖拽移动专辑展示区域">
-              ⋮⋮
-            </div>
-            <div class="album-showcase flex items-center justify-center min-h-[600px] px-8">
-              <!-- 左侧：圆形专辑封面 -->
-              <div class="album-visual flex-shrink-0 mr-16">
-                <div class="album-circle group relative">
-                  <div class="w-80 h-80 rounded-full overflow-hidden shadow-2xl transform transition-all duration-500 group-hover:scale-105 group-hover:shadow-music">
-                    <img :src="currentAlbum.albumCover" 
-                         :alt="currentAlbum.albumTitle" 
-                         class="w-full h-full object-cover transition-all duration-500 group-hover:brightness-110">
-                    
-                    <!-- 专辑封面overlay -->
-                    <div class="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    
-                    <!-- 播放按钮覆盖层 -->
-                    <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-                      <button @click="playCurrentAlbum" 
-                              class="play-overlay-btn bg-white/20 backdrop-blur-sm rounded-full p-6 transform scale-90 group-hover:scale-100 transition-all duration-300">
-                        <svg class="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M8 5v14l11-7z"/>
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <!-- 年份环形标签 -->
-                  <div class="absolute -top-4 -right-4 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full w-16 h-16 flex items-center justify-center font-bold text-sm shadow-lg">
-                    {{ currentAlbum.year }}
-                  </div>
-                </div>
-              </div>
-              
-              <!-- 右侧：专辑信息 -->
-              <div class="album-info flex-1 max-w-2xl">
-                <div class="space-y-8">
-                  <!-- 专辑标题 -->
-                  <div class="album-header">
-                    <h1 class="album-title text-5xl font-black text-gray-900 mb-4 leading-tight">
-                      {{ currentAlbum.albumTitle }}
-                    </h1>
-                    <div class="album-meta flex items-center space-x-6 text-lg text-gray-600">
-                      <span class="genre-tag px-4 py-2 bg-gray-100 rounded-full">{{ currentAlbum.genre }}</span>
-                      <span class="year-tag">{{ currentAlbum.year }}</span>
-                    </div>
-                  </div>
-                  
-                  <!-- 专辑描述 -->
-                  <div class="album-description">
-                    <p class="text-gray-700 text-lg leading-relaxed">
-                      {{ currentAlbum.description }}
-                    </p>
-                  </div>
-                  
-                  <!-- 成就/特色 -->
-                  <div class="album-achievements" v-if="currentAlbum.achievements">
-                    <h3 class="text-xl font-semibold text-gray-900 mb-4">专辑成就</h3>
-                    <div class="achievements-list space-y-3">
-                      <div v-for="(achievement, index) in currentAlbum.achievements" 
-                           :key="index" 
-                           class="achievement-item flex items-center space-x-3 text-gray-600">
-                        <div class="achievement-icon w-2 h-2 bg-blue-500 rounded-full"></div>
-                        <span>{{ achievement }}</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <!-- 专辑统计 -->
-                  <div class="album-stats" v-if="currentAlbum.stats">
-                    <div class="stats-grid grid grid-cols-3 gap-6">
-                      <div class="stat-item text-center">
-                        <div class="stat-number text-2xl font-bold text-blue-600">{{ currentAlbum.stats.tracks || '12' }}</div>
-                        <div class="stat-label text-sm text-gray-500">首歌曲</div>
-                      </div>
-                      <div class="stat-item text-center">
-                        <div class="stat-number text-2xl font-bold text-purple-600">{{ currentAlbum.stats.duration || '45:30' }}</div>
-                        <div class="stat-label text-sm text-gray-500">总时长</div>
-                      </div>
-                      <div class="stat-item text-center">
-                        <div class="stat-number text-2xl font-bold text-pink-600">{{ currentAlbum.stats.plays || '2.1M' }}</div>
-                        <div class="stat-label text-sm text-gray-500">播放量</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- 导航按钮 -->
-            <div class="album-navigation absolute bottom-8 left-1/2 transform -translate-x-1/2 flex items-center space-x-12">
-              <!-- 上一个专辑 -->
-              <button @click="previousAlbum" 
-                      :disabled="currentAlbumIndex === 0"
-                      class="nav-btn prev-btn group disabled:opacity-30 disabled:cursor-not-allowed">
-                <div class="nav-btn-inner bg-white shadow-lg rounded-full p-4 transform transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl">
-                  <svg class="w-6 h-6 text-gray-700 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                  </svg>
-                </div>
-              </button>
-              
-              <!-- 专辑指示器 -->
-              <div class="album-indicators flex items-center space-x-2">
-                <div v-for="(album, index) in musicData" 
-                     :key="album.id"
-                     @click="goToAlbum(index)"
-                     class="indicator w-2 h-2 rounded-full cursor-pointer transition-all duration-300"
-                     :class="index === currentAlbumIndex ? 'bg-blue-500 scale-125' : 'bg-gray-300 hover:bg-gray-400'">
-                </div>
-              </div>
-              
-              <!-- 下一个专辑 -->
-              <button @click="nextAlbum" 
-                      :disabled="currentAlbumIndex === musicData.length - 1"
-                      class="nav-btn next-btn group disabled:opacity-30 disabled:cursor-not-allowed">
-                <div class="nav-btn-inner bg-white shadow-lg rounded-full p-4 transform transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl">
-                  <svg class="w-6 h-6 text-gray-700 group-hover:text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                  </svg>
-                </div>
-              </button>
-            </div>
-          </div>
-          
-     
-          <!-- 音乐板块Lottie动画 -->
-          <div id="music-lottie" class="music-section-lottie"></div>
-        </div>
+        <!-- 顶部波形过渡 -->
+        <div class="section-wave section-wave-top"></div>
+        <TestMusic />
+        <!-- 底部波形过渡 -->
+        <div class="section-wave section-wave-bottom"></div>
       </section>
   
       <!-- 视频作品 -->
@@ -703,12 +394,13 @@
   
   <script setup lang="ts">
 import VideoTransition from '@/components/VideoTransition.vue'
-import { douyinData, musicData, videoData } from '@/database/index.js'
 import { getLatestCarouselItems } from '@/database/Carousel.js'
+import { douyinData, musicData, videoData } from '@/database/index.js'
 import '@/styles/debug.css'
 import '@/styles/index.css'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import TestMusic from './TestMusic.vue'
   
   const router = useRouter()
   
@@ -2216,4 +1908,37 @@ import { useRouter } from 'vue-router'
 
 
 </script>
+ 
+<style scoped>
+/* 波形过渡通用样式 */
+.section-wave {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 120px;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* 顶部波形：与上一部分深色背景衔接 */
+.section-wave-top {
+  top: -1px;
+  transform: translateY(-100%); /* 将波形放在上一节内 */
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h1440v40c-120 24-240 48-360 56s-240 0-360-16S480 40 360 24 120 8 0 0z' fill='%230d1b2b'/%3E%3C/svg%3E");
+}
+
+/* 底部波形：淡入下一节浅背景 */
+.section-wave-bottom {
+  bottom: -1px;
+  transform: rotate(180deg) translateY(-100%);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h1440v40c-120 24-240 48-360 56s-240 0-360-16S480 40 360 24 120 8 0 0z' fill='%23ffffff'/%3E%3C/svg%3E");
+}
+
+/* 让音乐区去掉默认 padding 以无缝衔接 */
+#music.section-padding {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+</style>
  

@@ -1,401 +1,522 @@
 <template>
-  <div class="portfolio-container">
-    <!-- Header -->
-    <header class="header">
-      <h1 class="main-title">LAY ZHANG YIXING</h1>
-    </header>
-
-    <!-- Navigation -->
-    <nav class="main-navigation">
-      <ul class="nav-list">
-        <li class="nav-item">
-          <a href="#" class="nav-link" @click="setActiveCategory('music')">音乐</a>
-        </li>
-        <li class="nav-item">
-          <a href="#" class="nav-link" @click="setActiveCategory('album')">专辑</a>
-        </li>
-        <li class="nav-item">
-          <a href="#" class="nav-link" @click="setActiveCategory('mv')">MV</a>
-        </li>
-        <li class="nav-item">
-          <a href="#" class="nav-link" @click="setActiveCategory('live')">演唱会</a>
-        </li>
-        <li class="nav-item">
-          <a href="#" class="nav-link" @click="setActiveCategory('behind')">幕后</a>
-        </li>
-        <li class="nav-item">
-          <a href="#" class="nav-link" @click="setActiveCategory('about')">关于</a>
-        </li>
-      </ul>
-    </nav>
-
-    <!-- Main Content Area -->
+  <div class="hajime-portfolio" :style="{ backgroundImage: `url(${getCurrentImage()})` }">
+    <!-- 背景遮罩层 -->
+    <div class="background-overlay"></div>
+    
+    <!-- 主图片展示区域 -->
     <main class="main-content">
-      <div class="content-section">
-        <h2 class="section-title">{{ getSectionTitle() }}</h2>
+      <div class="image-carousel">
+        <!-- 左侧部分图片 -->
+        <div class="image-preview left-preview">
+          <img :src="getPreviousImage()" alt="Previous" />
+        </div>
         
-        <!-- Content Grid -->
-        <div class="content-grid" v-if="activeCategory !== 'about'">
-          <div 
-            v-for="item in getCurrentContent()" 
-            :key="item.id"
-            class="content-item"
-            @click="selectItem(item)"
-          >
-            <div class="item-image">
-              <img :src="item.image" :alt="item.title" />
-            </div>
-            <div class="item-info">
-              <h3 class="item-title">{{ item.title }}</h3>
-              <p class="item-description">{{ item.description }}</p>
-            </div>
+        <!-- 中央主图片 -->
+        <div
+          class="image-main"
+          ref="imageMain"
+          :style="{ backgroundImage: `url(${getCurrentImage()})` }"
+        >
+          <div class="image-info">
+            <h2 class="image-title">{{ getCurrentTitle() }}</h2>
+            <p class="image-year">{{ getCurrentYear() }}</p>
           </div>
         </div>
-
-        <!-- About Section -->
-        <div class="about-section" v-if="activeCategory === 'about'">
-          <div class="about-content">
-            <p class="about-text">
-              张艺兴（LAY），中国内地男歌手、演员、音乐制作人。<br>
-              以其独特的音乐风格和卓越的创作才华，在华语乐坛占有重要地位。<br>
-              致力于将中国传统文化与现代音乐完美融合。
-            </p>
-          </div>
+        
+        <!-- 右侧部分图片 -->
+        <div class="image-preview right-preview">
+          <img :src="getNextImage()" alt="Next" />
         </div>
       </div>
     </main>
 
-    <!-- Bottom Navigation -->
-    <footer class="bottom-navigation">
-      <div class="page-numbers">
-        <span 
-          v-for="page in totalPages" 
-          :key="page"
-          class="page-number"
-          :class="{ active: page === currentPage }"
-          @click="setCurrentPage(page)"
-        >
-          {{ page }}
-        </span>
-        <span class="page-number chinese" @click="setCurrentPage('about')">关</span>
-      </div>
-    </footer>
+    <!-- 底部单点导航 -->
+    <nav class="bottom-navigation">
+      <div class="navigation-dot"></div>
+    </nav>
+
+    <!-- 幻灯片指示文字 -->
+    <div class="slide-indicator">
+      <span class="slide-text">DIAPOSITIVE</span>
+    </div>
   </div>
 </template>
 
-<script setup>
-import { onMounted, ref } from 'vue'
+<script>
+import $ from 'jquery';
+import 'jquery.ripples';
+// 将 jQuery 暴露到全局，供插件使用
+window.$ = window.jQuery = $;
 
-// 响应式数据
-const activeCategory = ref('music')
-const currentPage = ref(1)
-const totalPages = ref(5)
+// IntersectionObserver 触发阈值
+const OBSERVER_OPTIONS = {
+  root: null,
+  threshold: 0.2
+};
 
-// 模拟数据
-const contentData = {
-  music: [
-    { id: 1, title: '莲', description: '2021年专辑主打曲', image: '/api/placeholder/300/200' },
-    { id: 2, title: '飞天', description: '传统与现代的完美融合', image: '/api/placeholder/300/200' },
-    { id: 3, title: '祖国', description: '爱国主题作品', image: '/api/placeholder/300/200' },
-    { id: 4, title: 'Honey', description: '国际化音乐作品', image: '/api/placeholder/300/200' }
-  ],
-  album: [
-    { id: 1, title: 'LIT', description: '2020年个人专辑', image: '/api/placeholder/300/200' },
-    { id: 2, title: 'NAMANANA', description: '2018年迷你专辑', image: '/api/placeholder/300/200' },
-    { id: 3, title: 'LOSE CONTROL', description: '首张个人专辑', image: '/api/placeholder/300/200' }
-  ],
-  mv: [
-    { id: 1, title: '莲 MV', description: '东方美学视觉盛宴', image: '/api/placeholder/300/200' },
-    { id: 2, title: '飞天 MV', description: '敦煌文化致敬之作', image: '/api/placeholder/300/200' }
-  ],
-  live: [
-    { id: 1, title: '2023世界巡回演唱会', description: '全球巡演精彩瞬间', image: '/api/placeholder/300/200' },
-    { id: 2, title: '《莲》专辑发布会', description: '专辑发布现场', image: '/api/placeholder/300/200' }
-  ],
-  behind: [
-    { id: 1, title: '录音室纪录', description: '创作过程幕后花絮', image: '/api/placeholder/300/200' },
-    { id: 2, title: 'MV拍摄花絮', description: 'MV制作过程记录', image: '/api/placeholder/300/200' }
-  ]
-}
+export default {
+  name: 'TestMusic',
+  data() {
+    return {
+      // 水波纹参数，可在调试器中实时修改
+      rippleOptions: {
+        resolution: 512,
+        dropRadius: 30,
+        perturbance: 0.04,
+        interactive: true
+      },
+      currentPage: 1,
+      totalPages: 6,
+      musicItems: [
+        {
+          title: 'LIT',
+          year: '2020',
+          image: '/img/music/LIT.png'
+        },
+        {
+          title: 'NAMANANA',
+          year: '2018',
+          image: '/img/music/NANANA.png'
+        },
+        {
+          title: 'PRODUCER',
+          year: '2019',
+          image: '/img/music/PRODUCER.png'
+        },
+        {
+          title: 'STEP',
+          year: '2021',
+          image: '/img/music/STEP.png'
+        },
+        {
+          title: 'NEXT ALBUM',
+          year: '2024',
+          image: '/img/music/LIT-ba.png'
+        },
+        {
+          title: 'FUTURE PROJECT',
+          year: '2025',
+          image: '/img/music/PRODUCER-ba.png'
+        }
+      ],
+      ripplesActive: false
+    }
+  },
+  watch: {
+    // 当页码变化时，更新背景图片和水波纹纹理
+    currentPage() {
+      this.updateRippleImage();
+      this.updateMainRippleImage();
+    },
+    ripplesActive(val) {
+      // 根据激活状态初始化或销毁
+      if (val) {
+        this.initRipples();
+        this.initMainRipple();
+      } else {
+        this.destroyRipples();
+      }
+    }
+  },
+  methods: {
+    /* 初始化水波纹效果 */
+    initRipples() {
+      this.$nextTick(() => {
+        const $el = $(this.$el);
+        // 如果已有实例，先销毁
+        if ($el.data('ripples')) {
+          $el.ripples('destroy');
+        }
+        // 使用当前参数重新创建
+        $el.ripples({
+          ...this.rippleOptions,
+          // 使用当前主图作为纹理
+          imageUrl: this.getCurrentImage()
+        });
+      });
+    },
 
-// 计算属性
-const getCurrentContent = () => {
-  return contentData[activeCategory.value] || []
-}
+    /* 更新纹理（背景图片） */
+    updateRippleImage() {
+      const $el = $(this.$el);
+      if ($el.data('ripples')) {
+        $el.ripples('set', 'imageUrl', this.getCurrentImage());
+      }
+    },
 
-const getSectionTitle = () => {
-  const titles = {
-    music: '音乐作品',
-    album: '专辑',
-    mv: '音乐视频',
-    live: '演唱会',
-    behind: '幕后记录',
-    about: '关于艺兴'
+    setCurrentPage(page) {
+      this.currentPage = page;
+    },
+    getCurrentImage() {
+      return this.musicItems[this.currentPage - 1]?.image || this.musicItems[0].image;
+    },
+    getCurrentTitle() {
+      return this.musicItems[this.currentPage - 1]?.title || this.musicItems[0].title;
+    },
+    getCurrentYear() {
+      return this.musicItems[this.currentPage - 1]?.year || this.musicItems[0].year;
+    },
+    getPreviousImage() {
+      const prevIndex = this.currentPage === 1 ? this.musicItems.length - 1 : this.currentPage - 2;
+      return this.musicItems[prevIndex]?.image || this.musicItems[0].image;
+    },
+    getNextImage() {
+      const nextIndex = this.currentPage >= this.musicItems.length ? 0 : this.currentPage;
+      return this.musicItems[nextIndex]?.image || this.musicItems[0].image;
+    },
+    /* 初始化主图水波纹 */
+    initMainRipple() {
+      this.$nextTick(() => {
+        const $main = $(this.$refs.imageMain);
+        if (!$main.length) return;
+        if ($main.data('ripples')) {
+          $main.ripples('destroy');
+        }
+        $main.ripples({
+          resolution: 256,
+          dropRadius: 20,
+          perturbance: 0.04,
+          interactive: true,
+          imageUrl: this.getCurrentImage()
+        });
+      });
+    },
+
+    updateMainRippleImage() {
+      const $main = $(this.$refs.imageMain);
+      if ($main.data('ripples')) {
+        $main.ripples('set', 'imageUrl', this.getCurrentImage());
+      }
+    },
+
+    destroyRipples() {
+      const $el = $(this.$el);
+      if ($el.data('ripples')) {
+        $el.ripples('destroy');
+      }
+      const $main = $(this.$refs.imageMain);
+      if ($main && $main.data('ripples')) {
+        $main.ripples('destroy');
+      }
+    },
+  },
+  mounted() {
+    // 自动轮播
+    setInterval(() => {
+      this.currentPage = this.currentPage >= this.totalPages ? 1 : this.currentPage + 1;
+    }, 5000);
+
+    // 设置 IntersectionObserver 懒加载水波纹
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        this.ripplesActive = entry.isIntersecting;
+      });
+    }, OBSERVER_OPTIONS);
+
+    observer.observe(this.$el);
   }
-  return titles[activeCategory.value] || ''
 }
-
-// 方法
-const setActiveCategory = (category) => {
-  activeCategory.value = category
-  currentPage.value = 1
-}
-
-const setCurrentPage = (page) => {
-  if (page === 'about') {
-    activeCategory.value = 'about'
-    currentPage.value = 'about'
-  } else {
-    currentPage.value = page
-  }
-}
-
-const selectItem = (item) => {
-  console.log('Selected item:', item)
-  // 这里可以添加跳转到详情页的逻辑
-}
-
-onMounted(() => {
-  console.log('Portfolio page loaded')
-})
 </script>
 
 <style scoped>
-.portfolio-container {
-  min-height: 100vh;
-  background-color: #ffffff;
-  color: #000000;
-  font-family: 'Helvetica Neue', Arial, sans-serif;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Header Styles */
-.header {
-  padding: 60px 0 40px;
-  text-align: center;
-}
-
-.main-title {
-  font-size: 2.5rem;
-  font-weight: 300;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  margin: 0;
-  color: #000000;
-}
-
-/* Navigation Styles */
-.main-navigation {
-  padding: 0 60px;
-  border-top: 1px solid #e0e0e0;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.nav-list {
-  display: flex;
-  justify-content: center;
-  list-style: none;
+/* 全局重置和基础样式 */
+* {
   margin: 0;
   padding: 0;
-  gap: 60px;
+  box-sizing: border-box;
 }
 
-.nav-item {
-  padding: 20px 0;
-}
-
-.nav-link {
-  color: #000000;
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 400;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  transition: opacity 0.3s ease;
-  cursor: pointer;
-}
-
-.nav-link:hover {
-  opacity: 0.6;
-}
-
-/* Main Content */
-.main-content {
-  flex: 1;
-  padding: 80px 60px;
-}
-
-.content-section {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.section-title {
-  font-size: 1.8rem;
-  font-weight: 300;
-  text-align: center;
-  margin-bottom: 60px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-/* Content Grid */
-.content-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 40px;
-  margin-bottom: 80px;
-}
-
-.content-item {
-  cursor: pointer;
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-.content-item:hover {
-  transform: translateY(-5px);
-  opacity: 0.9;
-}
-
-.item-image {
-  width: 100%;
-  height: 200px;
+.hajime-portfolio {
+  min-height: 100vh;
+  width: 100vw;
+  color: #ffffff;
+  font-family: 'Arial', sans-serif;
+  position: relative;
   overflow: hidden;
-  background-color: #f5f5f5;
-  margin-bottom: 20px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: background-image 0.8s ease-in-out;
 }
 
-.item-image img {
+/* 背景遮罩层 */
+.background-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
+
+
+  z-index: 1;
 }
 
-.content-item:hover .item-image img {
-  transform: scale(1.05);
-}
-
-.item-info {
+/* 顶部标题 */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 60px 0 40px 0;
   text-align: center;
 }
 
-.item-title {
-  font-size: 1.1rem;
-  font-weight: 400;
-  margin-bottom: 8px;
-  letter-spacing: 0.05em;
+.site-title {
+  font-size: 28px;
+  font-weight: normal;
+  letter-spacing: 12px;
+  margin: 0;
 }
 
-.item-description {
-  font-size: 0.85rem;
-  color: #666666;
-  line-height: 1.5;
-  letter-spacing: 0.02em;
+.title-link {
+  color: #ffffff;
+  text-decoration: none;
+  transition: color 0.3s ease;
 }
 
-/* About Section */
-.about-section {
-  text-align: center;
-  padding: 40px 0;
-}
-
-.about-content {
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.about-text {
-  font-size: 1.1rem;
-  line-height: 2;
-  color: #333333;
-  letter-spacing: 0.05em;
-}
-
-/* Bottom Navigation */
-.bottom-navigation {
-  padding: 40px 60px;
-  border-top: 1px solid #e0e0e0;
-}
-
-.page-numbers {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-  align-items: center;
+.title-link:hover {
+  color: #888888;
 }
 
 .page-number {
-  font-size: 0.9rem;
-  color: #999999;
+  font-size: 72px;
+  font-weight: 100;
+  color: #ffffff;
+  text-align: center;
+}
+
+/* 主图片展示区域 */
+.main-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding-top: 120px;
+  position: relative;
+  z-index: 10;
+}
+
+.image-carousel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* 中央主图片 */
+.image-main {
+  position: relative;
+  width: 500px;
+  height: 500px;
+  margin: 0 40px;
+  z-index: 10;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* 水波 canvas 会自动覆盖 */
+canvas {
+  border-radius: 8px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.image-info {
+  position: absolute;
+  bottom: -60px;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+.image-title {
+  font-size: 24px;
+  font-weight: normal;
+  letter-spacing: 6px;
+  margin-bottom: 8px;
+  color: #ffffff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.image-year {
+  font-size: 14px;
+  color: #cccccc;
+  letter-spacing: 3px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* 左右预览图片 */
+.image-preview {
+  width: 200px;
+  height: 300px;
+  opacity: 0.6;
+  transition: all 0.5s ease;
+  overflow: hidden;
+}
+
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.left-preview {
+  transform: translateX(50px);
+}
+
+.right-preview {
+  transform: translateX(-50px);
+}
+
+/* 底部单点导航 */
+.bottom-navigation {
+  position: fixed;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+}
+
+.navigation-dot {
+  width: 8px;
+  height: 8px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
   cursor: pointer;
-  transition: color 0.3s ease;
-  padding: 5px 10px;
+  transition: all 0.3s ease;
 }
 
-.page-number:hover,
-.page-number.active {
-  color: #000000;
+.navigation-dot:hover {
+  background-color: #ffffff;
+  transform: scale(1.2);
 }
 
-.page-number.chinese {
-  font-weight: 500;
+/* 幻灯片指示文字 */
+.slide-indicator {
+  position: fixed;
+  bottom: 30px;
+  right: 80px;
+  z-index: 100;
+}
+
+.slide-text {
+  font-size: 12px;
+  color: #cccccc;
+  letter-spacing: 3px;
+  font-weight: normal;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.image-main {
+  animation: fadeIn 0.8s ease-in-out;
 }
 
 /* 响应式设计 */
+@media (max-width: 1200px) {
+  .slide-indicator {
+    right: 40px;
+  }
+  
+  .image-carousel {
+    max-width: 900px;
+  }
+  
+  .image-main {
+    width: 400px;
+    height: 400px;
+  }
+  
+  .image-preview {
+    width: 150px;
+    height: 225px;
+  }
+}
+
 @media (max-width: 768px) {
-  .header {
-    padding: 40px 0 30px;
-  }
-  
-  .main-title {
-    font-size: 2rem;
-  }
-  
-  .main-navigation {
-    padding: 0 30px;
-  }
-  
-  .nav-list {
-    gap: 30px;
-    flex-wrap: wrap;
+  .site-title {
+    font-size: 20px;
+    letter-spacing: 6px;
   }
   
   .main-content {
-    padding: 60px 30px;
+    padding-top: 140px;
+    padding-bottom: 120px;
   }
   
-  .content-grid {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  .image-carousel {
+    flex-direction: column;
     gap: 30px;
   }
   
-  .bottom-navigation {
-    padding: 30px;
+  .image-main {
+    width: 300px;
+    height: 300px;
+    margin: 0;
   }
   
-  .page-numbers {
-    gap: 20px;
+  .image-preview {
+    display: none;
+  }
+  
+  .bottom-navigation {
+    bottom: 30px;
   }
 }
 
 @media (max-width: 480px) {
-  .main-title {
-    font-size: 1.5rem;
-    letter-spacing: 0.1em;
+  .image-main {
+    width: 250px;
+    height: 250px;
   }
   
-  .nav-list {
-    gap: 20px;
+  .image-title {
+    font-size: 18px;
+    letter-spacing: 3px;
   }
   
-  .nav-link {
-    font-size: 0.8rem;
+  .image-year {
+    font-size: 12px;
+    letter-spacing: 2px;
   }
-  
-  .content-grid {
-    grid-template-columns: 1fr;
-  }
+}
+
+/* 顶部/底部渐隐过渡 */
+.hajime-portfolio::before,
+.hajime-portfolio::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 120px;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.hajime-portfolio::before {
+  top: 0;
+  background: linear-gradient(to bottom, var(--divider-color-top, #0d1b2b) 0%, transparent 100%);
+}
+
+.hajime-portfolio::after {
+  bottom: 0;
+  background: linear-gradient(to top, var(--divider-color-bottom, #ffffff) 0%, transparent 100%);
 }
 </style>
