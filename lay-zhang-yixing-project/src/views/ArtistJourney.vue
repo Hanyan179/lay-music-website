@@ -13,18 +13,14 @@
             </div>
             <div class="flex space-x-8">
               <a href="#home" class="nav-link">首页</a>
-              <a href="#about" class="nav-link">简介</a>
               <router-link to="/music3d" class="nav-link">音乐</router-link>
               <a href="#videos" class="nav-link">视频</a>
               <a href="#timeline" class="nav-link">时间轴</a>
-              <a href="#other" class="nav-link">风格</a>
-              <button @click="switchToMobile" class="switch-mobile-btn" title="切换到移动版">
-                📱
-              </button>
+              <a href="#latest-updates" class="nav-link">最新动态</a>
             </div>
             <button id="menu-toggle" class="md:hidden control-button" title="菜单">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
           </div>
@@ -32,7 +28,7 @@
       </nav>
   
       <!-- 主页 Hero Section -->
-      <section id="home" class="h-[75vh] flex items-center justify-center section-padding relative">
+      <section id="home" class="h-screen flex items-center justify-center section-padding relative">
         <!-- 左侧背景图片区域 -->
         <div class="hero-background-right" 
              :class="{ 'draggable-element': draggableElements.includes('hero-background') }"
@@ -108,108 +104,15 @@
       </section>
   
       <!-- 音乐轮播图 -->
-      <section id="about" class="relative overflow-hidden h-screen max-h-screen bg-gray-900">
-        <!-- 轮播图容器 - 完整视口高度 -->
-        <div class="music-carousel relative w-full h-full">
-            <div class="carousel-container relative overflow-hidden h-full">
-              <!-- 轮播项 -->
-              <div class="carousel-slides flex transition-transform duration-500 ease-in-out h-full" :style="{ transform: `translateX(-${currentSlideIndex * 100}%)` }">
-                <div v-for="(item, index) in carouselItems" :key="index" class="carousel-slide flex-shrink-0 w-full h-full">
-                  <div class="relative w-full h-full cursor-pointer" @click="handleSlideClick($event, item)">
-                    <!-- 图片 -->
-                    <img v-if="item.type === 'image'" 
-                         :src="item.src" 
-                         :alt="item.title"
-                         class="w-full h-full object-contain bg-gray-900">
-                    
-                    <!-- 视频 -->
-                    <video v-if="item.type === 'video'" 
-                           :src="item.src" 
-                           class="w-full h-full object-contain bg-gray-900"
-                           controls
-                           playsinline
-                           muted
-                           :poster="item.poster"
-                           @play="handleVideoPlay"
-                           @pause="handleVideoPause"
-                           @ended="handleVideoEnded"
-                           @loadstart="handleVideoLoadStart"
-                           @error="handleVideoError"
-                           @canplay="handleVideoCanPlay"
-                           @loadeddata="handleVideoLoaded"
-                           preload="metadata"
-                           controlsList="nodownload"
-                           :key="`video-${item.id}`"
-                           :title="item.title">
-                      您的浏览器不支持视频播放。
-                    </video>
-                    
-                    <!-- 信息覆盖层 -->
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300">
-                      <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
-                        <!-- 来源标签 -->
-                        <div class="inline-flex items-center mb-2 px-3 py-1 bg-blue-500 rounded-full text-sm font-medium">
-                          <span class="mr-1">📱</span>
-                          {{ item.source }}
-                        </div>
-                        
-                        <!-- 标题 -->
-                        <h3 class="text-xl font-bold mb-2 text-shadow">{{ item.title }}</h3>
-                        
-                        <!-- 描述 -->
-                        <p class="text-sm opacity-90 mb-3 text-shadow">{{ item.description }}</p>
-                        
-                        <!-- 发布时间 -->
-                        <div class="text-xs opacity-75">
-                          发布时间: {{ formatDate(item.publishTime) }}
-                        </div>
-                        
-                        <!-- 跳转提示 -->
-                        <div class="absolute top-4 right-4 bg-blue-500 text-white px-3 py-1 rounded-full text-xs opacity-90">
-                          点击查看原文
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- 导航按钮 -->
-              <button @click.stop="previousSlide" 
-                      class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm rounded-full p-3 hover:bg-white/30 transition-all duration-300 z-20">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                </svg>
-              </button>
-              
-              <button @click.stop="nextSlide" 
-                      class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm rounded-full p-3 hover:bg-white/30 transition-all duration-300 z-20">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                </svg>
-              </button>
-            </div>
-            
-            <!-- 指示器 -->
-            <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3 z-20">
-              <button v-for="(item, index) in carouselItems" 
-                      :key="index"
-                      @click.stop="goToSlide(index)"
-                      class="w-4 h-4 rounded-full transition-all duration-300 border-2 cursor-pointer"
-                      :class="index === currentSlideIndex ? 'bg-white border-white scale-125 shadow-lg' : 'bg-transparent border-white/60 hover:border-white'"
-                      :title="`跳转到第${index + 1}个内容`">
-              </button>
-            </div>
-          </div>
+      <section id="latest-updates" class="relative h-screen flex items-center justify-center section-padding overflow-hidden bg-transparent">
+        <LatestUpdates :items="carouselItems" auto :onScrollProgress="handleLatestUpdatesScroll" />
       </section>
   
       <!-- 页面过渡遮罩 -->
       <div class="page-transition-mask"></div>
   
-      <!-- 音乐作品 -->
-      <section id="music" class="section-padding relative scroll-reveal music-album-section">
-        <!-- 顶部波形过渡 -->
-        <div class="section-wave section-wave-top"></div>
+      <!-- 音乐作品 - 作为第三页面背景 -->
+      <section id="music" class="relative section-padding scroll-reveal music-album-section h-screen bg-black" :style="{ opacity: musicSectionOpacity }">
         <TestMusic />
         <!-- 底部波形过渡 -->
         <div class="section-wave section-wave-bottom"></div>
@@ -225,7 +128,7 @@
             </p>
           </div>
           
-          <div class="grid grid-3 gap-8">
+          <div class="grid grid-cols-3 gap-8">
             <!-- 视频卡片 -->
             <div v-for="(video, index) in videoData" :key="video.id" 
                  class="video-card animate-card" 
@@ -262,79 +165,7 @@
           </div>
         </div>
       </section>
-  
-      <!-- 作者的抖音精选 -->
-      <section id="douyin-highlights" class="section-padding scroll-reveal">
-        <div class="container">
-          <div class="text-center mb-16">
-            <h2 class="section-title animate-title" data-animate="fadeInDown">作者的抖音精选</h2>
-            <p class="section-subtitle animate-subtitle" data-animate="fadeInUp" data-delay="0.2">
-              获取作者最新抖音需要后端API及授权，所以只能精选了
-            </p>
-            <!-- 节拍点装饰 -->
-            <div class="rhythm-dots animate-dots" data-animate="fadeInUp" data-delay="0.4">
-              <div class="rhythm-dot"></div>
-              <div class="rhythm-dot"></div>
-              <div class="rhythm-dot"></div>
-              <div class="rhythm-dot"></div>
-              <div class="rhythm-dot"></div>
-            </div>
-          </div>
-          
-          <div class="grid grid-2 gap-8">
-            <!-- 抖音视频 -->
-            <div v-for="(video, index) in douyinData" :key="video.id" 
-                 class="douyin-card animate-card" 
-                 :data-animate="'rotateInUpLeft'" 
-                 :data-delay="1.2 + index * 0.6">
-              <div class="douyin-video aspect-[9/16] max-w-sm mx-auto relative">
-                <img :src="video.thumbnail" :alt="video.title" class="w-full h-full object-cover rounded-xl">
-                <div class="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center opacity-0 hover:opacity-100 rounded-xl">
-                  <button class="play-button" @click="playDouyinVideo(video)">
-                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M8 5v14l11-7z"/>
-                    </svg>
-                  </button>
-                </div>
-                
-                <!-- 抖音样式的UI元素 -->
-                <div class="absolute bottom-4 left-4 right-4">
-                  <div class="flex items-end justify-between">
-                    <div class="flex-1">
-                      <h3 class="text-white font-semibold text-sm mb-2">{{ video.title }}</h3>
-                      <p class="text-white text-xs opacity-90">{{ video.description }}</p>
-                      <div class="flex items-center mt-2 text-xs text-white opacity-75">
-                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-                        </svg>
-                        {{ video.likes }}
-                      </div>
-                    </div>
-                    
-                    <div class="flex flex-col items-center space-y-3 ml-4">
-                      <div class="w-10 h-10 rounded-full bg-white bg-opacity-20 backdrop-blur-sm flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92S19.61 16.08 18 16.08z"/>
-                        </svg>
-                      </div>
-                      <div class="w-10 h-10 rounded-full bg-white bg-opacity-20 backdrop-blur-sm flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                          <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92S19.61 16.08 18 16.08z"/>
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <!-- 时长显示 -->
-                <div class="absolute top-3 right-3 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs">
-                  {{ video.duration }}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+
   
       <!-- 3D 交互时间轴 -->
       <section id="timeline" class="section-padding min-h-[67vh] bg-gray-50 scroll-reveal">
@@ -377,10 +208,10 @@
           </div>
           <nav class="space-y-6">
             <a href="#home" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">首页</a>
-            <a href="#about" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">简介</a>
             <router-link to="/music3d" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">音乐</router-link>
             <a href="#videos" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">视频</a>
             <a href="#timeline" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">时间轴</a>
+            <a href="#latest-updates" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">最新动态</a>
           </nav>
         </div>
       </div>
@@ -395,11 +226,12 @@
   <script setup lang="ts">
 import VideoTransition from '@/components/VideoTransition.vue'
 import { getLatestCarouselItems } from '@/database/Carousel.js'
-import { douyinData, musicData, videoData } from '@/database/index.js'
+import { musicData, videoData } from '@/database/index.js'
 import '@/styles/debug.css'
 import '@/styles/index.css'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import LatestUpdates from '@/components/LatestUpdates.vue'
 import TestMusic from './TestMusic.vue'
   
   const router = useRouter()
@@ -444,6 +276,9 @@ import TestMusic from './TestMusic.vue'
   const currentDragElement = ref(null)
   
   const carouselItems = ref(getLatestCarouselItems(6))
+  
+  // 页面过渡效果相关
+  const musicSectionOpacity = ref(0) // 音乐作品页面的透明度
   
   // 静态资源
   const artistImage = '/artist-journey/assets/background.jpg'
@@ -546,6 +381,12 @@ import TestMusic from './TestMusic.vue'
     if (!isVideoPlaying.value) {
       startCarouselAutoPlay()
     }
+  }
+  
+  // 处理最新动态滚动进度
+  const handleLatestUpdatesScroll = (progress: number) => {
+    // 根据最新动态的滚动进度更新音乐作品页面的透明度
+    musicSectionOpacity.value = progress
   }
   
   // 调试模式切换
