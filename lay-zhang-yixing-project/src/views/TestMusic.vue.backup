@@ -1,0 +1,483 @@
+<template>
+  <div class="hajime-portfolio" :style="{ backgroundImage: `url(${getCurrentImage()})` }">
+    <!-- 背景遮罩层 -->
+    <div class="background-overlay"></div>
+    
+    <!-- 水波纹效果层 -->
+    <WaterRipple 
+      :background-image="getCurrentImage()" 
+      :enable-debugger="false"
+      class="water-ripple-effect"
+      ref="waterRippleRef"
+    />
+    
+    <!-- 主标题区域 -->
+    <header class="site-header">
+      <h1 class="site-title">
+        <router-link to="/" class="title-link">L A Y &nbsp;&nbsp; Z H A N G &nbsp;&nbsp; Y I X I N G</router-link>
+      </h1>
+    </header>
+
+    <!-- 主图片展示区域 -->
+    <main class="main-content">
+      <div class="image-carousel">
+        <!-- 左侧部分图片 -->
+        <div class="image-preview left-preview">
+          <img :src="getPreviousImage()" alt="Previous" />
+        </div>
+        
+        <!-- 中央主图片 -->
+        <div class="image-main">
+          <img :src="getCurrentImage()" :alt="getCurrentTitle()" />
+          <div class="image-info">
+            <h2 class="image-title">{{ getCurrentTitle() }}</h2>
+            <p class="image-year">{{ getCurrentYear() }}</p>
+          </div>
+        </div>
+        
+        <!-- 右侧部分图片 -->
+        <div class="image-preview right-preview">
+          <img :src="getNextImage()" alt="Next" />
+        </div>
+      </div>
+    </main>
+
+    <!-- 底部单点导航 -->
+    <nav class="bottom-navigation">
+      <div class="navigation-dot"></div>
+    </nav>
+
+    <!-- 幻灯片指示文字 -->
+    <div class="slide-indicator">
+      <span class="slide-text">DIAPOSITIVE</span>
+    </div>
+  </div>
+</template>
+
+<script>
+import WaterRipple from '@/components/WaterRipple.vue';
+
+export default {
+  name: 'TestMusic',
+  components: {
+    WaterRipple
+  },
+  data() {
+    return {
+      currentPage: 1,
+      totalPages: 6,
+      rainInterval: null,
+      musicItems: [
+        {
+          title: 'LIT',
+          year: '2020',
+          image: '/img/music/LIT.png'
+        },
+        {
+          title: 'NAMANANA',
+          year: '2018',
+          image: '/img/music/NANANA.png'
+        },
+        {
+          title: 'PRODUCER',
+          year: '2019',
+          image: '/img/music/PRODUCER.png'
+        },
+        {
+          title: 'STEP',
+          year: '2021',
+          image: '/img/music/STEP.png'
+        },
+        {
+          title: 'NEXT ALBUM',
+          year: '2024',
+          image: '/img/music/LIT-ba.png'
+        },
+        {
+          title: 'FUTURE PROJECT',
+          year: '2025',
+          image: '/img/music/PRODUCER-ba.png'
+        }
+      ]
+    }
+  },
+  methods: {
+    setCurrentPage(page) {
+      this.currentPage = page;
+    },
+    getCurrentImage() {
+      return this.musicItems[this.currentPage - 1]?.image || this.musicItems[0].image;
+    },
+    getCurrentTitle() {
+      return this.musicItems[this.currentPage - 1]?.title || this.musicItems[0].title;
+    },
+    getCurrentYear() {
+      return this.musicItems[this.currentPage - 1]?.year || this.musicItems[0].year;
+    },
+    getPreviousImage() {
+      const prevIndex = this.currentPage === 1 ? this.musicItems.length - 1 : this.currentPage - 2;
+      return this.musicItems[prevIndex]?.image || this.musicItems[0].image;
+    },
+    getNextImage() {
+      const nextIndex = this.currentPage >= this.musicItems.length ? 0 : this.currentPage;
+      return this.musicItems[nextIndex]?.image || this.musicItems[0].image;
+    },
+    
+    startAutoRain() {
+      // 延迟1秒后开始下雨
+      setTimeout(() => {
+        this.rainInterval = setInterval(() => {
+          this.addRandomRainDrop();
+        }, 800 + Math.random() * 1200); // 0.8-2秒随机间隔
+      }, 1000);
+    },
+    
+    addRandomRainDrop() {
+      if (this.$refs.waterRippleRef && this.$refs.waterRippleRef.$refs.canvas) {
+        const canvas = this.$refs.waterRippleRef.$refs.canvas;
+        const rect = canvas.getBoundingClientRect();
+        
+        // 随机生成 1-2 个雨滴
+        const dropCount = Math.floor(Math.random() * 2) + 1;
+        
+        for (let i = 0; i < dropCount; i++) {
+          setTimeout(() => {
+            const event = new MouseEvent('click', {
+              clientX: rect.left + Math.random() * rect.width,
+              clientY: rect.top + Math.random() * rect.height * 0.7, // 主要在上半部分
+              bubbles: true
+            });
+            canvas.dispatchEvent(event);
+          }, i * 100);
+        }
+      }
+    }
+  },
+  mounted() {
+    // 自动轮播
+    setInterval(() => {
+      this.currentPage = this.currentPage >= this.totalPages ? 1 : this.currentPage + 1;
+    }, 5000);
+    
+    // 启动自动下雨效果
+    this.startAutoRain();
+  },
+  
+  beforeUnmount() {
+    if (this.rainInterval) {
+      clearInterval(this.rainInterval);
+    }
+  },
+  
+  computed: {
+    totalPages() {
+      return this.musicItems.length;
+    }
+  }
+
+</script>
+
+<style scoped>
+/* 全局重置和基础样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.hajime-portfolio {
+  min-height: 100vh;
+  color: #ffffff;
+  font-family: 'Arial', sans-serif;
+  position: relative;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: background-image 0.8s ease-in-out;
+}
+
+/* 背景遮罩层 */
+.background-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+  z-index: 4;
+  pointer-events: none;
+}
+
+/* 水波纹效果层 */
+.water-ripple-effect {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 1;
+  mix-blend-mode: screen;
+}
+
+.water-ripple-effect canvas {
+  pointer-events: auto;
+}
+
+/* 顶部标题 */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 60px 0 40px 0;
+  text-align: center;
+  pointer-events: auto;
+}
+
+.site-title {
+  font-size: 28px;
+  font-weight: normal;
+  letter-spacing: 12px;
+  margin: 0;
+}
+
+.title-link {
+  color: #ffffff;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.title-link:hover {
+  color: #888888;
+}
+
+.page-number {
+  font-size: 72px;
+  font-weight: 100;
+  color: #ffffff;
+  text-align: center;
+}
+
+/* 主图片展示区域 */
+.main-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding-top: 120px;
+  position: relative;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.image-carousel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* 中央主图片 */
+.image-main {
+  position: relative;
+  width: 500px;
+  height: 500px;
+  margin: 0 40px;
+  z-index: 25;
+  pointer-events: auto;
+}
+
+.image-main img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: all 0.5s ease;
+  border-radius: 8px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.image-info {
+  position: absolute;
+  bottom: -60px;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+.image-title {
+  font-size: 24px;
+  font-weight: normal;
+  letter-spacing: 6px;
+  margin-bottom: 8px;
+  color: #ffffff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.image-year {
+  font-size: 14px;
+  color: #cccccc;
+  letter-spacing: 3px;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* 左右预览图片 */
+.image-preview {
+  width: 200px;
+  height: 300px;
+  opacity: 0.6;
+  transition: all 0.5s ease;
+  overflow: hidden;
+  z-index: 25;
+  position: relative;
+  pointer-events: auto;
+}
+
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.left-preview {
+  transform: translateX(50px);
+}
+
+.right-preview {
+  transform: translateX(-50px);
+}
+
+/* 底部单点导航 */
+.bottom-navigation {
+  position: fixed;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  pointer-events: auto;
+}
+
+.navigation-dot {
+  width: 8px;
+  height: 8px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.navigation-dot:hover {
+  background-color: #ffffff;
+  transform: scale(1.2);
+}
+
+/* 幻灯片指示文字 */
+.slide-indicator {
+  position: fixed;
+  bottom: 30px;
+  right: 80px;
+  z-index: 100;
+}
+
+.slide-text {
+  font-size: 12px;
+  color: #cccccc;
+  letter-spacing: 3px;
+  font-weight: normal;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.image-main {
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .slide-indicator {
+    right: 40px;
+  }
+  
+  .image-carousel {
+    max-width: 900px;
+  }
+  
+  .image-main {
+    width: 400px;
+    height: 400px;
+  }
+  
+  .image-preview {
+    width: 150px;
+    height: 225px;
+  }
+}
+
+@media (max-width: 768px) {
+  .site-title {
+    font-size: 20px;
+    letter-spacing: 6px;
+  }
+  
+  .main-content {
+    padding-top: 140px;
+    padding-bottom: 120px;
+  }
+  
+  .image-carousel {
+    flex-direction: column;
+    gap: 30px;
+  }
+  
+  .image-main {
+    width: 300px;
+    height: 300px;
+    margin: 0;
+  }
+  
+  .image-preview {
+    display: none;
+  }
+  
+  .bottom-navigation {
+    bottom: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .image-main {
+    width: 250px;
+    height: 250px;
+  }
+  
+  .image-title {
+    font-size: 18px;
+    letter-spacing: 3px;
+  }
+  
+  .image-year {
+    font-size: 12px;
+    letter-spacing: 2px;
+  }
+}
+</style>
