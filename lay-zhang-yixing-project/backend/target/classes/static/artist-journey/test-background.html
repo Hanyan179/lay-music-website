@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>背景图测试 - 填满屏幕模式</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: 
+        linear-gradient(135deg, rgba(0,0,0,0.2), rgba(26,26,46,0.3)),
+        url('assets/background.jpg') center/cover no-repeat,
+        linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    }
+    .test-info {
+      background: rgba(0,0,0,0.8);
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      max-width: 600px;
+    }
+    .option {
+      margin: 10px 0;
+      padding: 10px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .option:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    .current {
+      background: rgba(255,149,0,0.3) !important;
+      border: 1px solid rgba(255,149,0,0.6);
+    }
+  </style>
+</head>
+<body>
+  <div class="test-info">
+    <h1>背景图测试 - 填满屏幕模式</h1>
+    <p>✅ 当前使用 Cover 模式 - 背景图填满整个屏幕</p>
+    <p>图片会自动裁剪来适应屏幕尺寸</p>
+    
+    <div class="option current" onclick="changeMode('cover')">
+      ✅ 模式1: Cover (填满屏幕，当前模式)
+    </div>
+    <div class="option" onclick="changeMode('contain')">
+      模式2: Contain (显示完整图片)
+    </div>
+    <div class="option" onclick="changeMode('fill')">
+      模式3: 100% 100% (拉伸填满)
+    </div>
+  </div>
+
+  <script>
+    function changeMode(mode) {
+      const body = document.body;
+      const options = document.querySelectorAll('.option');
+      
+      // 移除所有current类
+      options.forEach(opt => opt.classList.remove('current'));
+      
+      switch(mode) {
+        case 'cover':
+          body.style.backgroundSize = 'cover, cover, cover';
+          options[0].classList.add('current');
+          options[0].innerHTML = '✅ 模式1: Cover (填满屏幕，当前模式)';
+          options[1].innerHTML = '模式2: Contain (显示完整图片)';
+          options[2].innerHTML = '模式3: 100% 100% (拉伸填满)';
+          break;
+        case 'contain':
+          body.style.backgroundSize = 'cover, contain, cover';
+          options[1].classList.add('current');
+          options[0].innerHTML = '模式1: Cover (填满屏幕)';
+          options[1].innerHTML = '✅ 模式2: Contain (显示完整图片，当前模式)';
+          options[2].innerHTML = '模式3: 100% 100% (拉伸填满)';
+          break;
+        case 'fill':
+          body.style.backgroundSize = 'cover, 100% 100%, cover';
+          options[2].classList.add('current');
+          options[0].innerHTML = '模式1: Cover (填满屏幕)';
+          options[1].innerHTML = '模式2: Contain (显示完整图片)';
+          options[2].innerHTML = '✅ 模式3: 100% 100% (拉伸填满，当前模式)';
+          break;
+      }
+    }
+  </script>
+</body>
+</html> 

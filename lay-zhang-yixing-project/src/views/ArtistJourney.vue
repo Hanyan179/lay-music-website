@@ -105,18 +105,15 @@
   
       <!-- 音乐轮播图 -->
       <section id="latest-updates" class="relative h-screen flex items-center justify-center section-padding overflow-hidden bg-transparent">
-        <LatestUpdates :items="carouselItems" auto :onScrollProgress="handleLatestUpdatesScroll" />
+        <LatestUpdates :items="carouselItems" auto :onScrollProgress="handleLatestUpdatesScroll">
+          <template #main-content>
+            <TestMusic />
+          </template>
+        </LatestUpdates>
       </section>
   
       <!-- 页面过渡遮罩 -->
       <div class="page-transition-mask"></div>
-  
-      <!-- 音乐作品 - 作为第三页面背景 -->
-      <section id="music" class="relative section-padding scroll-reveal music-album-section h-screen bg-black" :style="{ opacity: musicSectionOpacity }">
-        <TestMusic />
-        <!-- 底部波形过渡 -->
-        <div class="section-wave section-wave-bottom"></div>
-      </section>
   
       <!-- 视频作品 -->
       <section id="videos" class="section-padding bg-gray-50 scroll-reveal">
@@ -278,7 +275,6 @@ import TestMusic from './TestMusic.vue'
   const carouselItems = ref(getLatestCarouselItems(6))
   
   // 页面过渡效果相关
-  const musicSectionOpacity = ref(0) // 音乐作品页面的透明度
   
   // 静态资源
   const artistImage = '/artist-journey/assets/background.jpg'
@@ -385,8 +381,8 @@ import TestMusic from './TestMusic.vue'
   
   // 处理最新动态滚动进度
   const handleLatestUpdatesScroll = (progress: number) => {
-    // 根据最新动态的滚动进度更新音乐作品页面的透明度
-    musicSectionOpacity.value = progress
+    // 滚动进度回调处理（可用于其他目的）
+    console.log('Latest updates scroll progress:', progress)
   }
   
   // 调试模式切换

@@ -46,6 +46,3 @@ public class TimelineEvent {
     @JoinColumn(name = "year_id", nullable = false)
     private TimelineYear year;
 } 
-    @JoinColumn(name = "year_id", nullable = false)
-    private TimelineYear year;
-} 

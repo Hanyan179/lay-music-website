@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录API测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 16px;
+        }
+        input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+        button {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            background: rgba(0,0,0,0.2);
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        .success {
+            border-left: 4px solid #4CAF50;
+        }
+        .error {
+            border-left: 4px solid #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 LAY张艺兴音乐网站</h1>
+        <h2>后端API登录测试</h2>
+        
+        <div class="form-group">
+            <label for="username">用户名:</label>
+            <input type="text" id="username" placeholder="输入用户名" value="admin">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">密码:</label>
+            <input type="password" id="password" placeholder="输入密码" value="LayMusic@2025">
+        </div>
+        
+        <button onclick="testLogin()">测试登录API</button>
+        <button onclick="testAPI()">测试API信息</button>
+        
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        async function testLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = '正在调用后端API...';
+            resultDiv.className = 'result';
+            
+            try {
+                console.log('🔄 正在调用后端登录API...');
+                
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+                
+                console.log('📡 API响应状态:', response.status);
+                
+                const result = await response.json();
+                console.log('📄 API响应内容:', result);
+                
+                resultDiv.className = 'result ' + (result.code === 200 ? 'success' : 'error');
+                resultDiv.textContent = `✅ 成功调用后端API！
+                
+API地址: /api/admin/login
+响应状态: ${response.status}
+响应内容: ${JSON.stringify(result, null, 2)}
+
+${result.code === 200 ? '🎉 登录成功！后端API正常工作' : '❌ 登录失败'}`;
+                
+            } catch (error) {
+                console.error('❌ API调用失败:', error);
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ API调用失败: ${error.message}`;
+            }
+        }
+        
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            
+            resultDiv.style.display = 'block';
+            resultDiv.textContent = '正在测试API信息...';
+            resultDiv.className = 'result';
+            
+            try {
+                const response = await fetch('/api');
+                const result = await response.json();
+                
+                resultDiv.className = 'result success';
+                resultDiv.textContent = `✅ API信息获取成功！
+                
+API地址: /api
+响应内容: ${JSON.stringify(result, null, 2)}`;
+                
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ API信息获取失败: ${error.message}`;
+            }
+        }
+        
+        // 页面加载时显示状态
+        window.addEventListener('load', () => {
+            console.log('🌟 LAY张艺兴音乐网站 - API测试页面加载完成');
+            console.log('📍 当前地址:', window.location.href);
+            console.log('🎯 后端API地址: /api/admin/login');
+        });
+    </script>
+</body>
+</html> 

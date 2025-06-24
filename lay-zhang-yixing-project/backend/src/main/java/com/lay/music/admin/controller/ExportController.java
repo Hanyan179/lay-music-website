@@ -54,13 +54,3 @@ public class ExportController {
         }
     }
 } 
-        } catch (IOException e) {
-            log.error("导出时间轴数据失败", e);
-            response.put("code", 500);
-            response.put("message", "导出失败: " + e.getMessage());
-            response.put("data", null);
-            response.put("timestamp", System.currentTimeMillis());
-            return ResponseEntity.internalServerError().body(response);
-        }
-    }
-} 

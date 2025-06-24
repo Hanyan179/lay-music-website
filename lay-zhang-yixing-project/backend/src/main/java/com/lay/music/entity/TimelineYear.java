@@ -34,6 +34,3 @@ public class TimelineYear {
     @OneToMany(mappedBy = "year", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<TimelineEvent> events = new ArrayList<>();
 } 
-    @OneToMany(mappedBy = "year", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<TimelineEvent> events = new ArrayList<>();
-} 
