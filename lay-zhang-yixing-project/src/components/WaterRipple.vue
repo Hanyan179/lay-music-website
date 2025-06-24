@@ -57,13 +57,15 @@ const initAdvancedMouseInteraction = () => {
   const container = waterRippleContainer.value
   const ctx = canvas.getContext('2d')!
   
-  // 设置画布尺寸 - 高清渲染
+  // 设置画布尺寸 - 全屏高清渲染
   const resizeCanvas = () => {
-    const rect = container.getBoundingClientRect()
-    canvas.width = rect.width * window.devicePixelRatio
-    canvas.height = rect.height * window.devicePixelRatio
-    canvas.style.width = rect.width + 'px'
-    canvas.style.height = rect.height + 'px'
+    // 使用视窗尺寸而不是容器尺寸，确保真正全屏
+    const width = window.innerWidth
+    const height = window.innerHeight
+    canvas.width = width * window.devicePixelRatio
+    canvas.height = height * window.devicePixelRatio
+    canvas.style.width = width + 'px'
+    canvas.style.height = height + 'px'
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio)
   }
   
@@ -222,11 +224,11 @@ const initAdvancedMouseInteraction = () => {
     return { vx: 0, vy: 0 }
   }
   
-  // 智能鼠标事件处理
+  // 智能鼠标事件处理 - 全屏响应
   const handleMouseMove = (event: MouseEvent) => {
-    const rect = container.getBoundingClientRect()
-    const newMouseX = event.clientX - rect.left
-    const newMouseY = event.clientY - rect.top
+    // 使用全屏坐标，因为canvas本身就是全屏的
+    const newMouseX = event.clientX
+    const newMouseY = event.clientY
     
     // 计算鼠标速度
     mouseVelocityX = newMouseX - lastMouseX
@@ -266,11 +268,11 @@ const initAdvancedMouseInteraction = () => {
     isMousePressed = false
   }
   
-  // 事件监听器
-  container.addEventListener('mousemove', handleMouseMove)
-  container.addEventListener('mousedown', handleMouseDown)
-  container.addEventListener('mouseup', handleMouseUp)
-  container.addEventListener('mouseleave', handleMouseLeave)
+  // 事件监听器 - 全屏监听
+  document.addEventListener('mousemove', handleMouseMove)
+  document.addEventListener('mousedown', handleMouseDown)
+  document.addEventListener('mouseup', handleMouseUp)
+  document.addEventListener('mouseleave', handleMouseLeave)
   
   // 60fps 渲染引擎
   const animate = () => {
@@ -417,10 +419,10 @@ const initAdvancedMouseInteraction = () => {
   
   // 清理函数
   return () => {
-    container.removeEventListener('mousemove', handleMouseMove)
-    container.removeEventListener('mousedown', handleMouseDown)
-    container.removeEventListener('mouseup', handleMouseUp)
-    container.removeEventListener('mouseleave', handleMouseLeave)
+    document.removeEventListener('mousemove', handleMouseMove)
+    document.removeEventListener('mousedown', handleMouseDown)
+    document.removeEventListener('mouseup', handleMouseUp)
+    document.removeEventListener('mouseleave', handleMouseLeave)
     window.removeEventListener('resize', resizeCanvas)
     particles.length = 0
     flowField.length = 0
@@ -445,12 +447,12 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .water-ripple-container {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: auto;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none; /* 不阻止其他元素的交互 */
   overflow: hidden;
   z-index: 1;
 }
@@ -459,9 +461,9 @@ onBeforeUnmount(() => {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: auto;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: auto; /* canvas 本身需要响应鼠标事件 */
   cursor: crosshair;
 }
 

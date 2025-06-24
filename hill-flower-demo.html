@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>three.js Hill & Flower Demo</title>
+  <style>body{margin:0;overflow:hidden;}</style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body>
+<script type="module">
+/* ---------- ① 引入 three.js 内核 & 常用辅助 ---------- */
+import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+import { OrbitControls } from 'https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js';
+import { RGBELoader } from 'https://unpkg.com/three@0.160.0/examples/jsm/loaders/RGBELoader.js';
+
+/* ---------- ② 创建渲染器：抗锯齿 + 色彩管理 + ToneMapping ---------- */
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputEncoding = THREE.sRGBEncoding;              // 颜色正确
+renderer.toneMapping = THREE.ACESFilmicToneMapping;        // HDR 映射
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+/* ---------- ③ 场景 & 相机 & 轨道控制器 ---------- */
+const scene  = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 500);
+camera.position.set(0, 35, 80);
+scene.add(camera);
+new OrbitControls(camera, renderer.domElement);
+
+/* ---------- ④ 加载 HDRI：全局光照 + 背景天空 ---------- */
+new RGBELoader()
+  .setPath('https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/')  // PolyHaven 免费 HDRI
+  .load('overcast_soil_puresky_1k.hdr', tex => {
+    tex.mapping = THREE.EquirectangularReflectionMapping;
+    scene.environment = tex;   // 环境光
+    scene.background  = tex;   // 背景
+  });
+
+/* ---------- ⑤ 创建山丘地形：位移贴图 + 草地纹理 ---------- */
+const tex = new THREE.TextureLoader();
+const heightMap = tex.load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/terrain/heightmap.png');  // 高度图
+const grassMap  = tex.load('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/terrain/grasslight-big.jpg'); // 草纹理
+grassMap.wrapS  = grassMap.wrapT = THREE.RepeatWrapping;
+grassMap.repeat.set(64, 64);                                         // 大面积重复
+
+const hillGeo = new THREE.PlaneGeometry(400, 400, 256, 256);         // 足够细分
+const hillMat = new THREE.MeshStandardMaterial({
+  map: grassMap,
+  displacementMap: heightMap,
+  displacementScale: 25,          // 山体高度（可按需要调）
+  roughness: 1,
+});
+const hill = new THREE.Mesh(hillGeo, hillMat);
+hill.rotation.x = -Math.PI / 2;   // 从 XY 平面翻到水平
+hill.receiveShadow = true;
+scene.add(hill);
+
+/* ---------- ⑥ 大面积花朵：InstancedMesh + 透明贴图 ---------- */
+const flowerTex = tex.load('https://threejsfundamentals.org/threejs/resources/images/flower.png'); // 占位花朵
+const flowerMat = new THREE.MeshStandardMaterial({
+  map: flowerTex,
+  transparent: true,
+  alphaTest: 0.5,
+});
+const flowerGeo = new THREE.PlaneGeometry(2, 2);      // 单朵矩形
+const COUNT = 2000;                                   // 总朵数
+const flowers = new THREE.InstancedMesh(flowerGeo, flowerMat, COUNT);
+const dummy = new THREE.Object3D();
+for (let i = 0; i < COUNT; i++) {
+  dummy.position.set((Math.random() - 0.5) * 350, 0, (Math.random() - 0.5) * 350);
+  dummy.scale.setScalar(1 + Math.random() * 2);
+  dummy.rotation.y = Math.random() * Math.PI;
+  dummy.updateMatrix();
+  flowers.setMatrixAt(i, dummy.matrix);
+}
+scene.add(flowers);
+
+/* ---------- ⑦ 渲染循环：每帧调用一次 ---------- */
+function animate() {
+  requestAnimationFrame(animate);
+  // 简单风吹动画：让花丛整体轻轻旋转
+  flowers.rotation.y += 0.0008;
+  renderer.render(scene, camera);
+}
+animate();
+
+/* ---------- ⑧ 适配窗口尺寸变化 ---------- */
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+});
+</script>
+</body>
+</html> 

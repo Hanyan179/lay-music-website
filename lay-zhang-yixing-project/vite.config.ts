@@ -29,6 +29,6 @@ export default defineConfig({
       port: 3004,
       overlay: false 
     },
-    open: true
+    open: false              // 关闭自动打开浏览器，避免冲突
   }
 }) 
