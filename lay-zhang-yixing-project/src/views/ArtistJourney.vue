@@ -4,7 +4,7 @@
        <WaterRipple :maxParticles="200" :disabled="false" />
       
       <!-- 导航栏 -->
-      <nav class="fixed top-0 w-full z-[100] bg-transparent">
+      <nav class="fixed top-0 w-full z-[100] bg-white/10 backdrop-blur-md border-b border-white/20">
         <div class="container mx-auto px-6 py-4">
           <div class="flex items-center justify-between">
             <div class="music-brand text-gray-800">
@@ -76,16 +76,110 @@
                 'bio-small-text': bioText.length > 40
               }"
               ref="bioContainer"
+              @wheel="handleBioWheelAcceleration"
             >
               <div class="bio-content backdrop-blur-md bg-white/5 rounded-2xl px-6 py-4">
-                <p class="bio-text text-white/90 leading-relaxed" ref="bioText">
-                  {{ bioText }}
+                <p class="bio-text bio-typing-text leading-relaxed whitespace-pre-line" ref="bioTextElement">
+                  <!-- 内容通过打字效果动态填充 -->
                 </p>
               </div>
             </div>
           </div>
         </div>
+        
+        <!-- 下滑提示 - 只在标签整列完成后显示 -->
+        <div 
+          class="scroll-hint"
+          :class="{ 'scroll-hint-visible': animationState === 1 && revealedCount >= identityTags.length && !hasScrolled }"
+        >
+          <div class="scroll-hint-content">
+            <span class="scroll-hint-text">下滑继续</span>
+          </div>
+        </div>
+        
+        <!-- 生平介绍完成后的下滑提示 -->
+        <div 
+          v-if="animationState === 3 && bioTypingCompleted && !hasScrolledToCarousel"
+          class="scroll-hint scroll-hint-visible"
+          style="bottom: 4vh;"
+        >
+          <div class="scroll-hint-content">
+            <span class="scroll-hint-text">下滑查看更多</span>
+          </div>
+        </div>
+        
+
       </section>
+
+      <!-- 节选作品区域 -->
+      <section 
+        v-if="showWorksSection"
+        id="featured-works" 
+        class="min-h-screen bg-gradient-to-b from-gray-50 to-white relative works-section" 
+        ref="worksSection"
+        style="z-index: 10; position: relative;"
+      >
+                <!-- 完全仿照 electrafilmworks.com 的设计 -->
+        <div class="electra-container">
+          <!-- 大标题 - 完全模仿原网站 -->
+          <div class="electra-header">
+            <h1 class="electra-main-title">
+              <span class="electra-title-line">节</span>
+              <span class="electra-title-line">选</span>
+            </h1>
+          </div>
+
+          <!-- 作品列表 - 纯文字，完全模仿原网站布局 -->
+          <div class="electra-works-list">
+            <div 
+              v-for="(item, index) in carouselItems" 
+              :key="item.id"
+              class="electra-work-item"
+              @click="openWorkModal(item)"
+            >
+              <!-- 项目标题 -->
+              <h2 class="electra-work-title">{{ getSimpleTitle(item.title) }}</h2>
+              
+              <!-- 副标题/描述 -->
+              <h3 class="electra-work-subtitle">{{ getWorkSubtitle(item) }}</h3>
+              
+              <!-- 来源/作者 -->
+              <div class="electra-work-author">{{ item.source }}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 作品详情弹窗 -->
+      <div 
+        v-if="selectedWork" 
+        class="work-modal fixed inset-0 z-[200] bg-black/80 backdrop-blur-md"
+        @click="closeWorkModal"
+      >
+        <div class="modal-content absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl max-w-4xl w-11/12 max-h-[90vh] overflow-y-auto">
+          <div class="modal-header flex justify-between items-center p-6 border-b">
+            <h3 class="text-2xl font-bold text-gray-900">{{ selectedWork.title }}</h3>
+            <button @click="closeWorkModal" class="text-gray-500 hover:text-gray-700">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+          <div class="modal-body p-6">
+            <div v-if="selectedWork.type === 'video'" class="mb-6">
+              <video :src="selectedWork.src" controls class="w-full rounded-lg"></video>
+            </div>
+            <div v-else class="mb-6">
+              <img :src="selectedWork.src" :alt="selectedWork.title" class="w-full rounded-lg">
+            </div>
+            <p class="text-gray-700 mb-4">{{ selectedWork.description }}</p>
+            <div class="flex items-center justify-between text-sm text-gray-500">
+              <span>来源：{{ selectedWork.source }}</span>
+              <span>发布时间：{{ formatDate(selectedWork.publishTime) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
   
       <!-- 移动端菜单 -->
       <div id="mobile-menu" class="fixed inset-0 z-[110] hidden md:hidden">
@@ -115,14 +209,16 @@
 // ========== 导入部分 ==========
 // 组件导入
 import WaterRipple from '@/components/WaterRipple.vue'
-import identityTagsData from '@/data/identityTags'
+import identityTagsData, { artistBiography } from '@/data/identityTags'
+// @ts-ignore
+import { getAllCarouselItems } from '@/database/Carousel'
 
 // 样式导入
 import '@/styles/debug.css'
 import '@/styles/index.css'
 
 // Vue 核心导入
-import { onMounted, onUnmounted, ref, reactive } from 'vue'
+import { onMounted, onUnmounted, ref, reactive, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 
 // ========== 路由和初始化 ==========
@@ -131,7 +227,27 @@ const router = useRouter()
 // ========== 高级交互动效状态管理 ==========
 const animationState = ref(0) // 0: 初始, 1: 爆发, 2: 整列, 3: 简介显示
 const identityTags = ref(identityTagsData)
-const bioText = ref('努力努力再努力！！！一位集音乐制作、舞蹈、演唱、创作于一体的全能艺术家，在多个领域都展现出了非凡的才华和独特的艺术感悟。')
+const bioText = ref(artistBiography) // 从数据文件导入
+const hasScrolled = ref(false) // 用户是否已经滚动
+
+// ========== 节选作品相关状态 ==========
+const carouselItems = ref(getAllCarouselItems())
+const showWorksSection = ref(false)
+const worksAnimationStarted = ref(false)
+const selectedWork = ref<any>(null)
+const bioTypingCompleted = ref(false)
+const hasScrolledToCarousel = ref(false)
+const worksSection = ref<HTMLElement | null>(null)
+
+// 调试：输出数据
+console.log('Carousel items loaded:', carouselItems.value)
+
+// ========== 生平介绍打字效果 ==========
+const bioContainer = ref<HTMLElement | null>(null)
+const bioTextElement = ref<HTMLElement | null>(null)
+let bioTypingSpeed = ref(80) // 打字速度，值越小越快
+let bioTypingInterval: number | null = null
+let isBioTyping = ref(false)
 
 // 渲染与物理状态
 const revealedCount = ref(0)
@@ -185,7 +301,7 @@ const revealNextTag = () => {
  * 统一推进阶段：
  * 0/1 -> reveal tags until all
  * 1 -> 2  标签整列
- * 2 -> 3  简介淡入
+ * 2 -> 3  简介淡入并开始打字
  */
 const progressStage = () => {
   if (revealedCount.value < identityTags.value.length) {
@@ -200,6 +316,57 @@ const progressStage = () => {
 
   if (animationState.value === 2) {
     animationState.value = 3
+    // 开始生平介绍打字效果
+    setTimeout(() => {
+      startBioTyping()
+    }, 500)
+  }
+}
+
+/**
+ * 开始生平介绍打字效果
+ */
+const startBioTyping = () => {
+  if (!bioTextElement.value || isBioTyping.value) return
+  
+  isBioTyping.value = true
+  const fullText = bioText.value
+  bioTextElement.value.textContent = ''
+  
+  let currentIndex = 0
+  
+  const typeNextChar = () => {
+    if (currentIndex < fullText.length && bioTextElement.value) {
+      bioTextElement.value.textContent += fullText.charAt(currentIndex)
+      currentIndex++
+      bioTypingInterval = setTimeout(typeNextChar, bioTypingSpeed.value)
+    } else {
+      isBioTyping.value = false
+      bioTypingInterval = null
+      bioTypingCompleted.value = true
+      // 生平介绍打字完成后，设置节选作品的滚动监听
+      setTimeout(() => {
+        setupWorksScrollListener()
+      }, 1000)
+    }
+  }
+  
+  typeNextChar()
+}
+
+/**
+ * 滚轮加速打字效果
+ */
+const handleBioWheelAcceleration = (e: WheelEvent) => {
+  if (!isBioTyping.value) return
+  
+  // 滚轮向下加速打字
+  if (e.deltaY > 0) {
+    bioTypingSpeed.value = Math.max(20, bioTypingSpeed.value - 15)
+  }
+  // 滚轮向上减速打字  
+  else if (e.deltaY < 0) {
+    bioTypingSpeed.value = Math.min(150, bioTypingSpeed.value + 15)
   }
 }
 
@@ -246,6 +413,7 @@ const getTagStyle = (index: number) => {
 const setupScrollListeners = () => {
   // scroll (页面真的滚动时)
   const handleScroll = () => {
+    hasScrolled.value = true
     progressStage()
     if (animationState.value === 3) {
       window.removeEventListener('scroll', handleScroll)
@@ -258,17 +426,53 @@ const setupScrollListeners = () => {
   const handleWheel = (e: WheelEvent) => {
     if (e.deltaY > 10 && !wheelLock) {
       wheelLock = true
+      hasScrolled.value = true
       progressStage()
       setTimeout(() => { wheelLock = false }, 300)
     }
   }
   window.addEventListener('wheel', handleWheel, { passive: true })
+  
 
   // 清理函数
   onUnmounted(() => {
     window.removeEventListener('scroll', handleScroll)
     window.removeEventListener('wheel', handleWheel)
   })
+}
+
+/**
+ * 设置节选作品的滚动监听
+ */
+const setupWorksScrollListener = () => {
+  const handleWorksScroll = () => {
+    if (bioTypingCompleted.value && !hasScrolledToCarousel.value) {
+      const scrollY = window.scrollY
+      const windowHeight = window.innerHeight
+      if (scrollY > windowHeight * 0.5) {
+        hasScrolledToCarousel.value = true
+        showWorksSection.value = true
+        setTimeout(() => {
+          worksAnimationStarted.value = true
+        }, 300)
+        window.removeEventListener('scroll', handleWorksScroll)
+      }
+    }
+  }
+  
+  const handleWorksWheel = (e: WheelEvent) => {
+    if (bioTypingCompleted.value && !hasScrolledToCarousel.value && e.deltaY > 0) {
+      hasScrolledToCarousel.value = true
+      showWorksSection.value = true
+      setTimeout(() => {
+        worksAnimationStarted.value = true
+      }, 300)
+      window.removeEventListener('wheel', handleWorksWheel)
+    }
+  }
+  
+  window.addEventListener('scroll', handleWorksScroll, { passive: true })
+  window.addEventListener('wheel', handleWorksWheel, { passive: true })
 }
   
 // ========== 滚动和导航方法 ==========
@@ -291,6 +495,71 @@ const closeMobileMenu = () => {
   if (mobileMenu) {
     mobileMenu.classList.add('hidden')
   }
+}
+
+// ========== 节选作品相关方法 ==========
+/**
+ * 打开作品详情弹窗
+ */
+const openWorkModal = (work: any) => {
+  selectedWork.value = work
+}
+
+/**
+ * 关闭作品详情弹窗
+ */
+const closeWorkModal = () => {
+  selectedWork.value = null
+}
+
+/**
+ * 视频播放控制
+ */
+const playVideo = (e: Event) => {
+  const video = e.target as HTMLVideoElement
+  if (video) {
+    video.play()
+  }
+}
+
+const pauseVideo = (e: Event) => {
+  const video = e.target as HTMLVideoElement
+  if (video) {
+    video.pause()
+  }
+}
+
+/**
+ * 格式化日期
+ */
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  })
+}
+
+/**
+ * 获取简化标题 - 模仿 electrafilmworks 的标题风格
+ */
+const getSimpleTitle = (title: string) => {
+  // 提取核心词汇，去掉 "LAY张艺兴" 等前缀
+  return title.replace(/LAY张艺兴《?([^》]+)》?.*/, '$1').trim() || title
+}
+
+/**
+ * 获取作品副标题 - 模仿 electrafilmworks 的副标题风格
+ */
+const getWorkSubtitle = (item: any) => {
+  // 模仿原网站的副标题格式，使用品牌名或描述的关键部分
+  const subtitles = [
+    '音乐视频', '舞台表演', '创作花絮', 
+    '幕后记录', '时尚大片', '现场演出'
+  ]
+  const randomIndex = item.id % subtitles.length
+  return subtitles[randomIndex]
 }
   
 // ========== 事件监听器设置 ==========
@@ -333,7 +602,10 @@ const initApp = async () => {
     
     // 初始化打字效果
     setTimeout(() => {
-      startTypewriter()
+      if (!hasTyped) {
+        hasTyped = true
+        startTypewriter()
+      }
     }, 1000)
     
   } catch (error) {
@@ -355,15 +627,18 @@ let currentIdentityIndex = 0
 const startTypewriter = () => {
   if (!typewriterText.value) return
   
-  const text = typewriterText.value.textContent || ''
+  // 获取原始文本，如果为空则使用默认值
+  const originalText = typewriterText.value.textContent?.trim() || 'LAY ZHANG'
+  
+  // 清空内容并添加样式
   typewriterText.value.textContent = ''
   typewriterText.value.classList.add('typing')
   
   let i = 0
   const typeInterval = setInterval(() => {
-    if (i < text.length) {
+    if (i < originalText.length) {
       if (typewriterText.value) {
-        typewriterText.value.textContent += text.charAt(i)
+        typewriterText.value.textContent += originalText.charAt(i)
       }
       i++
     } else {
@@ -403,9 +678,11 @@ const startIdentityCarousel = () => {
 }
 
 // 监听滚动事件，触发打字效果
+let hasTyped = false // 防止重复执行
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
-    if (entry.isIntersecting) {
+    if (entry.isIntersecting && !hasTyped) {
+      hasTyped = true
       startTypewriter()
       observer.disconnect()
     }
@@ -508,6 +785,12 @@ onMounted(() => {
 onUnmounted(() => {
   // 清理观察器
   observer.disconnect()
+  
+  // 清理生平介绍打字定时器
+  if (bioTypingInterval) {
+    clearTimeout(bioTypingInterval)
+    bioTypingInterval = null
+  }
 })
 
 </script>
@@ -604,25 +887,27 @@ onUnmounted(() => {
   filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
 }
 
-/* 标签整列状态 */
+/* 标签整列状态 - 静止但保持发光效果 */
 .tag-aligned .tag-text {
-  transform: scale(0.9);
   animation: none;
-  pointer-events: none;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
 }
 
 /* 标签呼吸效果 */
 .tag-breathing .tag-text {
-  animation: gentleBreath 4s ease-in-out infinite;
+  animation: chaosFloat 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
 }
 
 /* 简介容器 */
 .artist-bio-container {
   width: min(70vw, 800px);
+  max-height: 60vh;
   margin: 2rem auto 0;
   opacity: 0;
   transform: translateY(20px);
   transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+  overflow: hidden;
 }
 
 .bio-visible {
@@ -636,19 +921,50 @@ onUnmounted(() => {
   box-shadow: 
     0 16px 48px rgba(0, 0, 0, 0.15),
     0 4px 12px rgba(255, 255, 255, 0.05) inset;
+  max-height: 50vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(30, 41, 59, 0.3) transparent;
+}
+
+/* 滚动条样式 */
+.bio-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.bio-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.bio-content::-webkit-scrollbar-thumb {
+  background: rgba(30, 41, 59, 0.3);
+  border-radius: 3px;
+}
+
+.bio-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(30, 41, 59, 0.5);
+}
+
+/* 生平介绍专用样式 */
+.bio-typing-text {
+  color: rgba(30, 41, 59, 0.9) !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  font-weight: 500;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.3px;
 }
 
 /* 字数自适应文字大小 */
 .bio-large-text .bio-text {
   font-size: 1.5rem;
-  line-height: 1.6;
+  line-height: 1.8;
   max-width: 68ch;
   margin: 0 auto;
 }
 
 .bio-small-text .bio-text {
   font-size: 1.25rem;
-  line-height: 1.6;
+  line-height: 1.8;
   max-width: 68ch;
   margin: 0 auto;
   padding-left: 24px;
@@ -700,10 +1016,12 @@ onUnmounted(() => {
   
   .bio-large-text .bio-text {
     font-size: 1.2rem;
+    line-height: 1.7;
   }
   
   .bio-small-text .bio-text {
     font-size: 1rem;
+    line-height: 1.7;
     padding-left: 16px;
     padding-right: 16px;
   }
@@ -753,6 +1071,62 @@ onUnmounted(() => {
 #music.section-padding {
   padding-top: 0;
   padding-bottom: 0;
+}
+
+/* ========== 下滑提示样式 ========== */
+.scroll-hint {
+  position: fixed;
+  bottom: 8vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.scroll-hint-visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.scroll-hint-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scroll-hint-text {
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.4);
+  letter-spacing: 2px;
+  user-select: none;
+  animation: scrollBounce 2s ease-in-out infinite;
+}
+
+@keyframes scrollBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+  .scroll-hint {
+    bottom: 6vh;
+  }
+  
+  .scroll-hint-content {
+    padding: 12px 18px;
+  }
+  
+  .scroll-hint-text {
+    font-size: 0.8rem;
+  }
 }
 
 /* ---------- Tooltip 样式（高级毛玻璃 + 上方展示 + 细节箭头） ---------- */
@@ -815,6 +1189,213 @@ onUnmounted(() => {
 .hero-background-right{
   z-index:100; /* 背景高于主体底色但低于标签/tooltip */
   pointer-events:none;
+}
+
+/* ========== 完全模仿 electrafilmworks.com 的样式 ========== */
+.works-section {
+  background: #ffffff;
+  min-height: 100vh;
+  padding: 0;
+  margin: 0;
+}
+
+.electra-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 40px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.electra-header {
+  margin-bottom: 80px;
+}
+
+.electra-main-title {
+  font-size: 160px;
+  font-weight: 900;
+  line-height: 0.8;
+  color: #000000;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.electra-title-line {
+  display: block;
+}
+
+.electra-works-list {
+  /* 完全模仿原网站的简洁列表布局 */
+}
+
+.electra-work-item {
+  margin-bottom: 60px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.electra-work-item:hover {
+  opacity: 0.6;
+}
+
+.electra-work-item:last-child {
+  margin-bottom: 0;
+}
+
+.electra-work-title {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #000000;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.01em;
+}
+
+.electra-work-subtitle {
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #000000;
+  margin: 0 0 4px 0;
+}
+
+.electra-work-author {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.3;
+  color: #666666;
+  margin: 0;
+}
+
+.work-modal {
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+.modal-content {
+  animation: modalSlideUp 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+@keyframes sectionFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes titleFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes listFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes itemSlideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* 响应式设计 - 完全模仿 electrafilmworks.com */
+@media (max-width: 1024px) {
+  .electra-container {
+    padding: 60px 30px;
+  }
+  
+  .electra-main-title {
+    font-size: 120px;
+  }
+  
+  .electra-work-title {
+    font-size: 40px;
+  }
+  
+  .electra-work-subtitle {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .electra-container {
+    padding: 40px 20px;
+  }
+  
+  .electra-header {
+    margin-bottom: 60px;
+  }
+  
+  .electra-main-title {
+    font-size: 80px;
+  }
+  
+  .electra-work-item {
+    margin-bottom: 40px;
+  }
+  
+  .electra-work-title {
+    font-size: 32px;
+  }
+  
+  .electra-work-subtitle {
+    font-size: 18px;
+  }
+  
+  .electra-work-author {
+    font-size: 14px;
+  }
+  
+  .modal-content {
+    width: 95%;
+    max-height: 85vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .electra-container {
+    padding: 30px 16px;
+  }
+  
+  .electra-main-title {
+    font-size: 60px;
+  }
+  
+  .electra-work-title {
+    font-size: 24px;
+  }
+  
+  .electra-work-subtitle {
+    font-size: 16px;
+  }
+  
+  .electra-work-author {
+    font-size: 12px;
+  }
 }
 
 </style>
