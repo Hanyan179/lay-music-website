@@ -13,6 +13,9 @@ const routes: RouteRecordRaw[] = [
   { path: '/music3d',          name: 'Music3D',             component: () => import('@/views/Music3D.vue') },
   { path: '/test-music',       name: 'testMusic',           component: () => import('@/views/TestMusic.vue') },
   
+  /* 留言墙页面 */
+  { path: '/message-wall',     name: 'MessageWall',         component: () => import('@/views/MessageWall.vue') },
+  
   /* 透明波纹演示页面 */
   { path: '/ripple-demo',      name: 'RippleDemo',          component: () => import('@/views/RippleDemo.vue') },
 
