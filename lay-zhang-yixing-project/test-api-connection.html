@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAY音乐网站 - API连接测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .section-content {
+            padding: 20px;
+        }
+        
+        .test-button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .test-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result-box {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Consolas', monospace;
+            white-space: pre-wrap;
+        }
+        
+        .success {
+            border-left: 4px solid #28a745;
+            background: #d4edda;
+        }
+        
+        .error {
+            border-left: 4px solid #dc3545;
+            background: #f8d7da;
+        }
+        
+        .info {
+            border-left: 4px solid #17a2b8;
+            background: #d1ecf1;
+        }
+        
+        .login-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .form-group input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-online {
+            background: #28a745;
+        }
+        
+        .status-offline {
+            background: #dc3545;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 LAY张艺兴音乐网站</h1>
+            <p>API连接测试中心</p>
+        </div>
+        
+        <div class="content">
+            <!-- 系统状态 -->
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="apiStatus">检测中...</div>
+                    <div class="stat-label">API服务状态</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="testCount">0</div>
+                    <div class="stat-label">测试次数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="successCount">0</div>
+                    <div class="stat-label">成功次数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="errorCount">0</div>
+                    <div class="stat-label">失败次数</div>
+                </div>
+            </div>
+
+            <!-- 基础连接测试 -->
+            <div class="test-section">
+                <div class="section-header">
+                    <span class="status-indicator" id="basicStatus"></span>
+                    基础连接测试
+                </div>
+                <div class="section-content">
+                    <p>测试后端服务是否正常运行，验证基本的API连接。</p>
+                    <button class="test-button" onclick="testBasicConnection()">测试基础连接</button>
+                    <button class="test-button" onclick="testCaptcha()">测试验证码接口</button>
+                    <div class="result-box" id="basicResult"></div>
+                </div>
+            </div>
+
+            <!-- 用户认证测试 -->
+            <div class="test-section">
+                <div class="section-header">
+                    <span class="status-indicator" id="authStatus"></span>
+                    用户认证测试
+                </div>
+                <div class="section-content">
+                    <p>测试用户登录、获取用户信息等认证相关功能。</p>
+                    <div class="login-form">
+                        <div class="form-group">
+                            <label>用户名:</label>
+                            <input type="text" id="username" value="admin" placeholder="请输入用户名">
+                        </div>
+                        <div class="form-group">
+                            <label>密码:</label>
+                            <input type="password" id="password" value="LayMusic@2025" placeholder="请输入密码">
+                        </div>
+                    </div>
+                    <button class="test-button" onclick="testLogin()">测试登录</button>
+                    <button class="test-button" onclick="testGetInfo()">获取用户信息</button>
+                    <button class="test-button" onclick="testGetRouters()">获取路由信息</button>
+                    <div class="result-box" id="authResult"></div>
+                </div>
+            </div>
+
+            <!-- 数据接口测试 -->
+            <div class="test-section">
+                <div class="section-header">
+                    <span class="status-indicator" id="dataStatus"></span>
+                    数据接口测试
+                </div>
+                <div class="section-content">
+                    <p>测试各种数据获取接口，验证前端能否正常获取展示数据。</p>
+                    <button class="test-button" onclick="testMusicData()">获取音乐数据</button>
+                    <button class="test-button" onclick="testTimelineData()">获取时间线数据</button>
+                    <button class="test-button" onclick="testMessagesData()">获取留言数据</button>
+                    <div class="result-box" id="dataResult"></div>
+                </div>
+            </div>
+
+            <!-- 管理接口测试 -->
+            <div class="test-section">
+                <div class="section-header">
+                    <span class="status-indicator" id="adminStatus"></span>
+                    管理接口测试
+                </div>
+                <div class="section-content">
+                    <p>测试管理员专用接口，包括数据更新、文件上传等功能。</p>
+                    <button class="test-button" onclick="testAdminData()">测试管理数据接口</button>
+                    <button class="test-button" onclick="testUpload()">测试文件上传</button>
+                    <div class="result-box" id="adminResult"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let authToken = '';
+        let testCount = 0;
+        let successCount = 0;
+        let errorCount = 0;
+
+        // API基础地址
+        const API_BASE = 'http://localhost:8082';
+
+        // 更新统计
+        function updateStats() {
+            document.getElementById('testCount').textContent = testCount;
+            document.getElementById('successCount').textContent = successCount;
+            document.getElementById('errorCount').textContent = errorCount;
+        }
+
+        // 显示结果
+        function showResult(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            container.className = `result-box ${type}`;
+            container.textContent = message;
+            
+            testCount++;
+            if (type === 'success') {
+                successCount++;
+            } else if (type === 'error') {
+                errorCount++;
+            }
+            updateStats();
+        }
+
+        // 更新状态指示器
+        function updateStatus(statusId, isOnline) {
+            const indicator = document.getElementById(statusId);
+            indicator.className = `status-indicator ${isOnline ? 'status-online' : 'status-offline'}`;
+        }
+
+        // 通用API请求函数
+        async function apiRequest(url, options = {}) {
+            try {
+                const response = await fetch(API_BASE + url, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(authToken && { 'Authorization': `Bearer ${authToken}` }),
+                        ...options.headers
+                    },
+                    ...options
+                });
+                
+                const data = await response.json();
+                return { success: true, data, status: response.status };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        // 测试基础连接
+        async function testBasicConnection() {
+            showResult('basicResult', '正在测试基础连接...', 'info');
+            
+            const result = await apiRequest('/captchaImage');
+            
+            if (result.success) {
+                showResult('basicResult', `✅ 基础连接成功！\n服务器响应正常\n状态码: ${result.status}\n响应数据: ${JSON.stringify(result.data, null, 2)}`, 'success');
+                updateStatus('basicStatus', true);
+                document.getElementById('apiStatus').textContent = '在线';
+            } else {
+                showResult('basicResult', `❌ 基础连接失败！\n错误信息: ${result.error}`, 'error');
+                updateStatus('basicStatus', false);
+                document.getElementById('apiStatus').textContent = '离线';
+            }
+        }
+
+        // 测试验证码接口
+        async function testCaptcha() {
+            showResult('basicResult', '正在获取验证码...', 'info');
+            
+            const result = await apiRequest('/captchaImage');
+            
+            if (result.success && result.data.code === 200) {
+                showResult('basicResult', `✅ 验证码获取成功！\nUUID: ${result.data.data.uuid}\n验证码图片已生成`, 'success');
+            } else {
+                showResult('basicResult', `❌ 验证码获取失败！\n响应: ${JSON.stringify(result, null, 2)}`, 'error');
+            }
+        }
+
+        // 测试登录
+        async function testLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            showResult('authResult', '正在测试登录...', 'info');
+            
+            const result = await apiRequest('/login', {
+                method: 'POST',
+                body: JSON.stringify({
+                    username,
+                    password,
+                    code: '',
+                    uuid: ''
+                })
+            });
+            
+            if (result.success && result.data.code === 200) {
+                authToken = result.data.token;
+                showResult('authResult', `✅ 登录成功！\n用户: ${username}\nToken: ${authToken.substring(0, 20)}...`, 'success');
+                updateStatus('authStatus', true);
+            } else {
+                showResult('authResult', `❌ 登录失败！\n错误: ${result.data?.msg || result.error}`, 'error');
+                updateStatus('authStatus', false);
+            }
+        }
+
+        // 测试获取用户信息
+        async function testGetInfo() {
+            if (!authToken) {
+                showResult('authResult', '❌ 请先登录获取Token', 'error');
+                return;
+            }
+            
+            showResult('authResult', '正在获取用户信息...', 'info');
+            
+            const result = await apiRequest('/getInfo');
+            
+            if (result.success && result.data.code === 200) {
+                showResult('authResult', `✅ 用户信息获取成功！\n${JSON.stringify(result.data, null, 2)}`, 'success');
+            } else {
+                showResult('authResult', `❌ 获取用户信息失败！\n错误: ${result.data?.msg || result.error}`, 'error');
+            }
+        }
+
+        // 测试获取路由信息
+        async function testGetRouters() {
+            if (!authToken) {
+                showResult('authResult', '❌ 请先登录获取Token', 'error');
+                return;
+            }
+            
+            showResult('authResult', '正在获取路由信息...', 'info');
+            
+            const result = await apiRequest('/getRouters');
+            
+            if (result.success && result.data.code === 200) {
+                showResult('authResult', `✅ 路由信息获取成功！\n菜单数量: ${result.data.data.length}\n${JSON.stringify(result.data.data, null, 2)}`, 'success');
+            } else {
+                showResult('authResult', `❌ 获取路由信息失败！\n错误: ${result.data?.msg || result.error}`, 'error');
+            }
+        }
+
+        // 测试音乐数据
+        async function testMusicData() {
+            showResult('dataResult', '正在获取音乐数据...', 'info');
+            
+            const result = await apiRequest('/api/data/music');
+            
+            if (result.success && result.data.code === 200) {
+                showResult('dataResult', `✅ 音乐数据获取成功！\n${JSON.stringify(result.data.data, null, 2)}`, 'success');
+                updateStatus('dataStatus', true);
+            } else {
+                showResult('dataResult', `❌ 音乐数据获取失败！\n错误: ${result.data?.msg || result.error}`, 'error');
+                updateStatus('dataStatus', false);
+            }
+        }
+
+        // 测试时间线数据
+        async function testTimelineData() {
+            showResult('dataResult', '正在获取时间线数据...', 'info');
+            
+            const result = await apiRequest('/api/data/timeline');
+            
+            if (result.success && result.data.code === 200) {
+                showResult('dataResult', `✅ 时间线数据获取成功！\n${JSON.stringify(result.data.data, null, 2)}`, 'success');
+            } else {
+                showResult('dataResult', `❌ 时间线数据获取失败！\n错误: ${result.data?.msg || result.error}`, 'error');
+            }
+        }
+
+        // 测试留言数据
+        async function testMessagesData() {
+            showResult('dataResult', '正在获取留言数据...', 'info');
+            
+            const result = await apiRequest('/api/data/messages');
+            
+            if (result.success && result.data.code === 200) {
+                showResult('dataResult', `✅ 留言数据获取成功！\n${JSON.stringify(result.data.data, null, 2)}`, 'success');
+            } else {
+                showResult('dataResult', `❌ 留言数据获取失败！\n错误: ${result.data?.msg || result.error}`, 'error');
+            }
+        }
+
+        // 测试管理数据接口
+        async function testAdminData() {
+            if (!authToken) {
+                showResult('adminResult', '❌ 请先登录获取Token', 'error');
+                return;
+            }
+            
+            showResult('adminResult', '正在测试管理数据接口...', 'info');
+            
+            // 测试获取管理员留言数据
+            const result = await apiRequest('/api/admin/data/messages');
+            
+            if (result.success && result.data.code === 200) {
+                showResult('adminResult', `✅ 管理数据接口测试成功！\n${JSON.stringify(result.data.data, null, 2)}`, 'success');
+                updateStatus('adminStatus', true);
+            } else {
+                showResult('adminResult', `❌ 管理数据接口测试失败！\n错误: ${result.data?.msg || result.error}`, 'error');
+                updateStatus('adminStatus', false);
+            }
+        }
+
+        // 测试文件上传
+        async function testUpload() {
+            if (!authToken) {
+                showResult('adminResult', '❌ 请先登录获取Token', 'error');
+                return;
+            }
+            
+            showResult('adminResult', '文件上传功能需要实际文件，此处仅测试接口可达性', 'info');
+        }
+
+        // 页面加载时自动测试基础连接
+        window.onload = function() {
+            setTimeout(testBasicConnection, 1000);
+        };
+    </script>
+</body>
+</html> 

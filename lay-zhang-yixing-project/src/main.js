@@ -8,6 +8,15 @@ import App from './App.vue'
 import router from './router/index.ts'
 import './style.css'
 
+// 全局修复 Three.js DevTools 错误
+if (typeof window !== 'undefined') {
+  window.__THREE_DEVTOOLS__ = window.__THREE_DEVTOOLS__ || {
+    dispatchEvent: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {}
+  }
+}
+
 const app = createApp(App)
 
 // 注册Element Plus图标

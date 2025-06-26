@@ -1,7 +1,14 @@
 <template>
     <div class="artist-journey">
-       <!-- 鼠标粒子交互背景 - 全屏效果 -->
-       <WaterRipple :maxParticles="200" :disabled="false" />
+       <!-- 鼠标粒子交互背景 - 全屏效果 + 自动烟花 -->
+       <WaterRipple 
+         :maxParticles="500" 
+         :disabled="false"
+         :autoFireworks="true"
+         :fireworksArea="{ left: 1, top: 2, width: 45, height: 96 }"
+         :fireworksInterval="200"
+         :fireworksIntensity="6"
+       />
       
       <!-- 导航栏 -->
       <nav class="fixed top-0 w-full z-[100] bg-white/10 backdrop-blur-md border-b border-white/20">

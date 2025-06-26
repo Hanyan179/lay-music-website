@@ -11,19 +11,33 @@ import { onBeforeUnmount, onMounted, ref } from 'vue';
 interface Props {
   maxParticles?: number
   disabled?: boolean
+  autoFireworks?: boolean
+  fireworksArea?: {
+    left: number  // 百分比 0-100
+    top: number   // 百分比 0-100  
+    width: number // 百分比 0-100
+    height: number // 百分比 0-100
+  }
+  fireworksInterval?: number // 烟花间隔时间(毫秒)
+  fireworksIntensity?: number // 烟花强度 1-10
 }
 
 const props = withDefaults(defineProps<Props>(), {
   maxParticles: 200,
-  disabled: false
+  disabled: false,
+  autoFireworks: false,
+  fireworksArea: () => ({ left: 0, top: 0, width: 45, height: 96 }), // 默认为左侧背景区域
+  fireworksInterval: 3000,
+  fireworksIntensity: 5
 })
 
 // Refs
 const waterRippleContainer = ref<HTMLElement>()
 const waterCanvas = ref<HTMLCanvasElement>()
 
-// 清理函数
+  // 清理函数
 let cleanup: (() => void) | null = null
+let fireworksTimer: number | null = null
 
 // 粒子系统接口
 interface Particle {
@@ -102,6 +116,104 @@ const initAdvancedMouseInteraction = () => {
   
   initFlowField()
   
+  // 自动烟花效果系统
+  const createFirework = (x?: number, y?: number) => {
+    const canvas = waterCanvas.value!
+    
+    // 计算烟花区域的实际像素坐标
+    const areaLeft = (props.fireworksArea.left / 100) * canvas.width
+    const areaTop = (props.fireworksArea.top / 100) * canvas.height  
+    const areaWidth = (props.fireworksArea.width / 100) * canvas.width
+    const areaHeight = (props.fireworksArea.height / 100) * canvas.height
+    
+    // 随机位置或使用指定位置
+    const fireworkX = x ?? areaLeft + Math.random() * areaWidth
+    const fireworkY = y ?? areaTop + Math.random() * areaHeight
+    
+    // 烟花爆炸效果 - 根据强度调整粒子数量
+    const particleCount = Math.floor(props.fireworksIntensity * 3 + 8) // 8-38 个粒子
+    
+    for (let i = 0; i < particleCount; i++) {
+      if (particles.length >= props.maxParticles) {
+        particles.shift()
+      }
+      
+      // 创建具有更丰富效果的烟花粒子
+      const angle = (Math.PI * 2 / particleCount) * i + Math.random() * 0.3
+      const speed = Math.random() * 12 + 6
+      const size = Math.random() * 8 + 4
+      
+      // 多样化的烟花颜色
+      const fireworkColors = [
+        40 + Math.random() * 60,   // 黄橙色
+        280 + Math.random() * 60,  // 紫色
+        200 + Math.random() * 40,  // 蓝色
+        120 + Math.random() * 60,  // 绿色
+        320 + Math.random() * 40,  // 粉色
+      ]
+      const hue = fireworkColors[Math.floor(Math.random() * fireworkColors.length)]
+      
+      const particle: Particle = {
+        x: fireworkX,
+        y: fireworkY,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        radius: size,
+        opacity: 1,
+        life: 1,
+        maxLife: 1,
+        hue: hue,
+        type: 'explosion'
+      }
+      
+      particles.push(particle)
+    }
+    
+    // 添加中心爆炸光效
+    const centerParticle: Particle = {
+      x: fireworkX,
+      y: fireworkY,
+      vx: 0,
+      vy: 0,
+      radius: 20,
+      opacity: 0.8,
+      life: 1,
+      maxLife: 1,
+      hue: 60, // 金色中心
+      type: 'explosion'
+    }
+    particles.push(centerParticle)
+  }
+  
+  // 启动自动烟花定时器
+  const startAutoFireworks = () => {
+    if (!props.autoFireworks) return
+    
+    const scheduleNextFirework = () => {
+      // 随机间隔时间 (基础间隔 ± 50%)
+      const randomInterval = props.fireworksInterval * (0.5 + Math.random())
+      
+      fireworksTimer = setTimeout(() => {
+        createFirework()
+        scheduleNextFirework() // 递归调度下一次烟花
+      }, randomInterval)
+    }
+    
+    // 立即开始第一次烟花（延迟2秒）
+    fireworksTimer = setTimeout(() => {
+      createFirework()
+      scheduleNextFirework()
+    }, 2000)
+  }
+  
+  // 停止自动烟花
+  const stopAutoFireworks = () => {
+    if (fireworksTimer) {
+      clearTimeout(fireworksTimer)
+      fireworksTimer = null
+    }
+  }
+
   // 智能粒子创建系统
   const createParticle = (x: number, y: number, type: Particle['type'], count = 1) => {
     for (let i = 0; i < count; i++) {
@@ -417,6 +529,9 @@ const initAdvancedMouseInteraction = () => {
   
   animate()
   
+  // 启动自动烟花效果
+  startAutoFireworks()
+  
   // 清理函数
   return () => {
     document.removeEventListener('mousemove', handleMouseMove)
@@ -424,6 +539,7 @@ const initAdvancedMouseInteraction = () => {
     document.removeEventListener('mouseup', handleMouseUp)
     document.removeEventListener('mouseleave', handleMouseLeave)
     window.removeEventListener('resize', resizeCanvas)
+    stopAutoFireworks() // 清理烟花定时器
     particles.length = 0
     flowField.length = 0
   }

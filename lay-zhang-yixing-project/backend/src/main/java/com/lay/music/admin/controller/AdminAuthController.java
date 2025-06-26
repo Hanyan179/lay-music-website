@@ -1,11 +1,17 @@
 package com.lay.music.admin.controller;
 
+import com.lay.music.entity.User;
+import com.lay.music.repository.UserRepository;
 import com.lay.music.utils.PasswordUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * 管理员认证控制器
@@ -14,8 +20,25 @@ import java.util.Map;
 @RequestMapping("/api/admin")
 public class AdminAuthController {
     
-    // 存储的加密密码 - LayMusic@2025加密后的值
-    private static final String STORED_PASSWORD = PasswordUtils.encryptPassword("LayMusic@2025");
+    @Autowired
+    private UserRepository userRepository;
+    
+    /**
+     * MD5加密方法
+     */
+    private String md5Encrypt(String input) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] digest = md.digest(input.getBytes());
+            StringBuilder sb = new StringBuilder();
+            for (byte b : digest) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("MD5加密失败", e);
+        }
+    }
     
     /**
      * 管理员登录
@@ -38,35 +61,65 @@ public class AdminAuthController {
         }
         
         try {
-            // 使用加密密码验证
-            if ("admin".equals(username) && PasswordUtils.verifyPassword(password, STORED_PASSWORD)) {
-            Map<String, Object> data = new HashMap<>();
-                data.put("token", "LAY-JWT-TOKEN-" + System.currentTimeMillis());
-            data.put("userInfo", Map.of(
-                "id", "1",
-                "username", "admin",
-                "realName", "系统管理员",
-                "department", "技术部",
-                    "position", "后台管理员",
-                    "lastLoginTime", System.currentTimeMillis()
-            ));
+            // 从数据库查找用户
+            Optional<User> userOptional = userRepository.findByUsername(username);
             
-            response.put("code", 200);
-            response.put("message", "登录成功");
-            response.put("data", data);
-            response.put("timestamp", System.currentTimeMillis());
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
                 
-                // 记录登录日志
-                System.out.println("管理员登录成功: " + username + " - " + new java.util.Date());
+                // 验证用户状态
+                if (user.getStatus() != 1) {
+                    response.put("code", 403);
+                    response.put("message", "用户已被禁用");
+                    response.put("data", null);
+                    response.put("timestamp", System.currentTimeMillis());
+                    return response;
+                }
                 
-        } else {
-            response.put("code", 401);
-            response.put("message", "用户名或密码错误");
+                // 验证密码（使用MD5加密）
+                String encryptedPassword = md5Encrypt(password);
+                if (encryptedPassword.equals(user.getPassword())) {
+                    // 登录成功
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("token", "LAY-JWT-TOKEN-" + System.currentTimeMillis());
+                    data.put("userInfo", Map.of(
+                        "id", user.getId().toString(),
+                        "username", user.getUsername(),
+                        "realName", user.getRealName(),
+                        "email", user.getEmail() != null ? user.getEmail() : "",
+                        "role", user.getRole(),
+                        "lastLoginTime", System.currentTimeMillis()
+                    ));
+                    
+                    response.put("code", 200);
+                    response.put("message", "登录成功");
+                    response.put("data", data);
+                    response.put("timestamp", System.currentTimeMillis());
+                    
+                    // 更新最后登录时间
+                    user.setLastLoginTime(java.time.LocalDateTime.now());
+                    userRepository.save(user);
+                    
+                    // 记录登录日志
+                    System.out.println("用户登录成功: " + username + " - " + new java.util.Date());
+                    
+                } else {
+                    response.put("code", 401);
+                    response.put("message", "用户名或密码错误");
+                    response.put("data", null);
+                    response.put("timestamp", System.currentTimeMillis());
+                    
+                    // 记录失败日志
+                    System.out.println("用户登录失败 - 密码错误: " + username + " - " + new java.util.Date());
+                }
+            } else {
+                response.put("code", 401);
+                response.put("message", "用户名或密码错误");
                 response.put("data", null);
                 response.put("timestamp", System.currentTimeMillis());
                 
                 // 记录失败日志
-                System.out.println("管理员登录失败: " + username + " - " + new java.util.Date());
+                System.out.println("用户登录失败 - 用户不存在: " + username + " - " + new java.util.Date());
             }
         } catch (Exception e) {
             response.put("code", 500);
@@ -76,6 +129,7 @@ public class AdminAuthController {
             
             // 记录错误日志
             System.err.println("登录验证异常: " + e.getMessage());
+            e.printStackTrace();
         }
         
         return response;
@@ -181,7 +235,7 @@ public class AdminAuthController {
                 }
                 
                 // 验证原密码是否正确
-                if (PasswordUtils.verifyPassword(request.getOldPassword(), STORED_PASSWORD)) {
+                if (PasswordUtils.verifyPassword(request.getOldPassword(), PasswordUtils.encryptPassword("LayMusic@2025"))) {
                     // 原密码正确，更新为新密码（实际应用中应该更新数据库）
                     String newEncryptedPassword = PasswordUtils.encryptPassword(request.getNewPassword());
                     

@@ -1,0 +1,67 @@
+{
+  "messages": [
+    {
+      "id": 1,
+      "username": "星光粉丝",
+      "email": "fan1@example.com",
+      "message": "LAY的音乐真的太棒了！每一首歌都能感受到他对音乐的热爱和对文化的传承。",
+      "timestamp": "2024-06-25T10:30:00Z",
+      "approved": true,
+      "likes": 23,
+      "avatar": "/img/avatars/user1.png"
+    },
+    {
+      "id": 2,
+      "username": "音乐爱好者",
+      "email": "music@example.com",
+      "message": "《LIT》这张专辑完美融合了东西方音乐元素，真的是艺术品级别的作品！",
+      "timestamp": "2024-06-25T14:15:00Z",
+      "approved": true,
+      "likes": 45,
+      "avatar": "/img/avatars/user2.png"
+    },
+    {
+      "id": 3,
+      "username": "文化传承者",
+      "email": "culture@example.com",
+      "message": "感谢LAY通过音乐向世界展示中华文化的魅力，这种文化自信让人敬佩。",
+      "timestamp": "2024-06-25T16:45:00Z",
+      "approved": true,
+      "likes": 67,
+      "avatar": "/img/avatars/user3.png"
+    },
+    {
+      "id": 4,
+      "username": "新粉丝",
+      "email": "newbie@example.com",
+      "message": "刚刚开始关注LAY，被他的才华深深震撼，期待更多精彩作品！",
+      "timestamp": "2024-06-25T18:20:00Z",
+      "approved": false,
+      "likes": 12,
+      "avatar": "/img/avatars/user4.png"
+    },
+    {
+      "id": 5,
+      "username": "国际粉丝",
+      "email": "global@example.com",
+      "message": "LAY's music transcends cultural boundaries. His dedication to promoting Chinese culture is truly inspiring!",
+      "timestamp": "2024-06-25T20:10:00Z",
+      "approved": true,
+      "likes": 89,
+      "avatar": "/img/avatars/user5.png"
+    }
+  ],
+  "stats": {
+    "totalMessages": 5,
+    "approvedMessages": 4,
+    "pendingMessages": 1,
+    "totalLikes": 236,
+    "averageLikes": 47.2
+  },
+  "settings": {
+    "requireApproval": true,
+    "allowAnonymous": false,
+    "maxMessageLength": 500,
+    "enableLikes": true
+  }
+} 

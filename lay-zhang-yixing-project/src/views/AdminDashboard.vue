@@ -1,5 +1,11 @@
 <template>
   <div class="admin-dashboard">
+    <!-- 消息提示 -->
+    <div v-if="message.show" class="message-toast" :class="message.type">
+      <span class="message-icon">{{ getMessageIcon(message.type) }}</span>
+      <span class="message-text">{{ message.text }}</span>
+    </div>
+
     <!-- 顶部导航栏 -->
     <header class="admin-header">
       <div class="header-left">
@@ -22,7 +28,12 @@
                 <span class="nav-text">音乐作品维护</span>
               </a>
             </li>
-            <!-- 未来可扩展更多菜单项 -->
+            <li class="nav-item" :class="{ active: activeMenu === 'users' }">
+              <a href="#" @click.prevent="setActiveMenu('users')" class="nav-link">
+                <span class="nav-icon">👥</span>
+                <span class="nav-text">用户管理</span>
+              </a>
+            </li>
           </ul>
         </nav>
       </aside>
@@ -91,11 +102,84 @@
             </div>
           </div>
         </div>
+
+        <!-- 用户管理页面 -->
+        <div v-if="activeMenu === 'users'" class="user-management">
+          <div class="page-header">
+            <h2 class="page-title">用户管理</h2>
+            <button class="add-btn" @click="showAddUserModal = true">添加用户</button>
+          </div>
+
+          <!-- 搜索栏 -->
+          <div class="search-bar">
+            <input 
+              v-model="userSearchKeyword" 
+              type="text" 
+              placeholder="搜索用户名或真实姓名..." 
+              class="search-input"
+              @input="handleUserSearch"
+            />
+          </div>
+
+          <!-- 用户列表 -->
+          <div class="user-list">
+            <div class="list-header">
+              <div class="header-item">用户名</div>
+              <div class="header-item">真实姓名</div>
+              <div class="header-item">邮箱</div>
+              <div class="header-item">角色</div>
+              <div class="header-item">状态</div>
+              <div class="header-item">创建时间</div>
+              <div class="header-item">最后登录</div>
+              <div class="header-item">操作</div>
+            </div>
+
+            <div v-if="userLoading" class="loading-row">
+              <div class="loading-text">加载中...</div>
+            </div>
+
+            <div v-else-if="filteredUserList.length === 0" class="empty-row">
+              <div class="empty-text">暂无数据</div>
+            </div>
+
+            <div v-else>
+              <div 
+                v-for="user in filteredUserList" 
+                :key="user.id" 
+                class="list-row"
+              >
+                <div class="row-item">{{ user.username }}</div>
+                <div class="row-item">{{ user.realName }}</div>
+                <div class="row-item">{{ user.email || '-' }}</div>
+                <div class="row-item">
+                  <span class="role-badge" :class="getRoleClass(user.role)">
+                    {{ getRoleText(user.role) }}
+                  </span>
+                </div>
+                <div class="row-item">
+                  <span class="status-badge" :class="getStatusClass(user.status)">
+                    {{ getStatusText(user.status) }}
+                  </span>
+                </div>
+                <div class="row-item">{{ formatDate(user.createTime) }}</div>
+                <div class="row-item">{{ user.lastLoginTime ? formatDate(user.lastLoginTime) : '-' }}</div>
+                <div class="row-item actions">
+                  <button class="action-btn edit" @click="editUser(user)">编辑</button>
+                  <button 
+                    class="action-btn delete" 
+                    @click="deleteUserConfirm(user)"
+                    :disabled="user.username === 'admin'"
+                  >删除</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
 
     <!-- 添加/编辑专辑模态框 -->
-    <div v-if="showAddModal || showEditModal" class="modal-overlay" @click="closeModal">
+    <div v-if="showAddModal || showEditModal" class="modal-overlay">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
           <h3>{{ showAddModal ? '添加专辑' : '编辑专辑' }}</h3>
@@ -177,12 +261,96 @@
         </div>
       </div>
     </div>
+
+    <!-- 添加/编辑用户模态框 -->
+    <div v-if="showAddUserModal || showEditUserModal" class="modal-overlay">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3>{{ showAddUserModal ? '添加用户' : '编辑用户' }}</h3>
+          <button class="close-btn" @click="closeUserModal">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+          <form @submit.prevent="saveUser">
+            <div class="form-row">
+              <div class="form-group">
+                <label>用户名 *</label>
+                <input 
+                  v-model="userForm.username" 
+                  type="text" 
+                  required 
+                  :disabled="showEditUserModal"
+                  placeholder="请输入用户名"
+                />
+                <small v-if="showEditUserModal" class="form-note">用户名不可修改</small>
+              </div>
+              <div class="form-group" v-if="showAddUserModal">
+                <label>密码 *</label>
+                <input 
+                  v-model="userForm.password" 
+                  type="password" 
+                  required 
+                  placeholder="请输入密码（至少6位）"
+                  minlength="6"
+                />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>真实姓名 *</label>
+                <input 
+                  v-model="userForm.realName" 
+                  type="text" 
+                  required 
+                  placeholder="请输入真实姓名"
+                />
+              </div>
+              <div class="form-group">
+                <label>邮箱</label>
+                <input 
+                  v-model="userForm.email" 
+                  type="email" 
+                  placeholder="请输入邮箱地址"
+                />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>角色 *</label>
+                <select v-model="userForm.role" required>
+                  <option value="">请选择角色</option>
+                  <option value="ADMIN">管理员</option>
+                  <option value="USER">普通用户</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>状态 *</label>
+                <select v-model="userForm.status" required>
+                  <option :value="1">启用</option>
+                  <option :value="0">禁用</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="cancel-btn" @click="closeUserModal">取消</button>
+              <button type="submit" class="save-btn" :disabled="userSaving">
+                {{ userSaving ? '保存中...' : '保存' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+import { getUserList, addUser, updateUser, deleteUser } from '@/api/admin.js'
 
 export default {
   name: 'AdminDashboard',
@@ -198,6 +366,22 @@ export default {
     const currentEditAlbum = ref(null)
     
     const adminUser = ref(null)
+
+    // 用户管理相关变量
+    const userLoading = ref(false)
+    const userSaving = ref(false)
+    const showAddUserModal = ref(false)
+    const showEditUserModal = ref(false)
+    const userSearchKeyword = ref('')
+    const userList = ref([])
+    const currentEditUser = ref(null)
+
+    // 消息提示
+    const message = reactive({
+      show: false,
+      text: '',
+      type: 'success' // success, error, warning, info
+    })
     
     const albumForm = reactive({
       albumTitle: '',
@@ -212,7 +396,29 @@ export default {
       coverImage: ''
     })
 
+    // 用户表单
+    const userForm = reactive({
+      username: '',
+      password: '',
+      realName: '',
+      email: '',
+      role: '',
+      status: 1
+    })
+
     const currentYear = computed(() => new Date().getFullYear())
+
+    // 用户搜索过滤
+    const filteredUserList = computed(() => {
+      if (!userSearchKeyword.value) {
+        return userList.value
+      }
+      const keyword = userSearchKeyword.value.toLowerCase()
+      return userList.value.filter(user => 
+        user.username.toLowerCase().includes(keyword) ||
+        user.realName.toLowerCase().includes(keyword)
+      )
+    })
 
     onMounted(async () => {
       // 检查登录状态
@@ -232,10 +438,15 @@ export default {
       
       // 加载专辑列表
       await loadAlbumList()
+      // 加载用户列表
+      await loadUserList()
     })
 
-    const setActiveMenu = (menu) => {
+    const setActiveMenu = async (menu) => {
       activeMenu.value = menu
+      if (menu === 'users') {
+        await loadUserList()
+      }
     }
 
     const handleLogout = () => {
@@ -367,6 +578,167 @@ export default {
       return statusMap[status] || '未知'
     }
 
+    // 消息提示方法
+    const showMessage = (text, type = 'success') => {
+      message.show = true
+      message.text = text
+      message.type = type
+      
+      // 3秒后自动隐藏
+      setTimeout(() => {
+        message.show = false
+      }, 3000)
+    }
+
+    const getMessageIcon = (type) => {
+      const icons = {
+        success: '✅',
+        error: '❌',
+        warning: '⚠️',
+        info: 'ℹ️'
+      }
+      return icons[type] || 'ℹ️'
+    }
+
+    // 用户管理方法
+    const loadUserList = async () => {
+      userLoading.value = true
+      try {
+        const result = await getUserList()
+        if (result.success) {
+          userList.value = result.data
+        } else {
+          console.error('获取用户列表失败:', result.message)
+        }
+      } catch (error) {
+        console.error('加载用户列表异常:', error)
+      } finally {
+        userLoading.value = false
+      }
+    }
+
+    const handleUserSearch = () => {
+      // 搜索逻辑已在computed中处理
+    }
+
+    const resetUserForm = () => {
+      Object.assign(userForm, {
+        username: '',
+        password: '',
+        realName: '',
+        email: '',
+        role: '',
+        status: 1
+      })
+    }
+
+    const editUser = (user) => {
+      currentEditUser.value = user
+      Object.assign(userForm, {
+        username: user.username,
+        password: '', // 编辑时不显示密码
+        realName: user.realName,
+        email: user.email || '',
+        role: user.role,
+        status: user.status
+      })
+      showEditUserModal.value = true
+    }
+
+    const deleteUserConfirm = (user) => {
+      if (confirm(`确定要删除用户 "${user.username}" 吗？`)) {
+        deleteUserHandler(user.id)
+      }
+    }
+
+    const deleteUserHandler = async (userId) => {
+      try {
+        const result = await deleteUser(userId)
+        if (result.success) {
+          showMessage('用户删除成功', 'success')
+          await loadUserList()
+        } else {
+          showMessage('删除失败: ' + result.message, 'error')
+        }
+      } catch (error) {
+        console.error('删除用户异常:', error)
+        showMessage('删除失败，请稍后重试', 'error')
+      }
+    }
+
+    const closeUserModal = () => {
+      showAddUserModal.value = false
+      showEditUserModal.value = false
+      currentEditUser.value = null
+      resetUserForm()
+    }
+
+    const saveUser = async () => {
+      userSaving.value = true
+      try {
+        let result
+        if (showAddUserModal.value) {
+          // 添加用户
+          result = await addUser({
+            username: userForm.username,
+            password: userForm.password,
+            realName: userForm.realName,
+            email: userForm.email,
+            role: userForm.role
+          })
+        } else {
+          // 更新用户
+          result = await updateUser(currentEditUser.value.id, {
+            realName: userForm.realName,
+            email: userForm.email,
+            role: userForm.role,
+            status: userForm.status
+          })
+        }
+
+        if (result.success) {
+          showMessage(showAddUserModal.value ? '用户添加成功' : '用户更新成功', 'success')
+          closeUserModal()
+          await loadUserList()
+        } else {
+          showMessage('保存失败: ' + result.message, 'error')
+        }
+      } catch (error) {
+        console.error('保存用户异常:', error)
+        showMessage('保存失败，请稍后重试', 'error')
+      } finally {
+        userSaving.value = false
+      }
+    }
+
+    const getRoleClass = (role) => {
+      const roleClasses = {
+        'ADMIN': 'admin',
+        'USER': 'user'
+      }
+      return roleClasses[role] || 'user'
+    }
+
+    const getRoleText = (role) => {
+      const roleMap = {
+        'ADMIN': '管理员',
+        'USER': '普通用户'
+      }
+      return roleMap[role] || '未知'
+    }
+
+    const formatDate = (dateString) => {
+      if (!dateString) return '-'
+      const date = new Date(dateString)
+      return date.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    }
+
     return {
       activeMenu,
       loading,
@@ -386,7 +758,31 @@ export default {
       closeModal,
       saveAlbum,
       getStatusClass,
-      getStatusText
+      getStatusText,
+      
+      // 用户管理
+      userLoading,
+      userSaving,
+      showAddUserModal,
+      showEditUserModal,
+      userSearchKeyword,
+      userList,
+      filteredUserList,
+      userForm,
+      loadUserList,
+      handleUserSearch,
+      editUser,
+      deleteUserConfirm,
+      closeUserModal,
+      saveUser,
+      getRoleClass,
+      getRoleText,
+      formatDate,
+
+      // 消息提示
+      message,
+      showMessage,
+      getMessageIcon
     }
   }
 }
@@ -643,10 +1039,78 @@ export default {
   background: #c82333;
 }
 
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-btn:disabled:hover {
+  background: #dc3545;
+}
+
 .loading-row, .empty-row {
   padding: 3rem;
   text-align: center;
   color: #666;
+}
+
+/* 用户管理样式 */
+.user-management {
+  /* 复用音乐管理的样式 */
+}
+
+.user-list {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.user-list .list-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.5fr 1fr 1fr 1.2fr 1.2fr 1.5fr;
+  background: #f8f9fa;
+  padding: 1rem;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.user-list .list-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.5fr 1fr 1fr 1.2fr 1.2fr 1.5fr;
+  padding: 1rem;
+  border-bottom: 1px solid #f1f3f4;
+  align-items: center;
+}
+
+.user-list .list-row:hover {
+  background: #f8f9fa;
+}
+
+.role-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-align: center;
+  display: inline-block;
+}
+
+.role-badge.admin {
+  background: #dc3545;
+  color: white;
+}
+
+.role-badge.user {
+  background: #28a745;
+  color: white;
+}
+
+.form-note {
+  color: #666;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
 }
 
 /* 模态框样式 */
@@ -788,6 +1252,60 @@ export default {
   cursor: not-allowed;
 }
 
+/* 消息提示样式 */
+.message-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  color: white;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 2000;
+  min-width: 300px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  animation: slideIn 0.3s ease-out;
+}
+
+.message-toast.success {
+  background: #28a745;
+}
+
+.message-toast.error {
+  background: #dc3545;
+}
+
+.message-toast.warning {
+  background: #ffc107;
+  color: #333;
+}
+
+.message-toast.info {
+  background: #17a2b8;
+}
+
+.message-icon {
+  font-size: 1.2rem;
+}
+
+.message-text {
+  flex: 1;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .admin-content {
@@ -817,6 +1335,14 @@ export default {
   .header-item,
   .row-item {
     padding: 0.25rem 0;
+  }
+
+  .message-toast {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    min-width: auto;
+    width: auto;
   }
 }
 </style> 

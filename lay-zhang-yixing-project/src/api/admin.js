@@ -52,7 +52,7 @@ const mockResponse = (data, success = true, message = '操作成功') => {
 export const adminLogin = async (loginData) => {
   try {
     // 使用真实的后端API进行登录
-    const response = await fetch('/api/admin/login', {
+    const response = await fetch('http://localhost:8081/api/admin/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -86,7 +86,7 @@ export const adminLogin = async (loginData) => {
     console.error('登录失败:', error)
     return {
       success: false,
-      message: '网络错误，请稍后重试',
+      message: '网络连接失败，请检查服务器状态',
       data: null
     }
   }
@@ -282,6 +282,154 @@ export const realApiCall = async (endpoint, options) => {
   }
 }
 
+// 用户管理相关API
+
+// 获取用户列表
+export const getUserList = async () => {
+  try {
+    const response = await fetch('http://localhost:8081/api/admin/users', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+      }
+    })
+    
+    const result = await response.json()
+    
+    if (result.code === 200) {
+      return {
+        success: true,
+        message: result.message,
+        data: result.data
+      }
+    } else {
+      return {
+        success: false,
+        message: result.message || '获取用户列表失败',
+        data: []
+      }
+    }
+  } catch (error) {
+    console.error('获取用户列表失败:', error)
+    return {
+      success: false,
+      message: '网络连接失败',
+      data: []
+    }
+  }
+}
+
+// 添加用户
+export const addUser = async (userData) => {
+  try {
+    const response = await fetch('http://localhost:8081/api/admin/users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+      },
+      body: JSON.stringify(userData)
+    })
+    
+    const result = await response.json()
+    
+    if (result.code === 200) {
+      return {
+        success: true,
+        message: result.message,
+        data: result.data
+      }
+    } else {
+      return {
+        success: false,
+        message: result.message || '添加用户失败',
+        data: null
+      }
+    }
+  } catch (error) {
+    console.error('添加用户失败:', error)
+    return {
+      success: false,
+      message: '网络连接失败',
+      data: null
+    }
+  }
+}
+
+// 更新用户
+export const updateUser = async (userId, userData) => {
+  try {
+    const response = await fetch(`http://localhost:8081/api/admin/users/${userId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+      },
+      body: JSON.stringify(userData)
+    })
+    
+    const result = await response.json()
+    
+    if (result.code === 200) {
+      return {
+        success: true,
+        message: result.message,
+        data: result.data
+      }
+    } else {
+      return {
+        success: false,
+        message: result.message || '更新用户失败',
+        data: null
+      }
+    }
+  } catch (error) {
+    console.error('更新用户失败:', error)
+    return {
+      success: false,
+      message: '网络连接失败',
+      data: null
+    }
+  }
+}
+
+// 删除用户
+export const deleteUser = async (userId) => {
+  try {
+    const response = await fetch(`http://localhost:8081/api/admin/users/${userId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${getToken()}`
+      }
+    })
+    
+    const result = await response.json()
+    
+    if (result.code === 200) {
+      return {
+        success: true,
+        message: result.message,
+        data: result.data
+      }
+    } else {
+      return {
+        success: false,
+        message: result.message || '删除用户失败',
+        data: null
+      }
+    }
+  } catch (error) {
+    console.error('删除用户失败:', error)
+    return {
+      success: false,
+      message: '网络连接失败',
+      data: null
+    }
+  }
+}
+
 // 导出所有API函数
 export default {
   // 认证相关
@@ -298,6 +446,12 @@ export default {
   updateAlbumStatus,
   batchDeleteAlbums,
   getAlbumStatistics,
+  
+  // 用户管理
+  getUserList,
+  addUser,
+  updateUser,
+  deleteUser,
   
   // 通用工具
   realApiCall

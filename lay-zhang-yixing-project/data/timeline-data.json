@@ -1,0 +1,97 @@
+{
+  "timeline": [
+    {
+      "id": 1,
+      "year": 2012,
+      "title": "出道",
+      "description": "作为EXO成员正式出道，开启音乐之路",
+      "image": "/img/timeline/2012-debut.jpg",
+      "category": "career",
+      "achievements": [
+        "加入SM Entertainment",
+        "EXO正式出道",
+        "发行首张专辑《MAMA》"
+      ]
+    },
+    {
+      "id": 2,
+      "year": 2015,
+      "title": "个人发展",
+      "description": "开始个人音乐创作，展现多元化才华",
+      "image": "/img/timeline/2015-solo.jpg",
+      "category": "music",
+      "achievements": [
+        "发行个人单曲《What U Need》",
+        "参与音乐制作",
+        "尝试不同音乐风格"
+      ]
+    },
+    {
+      "id": 3,
+      "year": 2018,
+      "title": "回归中国",
+      "description": "专注中国市场发展，推广中国文化",
+      "image": "/img/timeline/2018-china.jpg",
+      "category": "culture",
+      "achievements": [
+        "成立个人工作室",
+        "发行中文专辑《NAMANANA》",
+        "推广中国传统文化元素"
+      ]
+    },
+    {
+      "id": 4,
+      "year": 2020,
+      "title": "文化传承",
+      "description": "通过音乐传播中华文化，获得国际认可",
+      "image": "/img/timeline/2020-culture.jpg",
+      "category": "culture",
+      "achievements": [
+        "发行专辑《LIT》",
+        "融合传统与现代元素",
+        "获得多项音乐奖项",
+        "国际舞台展现中国文化"
+      ]
+    },
+    {
+      "id": 5,
+      "year": 2022,
+      "title": "持续创新",
+      "description": "不断探索音乐边界，传递正能量",
+      "image": "/img/timeline/2022-innovation.jpg",
+      "category": "music",
+      "achievements": [
+        "发布多首原创作品",
+        "参与公益活动",
+        "音乐风格持续创新",
+        "粉丝群体不断壮大"
+      ]
+    }
+  ],
+  "categories": [
+    {
+      "id": "career",
+      "name": "职业生涯",
+      "color": "#FF6B6B",
+      "icon": "🎤"
+    },
+    {
+      "id": "music",
+      "name": "音乐作品",
+      "color": "#4ECDC4",
+      "icon": "🎵"
+    },
+    {
+      "id": "culture",
+      "name": "文化传承",
+      "color": "#45B7D1",
+      "icon": "🏮"
+    }
+  ],
+  "stats": {
+    "totalEvents": 5,
+    "yearsActive": 12,
+    "milestonesAchieved": 18,
+    "culturesPromoted": 2
+  }
+} 

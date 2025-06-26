@@ -19,6 +19,9 @@ const routes: RouteRecordRaw[] = [
   /* 透明波纹演示页面 */
   { path: '/ripple-demo',      name: 'RippleDemo',          component: () => import('@/views/RippleDemo.vue') },
 
+  /* 沉浸式照片墙演示页面 */
+  { path: '/portfolio-gallery', name: 'PortfolioGalleryDemo', component: () => import('@/views/PortfolioGalleryDemo.vue') },
+
   { path: '/landing-3d',       name: 'Landing3D',           component: () => import('@/views/Landing3D.vue') },
 
   /* 唯一的 /timeline */

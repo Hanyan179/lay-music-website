@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAY音乐网站 - API验证</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+        }
+        
+        .test-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .test-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .test-button:hover {
+            background: #5a6fd8;
+        }
+        
+        .test-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .response-box {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .login-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .login-form input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .summary {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .summary h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 LAY张艺兴音乐网站</h1>
+            <p>API连接验证工具</p>
+        </div>
+
+        <!-- 服务状态检查 -->
+        <div class="test-section">
+            <h3>
+                🔍 服务状态检查
+                <span id="service-status" class="status pending">检查中...</span>
+            </h3>
+            <button class="test-button" onclick="checkServices()">检查服务状态</button>
+            <div id="service-response" class="response-box" style="display: none;"></div>
+        </div>
+
+        <!-- 验证码接口测试 -->
+        <div class="test-section">
+            <h3>
+                🖼️ 验证码接口
+                <span id="captcha-status" class="status pending">未测试</span>
+            </h3>
+            <button class="test-button" onclick="testCaptcha()">测试验证码</button>
+            <div id="captcha-response" class="response-box" style="display: none;"></div>
+        </div>
+
+        <!-- 登录接口测试 -->
+        <div class="test-section">
+            <h3>
+                🔐 登录接口
+                <span id="login-status" class="status pending">未测试</span>
+            </h3>
+            <div class="login-form">
+                <input type="text" id="username" placeholder="用户名" value="admin">
+                <input type="password" id="password" placeholder="密码" value="LayMusic@2025">
+            </div>
+            <button class="test-button" onclick="testLogin()">测试登录</button>
+            <button class="test-button" onclick="testAutoLogin()">自动登录测试</button>
+            <div id="login-response" class="response-box" style="display: none;"></div>
+        </div>
+
+        <!-- 数据接口测试 -->
+        <div class="test-section">
+            <h3>
+                📊 数据接口
+                <span id="data-status" class="status pending">未测试</span>
+            </h3>
+            <button class="test-button" onclick="testMusicData()">音乐数据</button>
+            <button class="test-button" onclick="testTimelineData()">时间线数据</button>
+            <button class="test-button" onclick="testMessagesData()">留言数据</button>
+            <button class="test-button" onclick="testAllData()">测试所有数据</button>
+            <div id="data-response" class="response-box" style="display: none;"></div>
+        </div>
+
+        <!-- 前端页面测试 -->
+        <div class="test-section">
+            <h3>
+                🌐 前端页面测试
+                <span id="frontend-status" class="status pending">未测试</span>
+            </h3>
+            <button class="test-button" onclick="testFrontendPages()">测试前端页面</button>
+            <button class="test-button" onclick="openMainPage()">打开主页</button>
+            <button class="test-button" onclick="openAdminPage()">打开管理页面</button>
+            <div id="frontend-response" class="response-box" style="display: none;"></div>
+        </div>
+
+        <!-- 验证总结 -->
+        <div class="summary">
+            <h3>📋 验证总结</h3>
+            <div class="summary-item">
+                <span>后端API服务 (8082端口)</span>
+                <span id="summary-backend" class="status pending">检查中</span>
+            </div>
+            <div class="summary-item">
+                <span>前端服务 (3004端口)</span>
+                <span id="summary-frontend" class="status pending">检查中</span>
+            </div>
+            <div class="summary-item">
+                <span>数据库连接</span>
+                <span id="summary-database" class="status pending">检查中</span>
+            </div>
+            <div class="summary-item">
+                <span>认证系统</span>
+                <span id="summary-auth" class="status pending">检查中</span>
+            </div>
+            <div class="summary-item">
+                <span>数据接口</span>
+                <span id="summary-data" class="status pending">检查中</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8082';
+        let authToken = null;
+
+        // 工具函数
+        function updateStatus(elementId, status, text) {
+            const element = document.getElementById(elementId);
+            element.className = `status ${status}`;
+            element.textContent = text || (status === 'success' ? '✅ 正常' : status === 'error' ? '❌ 异常' : '⏳ 检查中');
+        }
+
+        function showResponse(elementId, data) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.textContent = JSON.stringify(data, null, 2);
+        }
+
+        function logMessage(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+        }
+
+        // API调用函数
+        async function apiCall(endpoint, method = 'GET', data = null, useAuth = false) {
+            try {
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                
+                if (useAuth && authToken) {
+                    headers['Authorization'] = `Bearer ${authToken}`;
+                }
+
+                const response = await fetch(API_BASE + endpoint, {
+                    method,
+                    headers,
+                    body: data ? JSON.stringify(data) : null
+                });
+
+                const result = await response.json();
+                return {
+                    success: response.ok,
+                    status: response.status,
+                    data: result
+                };
+            } catch (error) {
+                return {
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+
+        // 检查服务状态
+        async function checkServices() {
+            updateStatus('service-status', 'pending', '检查中...');
+            logMessage('service-response', '开始检查服务状态...');
+
+            // 检查后端服务
+            try {
+                const response = await fetch(API_BASE + '/captchaImage');
+                if (response.ok) {
+                    updateStatus('summary-backend', 'success');
+                    logMessage('service-response', '✅ 后端服务正常 (8082端口)');
+                } else {
+                    updateStatus('summary-backend', 'error');
+                    logMessage('service-response', '❌ 后端服务异常');
+                }
+            } catch (error) {
+                updateStatus('summary-backend', 'error');
+                logMessage('service-response', '❌ 无法连接后端服务: ' + error.message);
+            }
+
+            // 检查前端服务
+            try {
+                const frontendResponse = await fetch('http://localhost:3004/');
+                if (frontendResponse.ok) {
+                    updateStatus('summary-frontend', 'success');
+                    logMessage('service-response', '✅ 前端服务正常 (3004端口)');
+                } else {
+                    updateStatus('summary-frontend', 'error');
+                    logMessage('service-response', '❌ 前端服务异常');
+                }
+            } catch (error) {
+                updateStatus('summary-frontend', 'error');
+                logMessage('service-response', '❌ 无法连接前端服务: ' + error.message);
+            }
+
+            updateStatus('service-status', 'success', '检查完成');
+        }
+
+        // 测试验证码接口
+        async function testCaptcha() {
+            updateStatus('captcha-status', 'pending', '测试中...');
+            
+            const result = await apiCall('/captchaImage');
+            
+            if (result.success && result.data.code === 200) {
+                updateStatus('captcha-status', 'success');
+                showResponse('captcha-response', {
+                    ...result.data,
+                    note: '验证码图片已生成，UUID: ' + result.data.data?.uuid
+                });
+            } else {
+                updateStatus('captcha-status', 'error');
+                showResponse('captcha-response', result);
+            }
+        }
+
+        // 测试登录接口
+        async function testLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            updateStatus('login-status', 'pending', '登录中...');
+            
+            const result = await apiCall('/login', 'POST', {
+                username,
+                password,
+                code: '',
+                uuid: ''
+            });
+            
+            if (result.success && result.data.code === 200) {
+                updateStatus('login-status', 'success');
+                updateStatus('summary-auth', 'success');
+                authToken = result.data.token;
+                showResponse('login-response', {
+                    ...result.data,
+                    note: '登录成功，Token已保存用于后续测试'
+                });
+            } else {
+                updateStatus('login-status', 'error');
+                updateStatus('summary-auth', 'error');
+                showResponse('login-response', result);
+            }
+        }
+
+        // 自动登录测试
+        async function testAutoLogin() {
+            document.getElementById('username').value = 'admin';
+            document.getElementById('password').value = 'LayMusic@2025';
+            await testLogin();
+        }
+
+        // 测试音乐数据
+        async function testMusicData() {
+            const result = await apiCall('/api/data/music');
+            
+            if (result.success && result.data.code === 200) {
+                logMessage('data-response', '✅ 音乐数据接口正常');
+                showResponse('data-response', result.data);
+            } else {
+                logMessage('data-response', '❌ 音乐数据接口异常');
+                showResponse('data-response', result);
+            }
+        }
+
+        // 测试时间线数据
+        async function testTimelineData() {
+            const result = await apiCall('/api/data/timeline');
+            
+            if (result.success && result.data.code === 200) {
+                logMessage('data-response', '✅ 时间线数据接口正常');
+                showResponse('data-response', result.data);
+            } else {
+                logMessage('data-response', '❌ 时间线数据接口异常');
+                showResponse('data-response', result);
+            }
+        }
+
+        // 测试留言数据
+        async function testMessagesData() {
+            const result = await apiCall('/api/data/messages');
+            
+            if (result.success && result.data.code === 200) {
+                logMessage('data-response', '✅ 留言数据接口正常');
+                showResponse('data-response', result.data);
+            } else {
+                logMessage('data-response', '❌ 留言数据接口异常');
+                showResponse('data-response', result);
+            }
+        }
+
+        // 测试所有数据接口
+        async function testAllData() {
+            updateStatus('data-status', 'pending', '测试中...');
+            document.getElementById('data-response').textContent = '';
+            document.getElementById('data-response').style.display = 'block';
+            
+            logMessage('data-response', '开始测试所有数据接口...\n');
+            
+            let successCount = 0;
+            const tests = [
+                { name: '音乐数据', endpoint: '/api/data/music' },
+                { name: '时间线数据', endpoint: '/api/data/timeline' },
+                { name: '留言数据', endpoint: '/api/data/messages' }
+            ];
+            
+            for (const test of tests) {
+                const result = await apiCall(test.endpoint);
+                if (result.success && result.data.code === 200) {
+                    logMessage('data-response', `✅ ${test.name}接口正常`);
+                    successCount++;
+                } else {
+                    logMessage('data-response', `❌ ${test.name}接口异常`);
+                }
+            }
+            
+            if (successCount === tests.length) {
+                updateStatus('data-status', 'success');
+                updateStatus('summary-data', 'success');
+                updateStatus('summary-database', 'success');
+            } else {
+                updateStatus('data-status', 'error', `${successCount}/${tests.length} 成功`);
+                updateStatus('summary-data', 'error');
+            }
+        }
+
+        // 测试前端页面
+        async function testFrontendPages() {
+            updateStatus('frontend-status', 'pending', '测试中...');
+            document.getElementById('frontend-response').textContent = '';
+            document.getElementById('frontend-response').style.display = 'block';
+            
+            const pages = [
+                { name: '主页', url: 'http://localhost:3004/' },
+                { name: 'API测试页', url: 'http://localhost:3004/test-api-connection.html' },
+                { name: '若依管理页', url: 'http://localhost:8083/' }
+            ];
+            
+            let successCount = 0;
+            
+            for (const page of pages) {
+                try {
+                    const response = await fetch(page.url);
+                    if (response.ok) {
+                        logMessage('frontend-response', `✅ ${page.name} 可访问`);
+                        successCount++;
+                    } else {
+                        logMessage('frontend-response', `❌ ${page.name} 访问异常 (${response.status})`);
+                    }
+                } catch (error) {
+                    logMessage('frontend-response', `❌ ${page.name} 无法访问: ${error.message}`);
+                }
+            }
+            
+            if (successCount > 0) {
+                updateStatus('frontend-status', 'success', `${successCount}/${pages.length} 可访问`);
+            } else {
+                updateStatus('frontend-status', 'error');
+            }
+        }
+
+        // 打开页面
+        function openMainPage() {
+            window.open('http://localhost:3004/', '_blank');
+        }
+
+        function openAdminPage() {
+            window.open('http://localhost:8083/', '_blank');
+        }
+
+        // 页面加载时自动检查服务
+        window.addEventListener('load', function() {
+            setTimeout(checkServices, 1000);
+        });
+    </script>
+</body>
+</html> 
