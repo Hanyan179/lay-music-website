@@ -1,5 +1,20 @@
 <template>
     <div class="artist-journey">
+       <!-- 预加载器 -->
+       <div id="pre-load" class="loader" v-show="isLoading">
+         <div class="loader-inner">
+            <div class="loader-logo">
+              <!-- LAY 张艺兴专属 Logo -->
+              <img src="/img/music/logo_transparent.png" alt="LAY Logo" class="logo-img" />
+            </div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+            <div class="box"></div>
+         </div>
+       </div>
+
        <!-- 鼠标粒子交互背景 - 全屏效果 + 自动烟花 -->
        <WaterRipple 
          :maxParticles="500" 
@@ -9,26 +24,43 @@
          :fireworksInterval="200"
          :fireworksIntensity="6"
        />
+       
+       <!-- 霓虹玻璃右键菜单 -->
+       <NeonGlassMenu :hue1="280" :hue2="220" />
       
-      <!-- 导航栏 -->
-      <nav class="fixed top-0 w-full z-[100] bg-white/10 backdrop-blur-md border-b border-white/20">
-        <div class="container mx-auto px-6 py-4">
+      <!-- 导航栏 - 霓虹玻璃风格 -->
+      <nav class="neon-navbar fixed top-0 w-full z-[100]">
+        <!-- 发光效果层 -->
+        <span class="navbar-shine navbar-shine-left"></span>
+        <span class="navbar-shine navbar-shine-right"></span>
+        <span class="navbar-glow navbar-glow-left"></span>
+        <span class="navbar-glow navbar-glow-right"></span>
+        
+                 <div class="container mx-auto px-6 py-4 relative z-10">
           <div class="flex items-center justify-between">
-            <div class="music-brand text-gray-800">
+            <div class="music-brand neon-brand flex items-center gap-3">
+              <img src="/img/music/logo_transparent.png" alt="LAY Logo" class="brand-logo" />
               LAY 张艺兴
             </div>
             <div class="flex space-x-8">
-              <a href="#home" class="nav-link">首页</a>
-              <router-link to="/music3d" class="nav-link">音乐</router-link>
-              <router-link to="/message-wall" class="nav-link">留言墙</router-link>
-              <a href="#about" class="nav-link">关于</a>
-              <a href="#contact" class="nav-link">联系</a>
+              <a href="#home" class="nav-link neon-nav-link">{{ t('nav.home') }}</a>
+              <router-link to="/music3d" class="nav-link neon-nav-link">{{ t('nav.music') }}</router-link>
+              <router-link to="/message-wall" class="nav-link neon-nav-link">{{ t('nav.messages') }}</router-link>
+              <a href="#about" class="nav-link neon-nav-link">{{ t('nav.about') }}</a>
+              <a href="#contact" class="nav-link neon-nav-link">{{ t('nav.contact') }}</a>
             </div>
-            <button id="menu-toggle" class="md:hidden control-button" title="菜单">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
+            <div class="flex items-center gap-4">
+              <!-- 语言切换按钮 -->
+              <LanguageSwitcher 
+                :current-language="currentLanguage"
+                @language-change="setLanguage"
+              />
+              <button id="menu-toggle" class="md:hidden neon-control-button" :title="t('nav.menu')">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </nav>
@@ -101,7 +133,7 @@
           :class="{ 'scroll-hint-visible': animationState === 1 && revealedCount >= identityTags.length && !hasScrolled }"
         >
           <div class="scroll-hint-content">
-            <span class="scroll-hint-text">下滑继续</span>
+            <span class="scroll-hint-text">{{ t('hero.scrollHint') }}</span>
           </div>
         </div>
         
@@ -112,7 +144,7 @@
           style="bottom: 4vh;"
         >
           <div class="scroll-hint-content">
-            <span class="scroll-hint-text">下滑查看更多</span>
+            <span class="scroll-hint-text">{{ t('hero.scrollHintMore') }}</span>
           </div>
         </div>
         
@@ -127,20 +159,28 @@
         <div class="absolute inset-0 bg-black bg-opacity-50" @click="closeMobileMenu"></div>
         <div class="absolute right-0 top-0 h-full w-80 bg-white shadow-xl p-6">
           <div class="flex justify-between items-center mb-8">
-            <h3 class="text-xl font-bold text-gray-900">菜单</h3>
-            <button @click="closeMobileMenu" class="control-button" title="关闭菜单">
+            <h3 class="text-xl font-bold text-gray-900">{{ t('nav.menu') }}</h3>
+            <button @click="closeMobileMenu" class="control-button" :title="t('nav.menu')">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
             </button>
           </div>
           <nav class="space-y-6">
-            <a href="#home" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">首页</a>
-            <router-link to="/music3d" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">音乐</router-link>
-            <router-link to="/message-wall" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">留言墙</router-link>
-            <a href="#about" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">关于</a>
-            <a href="#contact" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">联系</a>
+            <a href="#home" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">{{ t('nav.home') }}</a>
+            <router-link to="/music3d" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">{{ t('nav.music') }}</router-link>
+            <router-link to="/message-wall" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">{{ t('nav.messages') }}</router-link>
+            <a href="#about" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">{{ t('nav.about') }}</a>
+            <a href="#contact" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">{{ t('nav.contact') }}</a>
           </nav>
+          
+          <!-- 移动端语言切换 -->
+          <div class="mt-8 pt-6 border-t border-gray-200">
+            <LanguageSwitcher 
+              :current-language="currentLanguage"
+              @language-change="setLanguage"
+            />
+          </div>
         </div>
       </div>
             
@@ -152,23 +192,34 @@
 // 组件导入
 import WaterRipple from '@/components/WaterRipple.vue'
 import FeaturedWorks from '@/components/FeaturedWorks.vue'
+import NeonGlassMenu from '@/components/NeonGlassMenu.vue'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import identityTagsData, { artistBiography } from '@/data/identityTags'
+
+// 多语言支持
+import { useLanguage } from '@/composables/useLanguage'
 
 // 样式导入
 import '@/styles/debug.css'
 import '@/styles/index.css'
 
 // Vue 核心导入
-import { onMounted, onUnmounted, ref, reactive, watchEffect } from 'vue'
+import { onMounted, onUnmounted, ref, reactive, computed, watchEffect } from 'vue'
 import { useRouter } from 'vue-router'
 
 // ========== 路由和初始化 ==========
 const router = useRouter()
 
+// ========== 多语言支持 ==========
+const { currentLanguage, currentLanguageData, setLanguage, t } = useLanguage()
+
+// ========== 预加载状态管理 ==========
+const isLoading = ref(true) // 预加载状态
+
 // ========== 高级交互动效状态管理 ==========
 const animationState = ref(0) // 0: 初始, 1: 爆发, 2: 整列, 3: 简介显示
-const identityTags = ref(identityTagsData)
-const bioText = ref(artistBiography) // 从数据文件导入
+const identityTags = computed(() => currentLanguageData.value.hero.identityTags) // 多语言身份标签
+const bioText = computed(() => currentLanguageData.value.hero.biography) // 多语言简介
 const hasScrolled = ref(false) // 用户是否已经滚动
 
 // ========== 节选作品相关状态 ==========
@@ -504,16 +555,31 @@ const initApp = async () => {
     // 提前绑定滚动/滚轮监听，确保无需点击即可触发阶段推进
     setupScrollListeners()
     
+    // 模拟加载时间，然后隐藏预加载器
+    setTimeout(() => {
+      const preloader = document.getElementById('pre-load')
+      if (preloader) {
+        preloader.classList.add('fade-out')
+        setTimeout(() => {
+          isLoading.value = false
+        }, 800) // 等待淡出动画完成
+      } else {
+        isLoading.value = false
+      }
+    }, 2500) // 2.5秒后开始隐藏预加载器
+    
     // 初始化打字效果
     setTimeout(() => {
       if (!hasTyped) {
         hasTyped = true
         startTypewriter()
       }
-    }, 1000)
+    }, 3000) // 预加载完成后再开始打字效果
     
   } catch (error) {
     console.error('初始化失败:', error)
+    // 即使出错也要隐藏预加载器
+    isLoading.value = false
   }
 }
 
@@ -701,6 +767,9 @@ onUnmounted(() => {
     clearTimeout(wheelTimeout)
     wheelTimeout = null
   }
+  
+  // 确保预加载器被隐藏
+  isLoading.value = false
 })
 
 </script>
@@ -1095,6 +1164,475 @@ onUnmounted(() => {
 }
 
 /* 节选作品相关样式已迁移到 FeaturedWorks 组件 */
+
+/* ========== 霓虹玻璃导航栏样式 ========== */
+
+/* 导航栏基础样式 */
+.neon-navbar {
+  --navbar-hue1: 280;
+  --navbar-hue2: 220;
+  --navbar-border: 1px;
+  --navbar-border-color: hsl(var(--navbar-hue2), 12%, 20%);
+  --navbar-radius: 0px;
+  
+  background: linear-gradient(135deg, 
+    hsl(var(--navbar-hue1) 50% 10% / 0.85), 
+    hsl(var(--navbar-hue1) 50% 10% / 0.6) 33%), 
+    linear-gradient(45deg, 
+    hsl(var(--navbar-hue2) 50% 10% / 0.8), 
+    hsl(var(--navbar-hue2) 50% 10% / 0.4) 33%), 
+    linear-gradient(hsl(220deg 25% 4.8% / 0.9));
+  backdrop-filter: blur(16px);
+  border-bottom: var(--navbar-border) solid var(--navbar-border-color);
+  box-shadow: 
+    hsl(var(--navbar-hue2) 50% 2%) 0px 8px 24px -8px, 
+    hsl(var(--navbar-hue2) 50% 4%) 0px 16px 32px -12px,
+    0 1px 0 rgba(255, 255, 255, 0.1) inset;
+  
+  position: relative;
+  overflow: hidden;
+}
+
+/* 发光效果 */
+.navbar-shine,
+.navbar-glow {
+  --hue: var(--navbar-hue1);
+  pointer-events: none;
+  position: absolute;
+  opacity: 0.8;
+}
+
+.navbar-shine-left,
+.navbar-glow-left {
+  --hue: var(--navbar-hue1);
+  left: 0;
+  top: 0;
+}
+
+.navbar-shine-right,
+.navbar-glow-right {
+  --hue: var(--navbar-hue2);
+  right: 0;
+  top: 0;
+}
+
+.navbar-shine {
+  width: 200px;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(var(--hue), 70%, 60%, 0.2) 30%,
+    hsl(var(--hue), 80%, 70%, 0.3) 50%,
+    hsl(var(--hue), 70%, 60%, 0.2) 70%,
+    transparent
+  );
+  animation: navbarShine 8s ease-in-out infinite;
+}
+
+.navbar-glow {
+  width: 300px;
+  height: 100%;
+  background: radial-gradient(
+    ellipse 150px 100% at center,
+    hsl(var(--hue), 60%, 50%, 0.15),
+    transparent 70%
+  );
+  filter: blur(8px);
+  animation: navbarGlow 6s ease-in-out infinite;
+}
+
+.navbar-shine-right {
+  animation-delay: 2s;
+}
+
+.navbar-glow-right {
+  animation-delay: 3s;
+}
+
+/* 品牌文字样式 */
+.neon-brand {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.5rem;
+  text-shadow: 
+    0 0 10px hsl(var(--navbar-hue1), 70%, 60%, 0.8),
+    0 0 20px hsl(var(--navbar-hue1), 70%, 60%, 0.6),
+    0 0 30px hsl(var(--navbar-hue1), 70%, 60%, 0.4);
+  animation: brandGlow 4s ease-in-out infinite;
+}
+
+/* 导航链接样式 */
+.neon-nav-link {
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.neon-nav-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(var(--navbar-hue2), 60%, 60%, 0.2),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.neon-nav-link:hover {
+  color: #ffffff;
+  border-color: hsl(var(--navbar-hue2), 40%, 50%, 0.5);
+  background: linear-gradient(
+    135deg,
+    hsl(var(--navbar-hue1), 50%, 15%, 0.3),
+    hsl(var(--navbar-hue2), 50%, 15%, 0.2)
+  );
+  text-shadow: 
+    0 0 8px hsl(var(--navbar-hue2), 70%, 60%, 0.6),
+    0 0 16px hsl(var(--navbar-hue2), 70%, 60%, 0.4);
+  box-shadow: 
+    0 0 16px hsl(var(--navbar-hue2), 50%, 50%, 0.3),
+    0 4px 8px rgba(0, 0, 0, 0.2) inset;
+}
+
+.neon-nav-link:hover::before {
+  left: 100%;
+}
+
+/* 控制按钮样式 */
+.neon-control-button {
+  color: rgba(255, 255, 255, 0.85);
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid hsl(var(--navbar-hue2), 40%, 30%, 0.5);
+  background: linear-gradient(
+    135deg,
+    hsl(var(--navbar-hue1), 50%, 10%, 0.4),
+    hsl(var(--navbar-hue2), 50%, 10%, 0.3)
+  );
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.neon-control-button:hover {
+  color: #ffffff;
+  border-color: hsl(var(--navbar-hue2), 50%, 50%, 0.7);
+  background: linear-gradient(
+    135deg,
+    hsl(var(--navbar-hue1), 50%, 15%, 0.6),
+    hsl(var(--navbar-hue2), 50%, 15%, 0.5)
+  );
+  box-shadow: 
+    0 0 12px hsl(var(--navbar-hue2), 60%, 50%, 0.4),
+    0 2px 4px rgba(0, 0, 0, 0.3) inset;
+}
+
+/* 动画关键帧 */
+@keyframes navbarShine {
+  0%, 100% {
+    opacity: 0.3;
+    transform: translateX(-20px);
+  }
+  50% {
+    opacity: 0.8;
+    transform: translateX(20px);
+  }
+}
+
+@keyframes navbarGlow {
+  0%, 100% {
+    opacity: 0.2;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes brandGlow {
+  0%, 100% {
+    text-shadow: 
+      0 0 10px hsl(var(--navbar-hue1), 70%, 60%, 0.8),
+      0 0 20px hsl(var(--navbar-hue1), 70%, 60%, 0.6),
+      0 0 30px hsl(var(--navbar-hue1), 70%, 60%, 0.4);
+  }
+  50% {
+    text-shadow: 
+      0 0 15px hsl(var(--navbar-hue1), 80%, 70%, 1.0),
+      0 0 30px hsl(var(--navbar-hue1), 80%, 70%, 0.8),
+      0 0 45px hsl(var(--navbar-hue1), 80%, 70%, 0.6);
+  }
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+  .neon-navbar {
+    --navbar-hue1: 260;
+    --navbar-hue2: 200;
+  }
+  
+  .navbar-shine,
+  .navbar-glow {
+    width: 150px;
+  }
+  
+  .neon-brand {
+    font-size: 1.25rem;
+  }
+  
+  .neon-nav-link {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-shine,
+  .navbar-glow {
+    display: none; /* 移动端禁用发光效果以提升性能 */
+  }
+}
+
+/* ========== 预加载器样式 ========== */
+
+#pre-load {
+  background: linear-gradient(135deg, #000000, #1a1a2e, #16213e);
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999;
+  backdrop-filter: blur(10px);
+  transition: all 0.8s ease-out;
+}
+
+#pre-load.fade-out {
+  opacity: 0;
+  visibility: hidden;
+}
+
+#pre-load .loader-inner {
+  --loader-background: linear-gradient(0deg, rgba(50, 50, 50, 0.2) 0%, rgba(100, 100, 100, 0.2) 100%);
+  position: relative;
+  height: 250px;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#pre-load .loader-inner .loader-logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: logoGlow 2s infinite ease-in-out;
+  z-index: 999;
+  border-radius: 50%;
+  background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#pre-load .loader-inner .loader-logo .logo-img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+}
+
+#pre-load .loader-inner .box {
+  position: absolute;
+  background: var(--loader-background);
+  border-radius: 50%;
+  border-top: 1px solid rgb(100, 100, 100);
+  box-shadow: rgba(0, 0, 0, 0.3) 0 10px 10px 0;
+  backdrop-filter: blur(5px);
+  animation: ripple 2s infinite ease-in-out;
+}
+
+#pre-load .loader-inner .box:nth-child(2) {
+  width: 25%;
+  aspect-ratio: 1/1;
+  z-index: 99;
+}
+
+#pre-load .loader-inner .box:nth-child(3) {
+  inset: 30%;
+  z-index: 98;
+  border-color: rgba(100, 100, 100, 0.8);
+  animation-delay: 0.2s;
+}
+
+#pre-load .loader-inner .box:nth-child(4) {
+  inset: 20%;
+  z-index: 97;
+  border-color: rgba(100, 100, 100, 0.6);
+  animation-delay: 0.4s;
+}
+
+#pre-load .loader-inner .box:nth-child(5) {
+  inset: 10%;
+  z-index: 96;
+  border-color: rgba(100, 100, 100, 0.4);
+  animation-delay: 0.6s;
+}
+
+#pre-load .loader-inner .box:nth-child(6) {
+  inset: 0;
+  z-index: 95;
+  border-color: rgba(100, 100, 100, 0.2);
+  animation-delay: 0.8s;
+}
+
+/* 导航栏 Logo 样式 */
+.brand-logo {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+  animation: brandLogoGlow 3s ease-in-out infinite;
+}
+
+/* 预加载器动画 */
+@keyframes ripple {
+  0% {
+    transform: scale(1);
+    box-shadow: rgba(0, 0, 0, 0.3) 0 10px 10px 0;
+  }
+  50% {
+    transform: scale(1.3);
+    box-shadow: rgba(0, 0, 0, 0.3) 0 30px 20px 0;
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: rgba(0, 0, 0, 0.3) 0 10px 10px 0;
+  }
+}
+
+@keyframes logoGlow {
+  0% {
+    opacity: 0.7;
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.05);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.6);
+  }
+  100% {
+    opacity: 0.7;
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  }
+}
+
+@keyframes brandLogoGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6));
+    transform: scale(1.05);
+  }
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+  #pre-load .loader-inner {
+    height: 200px;
+  }
+  
+  #pre-load .loader-inner .loader-logo {
+    width: 60px;
+    height: 60px;
+  }
+  
+  #pre-load .loader-inner .loader-logo .logo-img {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .brand-logo {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  #pre-load .loader-inner {
+    height: 180px;
+  }
+  
+  .brand-logo {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* ========== 语言切换按钮响应式优化 ========== */
+
+@media (max-width: 1024px) {
+  .neon-navbar .flex.items-center.gap-4 {
+    gap: 0.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .neon-navbar .flex.space-x-8 {
+    display: none; /* 隐藏桌面导航，显示移动端菜单 */
+  }
+  
+  .neon-navbar .flex.items-center.gap-4 {
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .neon-navbar .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .neon-brand {
+    font-size: 1.125rem;
+  }
+  
+  .neon-brand .brand-logo {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* 移动端语言切换样式 */
+#mobile-menu .language-switcher {
+  width: 100%;
+}
+
+#mobile-menu .language-button {
+  width: 100%;
+  justify-content: space-between;
+}
 
 </style>
  
