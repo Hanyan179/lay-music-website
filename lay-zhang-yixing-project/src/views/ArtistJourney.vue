@@ -1,30 +1,15 @@
 <template>
     <div class="artist-journey">
-       <!-- 预加载器 -->
-       <div id="pre-load" class="loader" v-show="isLoading">
-         <div class="loader-inner">
-            <div class="loader-logo">
-              <!-- LAY 张艺兴专属 Logo -->
-              <img src="/img/music/logo_transparent.png" alt="LAY Logo" class="logo-img" />
-            </div>
-            <div class="box"></div>
-            <div class="box"></div>
-            <div class="box"></div>
-            <div class="box"></div>
-            <div class="box"></div>
-         </div>
-       </div>
-
-       <!-- 鼠标粒子交互背景 - 全屏效果 + 自动烟花 -->
+       <!-- 鼠标粒子交互背景 - 全屏效果，取消自动烟花 -->
        <WaterRipple 
          :maxParticles="500" 
          :disabled="false"
-         :autoFireworks="true"
+         :autoFireworks="false"
          :fireworksArea="{ left: 1, top: 2, width: 45, height: 96 }"
          :fireworksInterval="200"
          :fireworksIntensity="6"
        />
-       
+      
        <!-- 霓虹玻璃右键菜单 -->
        <NeonGlassMenu :hue1="280" :hue2="220" />
       
@@ -38,28 +23,22 @@
         
                  <div class="container mx-auto px-6 py-4 relative z-10">
           <div class="flex items-center justify-between">
-            <div class="music-brand neon-brand flex items-center gap-3">
-              <img src="/img/music/logo_transparent.png" alt="LAY Logo" class="brand-logo" />
+            <div class="music-brand neon-brand">
               LAY 张艺兴
             </div>
             <div class="flex space-x-8">
-              <a href="#home" class="nav-link neon-nav-link">{{ t('nav.home') }}</a>
-              <router-link to="/music3d" class="nav-link neon-nav-link">{{ t('nav.music') }}</router-link>
-              <router-link to="/message-wall" class="nav-link neon-nav-link">{{ t('nav.messages') }}</router-link>
-              <a href="#about" class="nav-link neon-nav-link">{{ t('nav.about') }}</a>
-              <a href="#contact" class="nav-link neon-nav-link">{{ t('nav.contact') }}</a>
+              <a href="#home" class="nav-link neon-nav-link">首页</a>
+              <router-link to="/music3d" class="nav-link neon-nav-link">音乐</router-link>
+              <router-link to="/message-wall" class="nav-link neon-nav-link">留言</router-link>
+              <a href="#about" class="nav-link neon-nav-link">关于</a>
+              <a href="#contact" class="nav-link neon-nav-link">联系</a>
             </div>
             <div class="flex items-center gap-4">
-              <!-- 语言切换按钮 -->
-              <LanguageSwitcher 
-                :current-language="currentLanguage"
-                @language-change="setLanguage"
-              />
-              <button id="menu-toggle" class="md:hidden neon-control-button" :title="t('nav.menu')">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
+              <button id="menu-toggle" class="md:hidden neon-control-button" title="菜单">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
             </div>
           </div>
         </div>
@@ -133,7 +112,7 @@
           :class="{ 'scroll-hint-visible': animationState === 1 && revealedCount >= identityTags.length && !hasScrolled }"
         >
           <div class="scroll-hint-content">
-            <span class="scroll-hint-text">{{ t('hero.scrollHint') }}</span>
+            <span class="scroll-hint-text">向下滚动查看更多</span>
           </div>
         </div>
         
@@ -144,7 +123,7 @@
           style="bottom: 4vh;"
         >
           <div class="scroll-hint-content">
-            <span class="scroll-hint-text">{{ t('hero.scrollHintMore') }}</span>
+            <span class="scroll-hint-text">继续探索更多精彩内容</span>
           </div>
         </div>
         
@@ -159,28 +138,20 @@
         <div class="absolute inset-0 bg-black bg-opacity-50" @click="closeMobileMenu"></div>
         <div class="absolute right-0 top-0 h-full w-80 bg-white shadow-xl p-6">
           <div class="flex justify-between items-center mb-8">
-            <h3 class="text-xl font-bold text-gray-900">{{ t('nav.menu') }}</h3>
-            <button @click="closeMobileMenu" class="control-button" :title="t('nav.menu')">
+            <h3 class="text-xl font-bold text-gray-900">菜单</h3>
+            <button @click="closeMobileMenu" class="control-button" title="菜单">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
             </button>
           </div>
           <nav class="space-y-6">
-            <a href="#home" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">{{ t('nav.home') }}</a>
-            <router-link to="/music3d" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">{{ t('nav.music') }}</router-link>
-            <router-link to="/message-wall" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">{{ t('nav.messages') }}</router-link>
-            <a href="#about" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">{{ t('nav.about') }}</a>
-            <a href="#contact" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">{{ t('nav.contact') }}</a>
+            <a href="#home" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">首页</a>
+            <router-link to="/music3d" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">音乐</router-link>
+            <router-link to="/message-wall" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">留言</router-link>
+            <a href="#about" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">关于</a>
+            <a href="#contact" class="block text-lg text-gray-700 hover:text-blue-500" @click="closeMobileMenu">联系</a>
           </nav>
-          
-          <!-- 移动端语言切换 -->
-          <div class="mt-8 pt-6 border-t border-gray-200">
-            <LanguageSwitcher 
-              :current-language="currentLanguage"
-              @language-change="setLanguage"
-            />
-          </div>
         </div>
       </div>
             
@@ -193,11 +164,7 @@
 import WaterRipple from '@/components/WaterRipple.vue'
 import FeaturedWorks from '@/components/FeaturedWorks.vue'
 import NeonGlassMenu from '@/components/NeonGlassMenu.vue'
-import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import identityTagsData, { artistBiography } from '@/data/identityTags'
-
-// 多语言支持
-import { useLanguage } from '@/composables/useLanguage'
 
 // 样式导入
 import '@/styles/debug.css'
@@ -210,16 +177,12 @@ import { useRouter } from 'vue-router'
 // ========== 路由和初始化 ==========
 const router = useRouter()
 
-// ========== 多语言支持 ==========
-const { currentLanguage, currentLanguageData, setLanguage, t } = useLanguage()
 
-// ========== 预加载状态管理 ==========
-const isLoading = ref(true) // 预加载状态
 
 // ========== 高级交互动效状态管理 ==========
 const animationState = ref(0) // 0: 初始, 1: 爆发, 2: 整列, 3: 简介显示
-const identityTags = computed(() => currentLanguageData.value.hero.identityTags) // 多语言身份标签
-const bioText = computed(() => currentLanguageData.value.hero.biography) // 多语言简介
+const identityTags = computed(() => identityTagsData) // 身份标签
+const bioText = computed(() => artistBiography) // 简介
 const hasScrolled = ref(false) // 用户是否已经滚动
 
 // ========== 节选作品相关状态 ==========
@@ -578,31 +541,16 @@ const initApp = async () => {
     // 提前绑定滚动/滚轮监听，确保无需点击即可触发阶段推进
     setupScrollListeners()
     
-    // 模拟加载时间，然后隐藏预加载器
-    setTimeout(() => {
-      const preloader = document.getElementById('pre-load')
-      if (preloader) {
-        preloader.classList.add('fade-out')
-        setTimeout(() => {
-          isLoading.value = false
-        }, 800) // 等待淡出动画完成
-      } else {
-        isLoading.value = false
-      }
-    }, 2500) // 2.5秒后开始隐藏预加载器
-    
     // 初始化打字效果
     setTimeout(() => {
       if (!hasTyped) {
         hasTyped = true
         startTypewriter()
       }
-    }, 3000) // 预加载完成后再开始打字效果
+    }, 500) // 页面加载后立即开始打字效果
     
   } catch (error) {
     console.error('初始化失败:', error)
-    // 即使出错也要隐藏预加载器
-    isLoading.value = false
   }
 }
 
@@ -790,9 +738,6 @@ onUnmounted(() => {
     clearTimeout(wheelTimeout)
     wheelTimeout = null
   }
-  
-  // 确保预加载器被隐藏
-  isLoading.value = false
 })
 
 </script>
@@ -1430,155 +1375,7 @@ onUnmounted(() => {
 
 /* ========== 预加载器样式 ========== */
 
-#pre-load {
-  background: linear-gradient(135deg, #000000, #1a1a2e, #16213e);
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999999;
-  backdrop-filter: blur(10px);
-  transition: all 0.8s ease-out;
-}
 
-#pre-load.fade-out {
-  opacity: 0;
-  visibility: hidden;
-}
-
-#pre-load .loader-inner {
-  --loader-background: linear-gradient(0deg, rgba(50, 50, 50, 0.2) 0%, rgba(100, 100, 100, 0.2) 100%);
-  position: relative;
-  height: 250px;
-  aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#pre-load .loader-inner .loader-logo {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 80px;
-  height: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: logoGlow 2s infinite ease-in-out;
-  z-index: 999;
-  border-radius: 50%;
-  background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-  backdrop-filter: blur(5px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-#pre-load .loader-inner .loader-logo .logo-img {
-  width: 60px;
-  height: 60px;
-  object-fit: contain;
-  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
-}
-
-#pre-load .loader-inner .box {
-  position: absolute;
-  background: var(--loader-background);
-  border-radius: 50%;
-  border-top: 1px solid rgb(100, 100, 100);
-  box-shadow: rgba(0, 0, 0, 0.3) 0 10px 10px 0;
-  backdrop-filter: blur(5px);
-  animation: ripple 2s infinite ease-in-out;
-}
-
-#pre-load .loader-inner .box:nth-child(2) {
-  width: 25%;
-  aspect-ratio: 1/1;
-  z-index: 99;
-}
-
-#pre-load .loader-inner .box:nth-child(3) {
-  inset: 30%;
-  z-index: 98;
-  border-color: rgba(100, 100, 100, 0.8);
-  animation-delay: 0.2s;
-}
-
-#pre-load .loader-inner .box:nth-child(4) {
-  inset: 20%;
-  z-index: 97;
-  border-color: rgba(100, 100, 100, 0.6);
-  animation-delay: 0.4s;
-}
-
-#pre-load .loader-inner .box:nth-child(5) {
-  inset: 10%;
-  z-index: 96;
-  border-color: rgba(100, 100, 100, 0.4);
-  animation-delay: 0.6s;
-}
-
-#pre-load .loader-inner .box:nth-child(6) {
-  inset: 0;
-  z-index: 95;
-  border-color: rgba(100, 100, 100, 0.2);
-  animation-delay: 0.8s;
-}
-
-/* 导航栏 Logo 样式 */
-.brand-logo {
-  width: 32px;
-  height: 32px;
-  object-fit: contain;
-  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
-  animation: brandLogoGlow 3s ease-in-out infinite;
-}
-
-/* 预加载器动画 */
-@keyframes ripple {
-  0% {
-    transform: scale(1);
-    box-shadow: rgba(0, 0, 0, 0.3) 0 10px 10px 0;
-  }
-  50% {
-    transform: scale(1.3);
-    box-shadow: rgba(0, 0, 0, 0.3) 0 30px 20px 0;
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: rgba(0, 0, 0, 0.3) 0 10px 10px 0;
-  }
-}
-
-@keyframes logoGlow {
-  0% {
-    opacity: 0.7;
-    transform: translate(-50%, -50%) scale(1);
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-  }
-  50% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.05);
-    box-shadow: 0 0 30px rgba(255, 255, 255, 0.6);
-  }
-  100% {
-    opacity: 0.7;
-    transform: translate(-50%, -50%) scale(1);
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-  }
-}
-
-@keyframes brandLogoGlow {
-  0%, 100% {
-    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
-    transform: scale(1);
-  }
-  50% {
-    filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.6));
-    transform: scale(1.05);
-  }
-}
 
 /* 响应式优化 */
 @media (max-width: 768px) {
