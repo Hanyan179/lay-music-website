@@ -204,7 +204,7 @@ import '@/styles/debug.css'
 import '@/styles/index.css'
 
 // Vue 核心导入
-import { onMounted, onUnmounted, ref, reactive, computed, watchEffect } from 'vue'
+import { onMounted, onUnmounted, ref, reactive, computed, watchEffect, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 // ========== 路由和初始化 ==========
@@ -244,7 +244,30 @@ let wheelTimeout: number | null = null // 用于重置加速等级的计时器
 // 渲染与物理状态
 const revealedCount = ref(0)
 interface TagPhysics { x:number; y:number; vx:number; vy:number; rotation:number; visible:boolean }
-const tagPositions = reactive<TagPhysics[]>(identityTags.value.map(() => ({ x:0, y:-100, vx:0, vy:0, rotation:0, visible:false })))
+
+// 标签物理状态数组
+const tagPositions = reactive<TagPhysics[]>([])
+
+// 初始化标签物理状态
+const initializeTagPositions = () => {
+  tagPositions.length = 0 // 清空数组
+  tagPositions.push(...identityTags.value.map(() => ({ 
+    x:0, y:-100, vx:0, vy:0, rotation:0, visible:false 
+  })))
+  revealedCount.value = 0 // 重置显示计数
+}
+
+// 监听语言切换，重新初始化标签物理状态
+watchEffect(() => {
+  if (identityTags.value.length > 0) {
+    initializeTagPositions()
+    // 重置动画状态
+    animationState.value = 0
+    bioTypingCompleted.value = false
+    hasScrolled.value = false
+    hasScrolledToCarousel.value = false
+  }
+})
 
 const identityTagsArea = ref<HTMLElement | null>(null)
 
