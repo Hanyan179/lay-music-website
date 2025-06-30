@@ -4,6 +4,9 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 const routes: RouteRecordRaw[] = [
   { path: '/',                 name: 'ArtistJourney',       component: () => import('@/views/ArtistJourney.vue') },
   
+  /* 主页 */
+  { path: '/home',             name: 'HomePage',            component: () => import('@/views/HomePage.vue') },
+  
   /* 移动端页面 */
   { path: '/mobile',           name: 'MobileArtistJourney', component: () => import('@/views/MobileArtistJourney.vue') },
 
@@ -14,7 +17,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/test-music',       name: 'testMusic',           component: () => import('@/views/TestMusic.vue') },
   
   /* 留言墙页面 */
-  { path: '/message-wall',     name: 'MessageWall',         component: () => import('@/views/MessageWall.vue') },
+  { path: '/message-wall',     name: 'MessageWall',         component: () => import('@/views/Gallery.vue') },
   
   /* 透明波纹演示页面 */
   { path: '/ripple-demo',      name: 'RippleDemo',          component: () => import('@/views/RippleDemo.vue') },

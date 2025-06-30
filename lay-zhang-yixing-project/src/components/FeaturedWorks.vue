@@ -83,7 +83,7 @@
           :src="selectedWork.src" 
           controls 
           autoplay
-          class="modal-video w-[95vw] h-[90vh] object-contain"
+          class="modal-video w-[95vw] h-[120vh] object-contain"
           @loadstart="handleVideoLoadStart"
           @canplay="handleVideoCanPlay"
           @error="handleVideoError"
@@ -517,7 +517,7 @@ onUnmounted(() => {
   border-radius: clamp(0.8rem, 1vw, 1.2rem);
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
   max-width: 95vw;
-  max-height: 90vh;
+  max-height: 120vh;
 }
 
 /* 加载动画 */
